@@ -108,8 +108,40 @@ func TestEnvironmentAllowsSetupWithoutKeys(t *testing.T) {
 	if services.LanguageStatus(context.Background()).Online || services.NavigationStatus(context.Background()).Online {
 		t.Fatal("missing credentials reported connected")
 	}
+	if _, err := services.Next(context.Background(), domain.Seeds()[0], "Who?", model, "", "en", nil); err == nil {
+		t.Fatal("missing generation key accepted")
+	}
+	if _, err := services.Rank(context.Background(), domain.Seeds()[0], "Who?", navigation); err == nil {
+		t.Fatal("missing navigation key accepted")
+	}
 	t.Setenv("OPENAI_BASE_URL", "https://user:secret@example.com/v1")
 	if _, err := FromEnvironment(); err == nil {
 		t.Fatal("URL-embedded credentials accepted")
+	}
+}
+
+func TestEnvironmentSelectsModelsAndKeysAtStartup(t *testing.T) {
+	t.Setenv("OPENAI_API_KEY", "environment-openai-test")
+	t.Setenv("JEV_TOKEN", "environment-jev-test")
+	t.Setenv("OPENAI_MODEL", "server-generation-model")
+	t.Setenv("JEV_MODEL", "server-navigation-model")
+	t.Setenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+	t.Setenv("JEV_BASE_URL", "https://api.typesafe.ai/v1")
+	t.Setenv("OPENAI_REASONING_EFFORT", "medium")
+	services, err := FromEnvironment()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("OPENAI_API_KEY", "changed-after-startup")
+	t.Setenv("OPENAI_MODEL", "changed-after-startup")
+	model, navigation := services.Models()
+	if model != "server-generation-model" || navigation != "server-navigation-model" || services.OpenAIKey != "environment-openai-test" || services.JevToken != "environment-jev-test" {
+		t.Fatal("startup configuration was not retained")
+	}
+	raw, _ := json.Marshal(services.PublicConfig())
+	for _, secret := range []string{services.OpenAIKey, services.JevToken} {
+		if strings.Contains(string(raw), secret) {
+			t.Fatal("environment key leaked in public configuration")
+		}
 	}
 }

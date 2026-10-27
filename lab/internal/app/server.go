@@ -54,7 +54,6 @@ func New(repo domain.Repository, services *models.Runtime, sources SourceRegistr
 	s.Mux.HandleFunc("POST /api/databases", s.importDatabase)
 	s.Mux.HandleFunc("GET /api/databases/{id}/schema", s.databaseSchema)
 	s.Mux.HandleFunc("GET /api/status", s.status)
-	s.Mux.HandleFunc("POST /api/credentials", s.configureCredentials)
 	s.Mux.HandleFunc("GET /api/config", func(w http.ResponseWriter, r *http.Request) { reply(w, 200, s.Models.PublicConfig()) })
 	s.Mux.HandleFunc("GET /api/examples", func(w http.ResponseWriter, r *http.Request) { reply(w, 200, domain.Seeds()) })
 	sub, _ := fs.Sub(web, "web")
@@ -225,14 +224,12 @@ func (s *Server) evaluate(ctx context.Context, g domain.Graph, text string) (spa
 }
 
 type request struct {
-	Question        string         `json:"question"`
-	Model           string         `json:"model"`
-	Focus           string         `json:"focus"`
-	Language        string         `json:"language,omitempty"`
-	NavigationModel string         `json:"navigationModel,omitempty"`
-	UseNavigation   *bool          `json:"useNavigation,omitempty"`
-	MeasureTime     bool           `json:"measureTime,omitempty"`
-	Events          []models.Event `json:"events"`
+	Question      string         `json:"question"`
+	Focus         string         `json:"focus"`
+	Language      string         `json:"language,omitempty"`
+	UseNavigation *bool          `json:"useNavigation,omitempty"`
+	MeasureTime   bool           `json:"measureTime,omitempty"`
+	Events        []models.Event `json:"events"`
 }
 
 func (b request) usesNavigation() bool {
@@ -260,7 +257,8 @@ func (s *Server) route(w http.ResponseWriter, r *http.Request) {
 	var err error
 	navigationStart := time.Now()
 	if b.usesNavigation() {
-		d, err = s.Decisions.Rank(r.Context(), g, b.Question, b.Model)
+		_, navigationModel := s.Models.Models()
+		d, err = s.Decisions.Rank(r.Context(), g, b.Question, navigationModel)
 	}
 	if err != nil {
 		s.failStep(w, err, b.MeasureTime, start, models.Timing{NavigationMS: elapsedMS(navigationStart)}, &models.Event{Navigation: &d})
@@ -275,8 +273,8 @@ func (s *Server) route(w http.ResponseWriter, r *http.Request) {
 	reply(w, 200, d)
 }
 func validRequest(w http.ResponseWriter, b request) bool {
-	if strings.TrimSpace(b.Question) == "" || len(b.Question) > 2000 || strings.TrimSpace(b.Model) == "" || len(b.Model) > 160 || len(b.Events) > 8 {
-		fail(w, 422, errors.New("se requieren pregunta y modelo válidos; máximo 8 pasos"))
+	if strings.TrimSpace(b.Question) == "" || len(b.Question) > 2000 || len(b.Events) > 8 {
+		fail(w, 422, errors.New("se requiere una pregunta válida; máximo 8 pasos"))
 		return false
 	}
 	return true
@@ -316,10 +314,7 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 		events = append(events, ev)
 	}
 	timing.ReplayMS = elapsedMS(replayStart)
-	navigationModel := b.NavigationModel
-	if navigationModel == "" {
-		_, navigationModel = s.Models.Models()
-	}
+	model, navigationModel := s.Models.Models()
 	navigationState := b.Question
 	if len(events) > 0 {
 		last := events[len(events)-1]
@@ -347,10 +342,10 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 		focus = d.Choice
 	}
 	generationStart := time.Now()
-	a, err := s.Language.Next(r.Context(), g, b.Question, b.Model, focus, b.Language, events)
+	a, err := s.Language.Next(r.Context(), g, b.Question, model, focus, b.Language, events)
 	timing.GenerationMS = elapsedMS(generationStart)
 	if err != nil {
-		s.failStep(w, err, b.MeasureTime, start, timing, &models.Event{Navigation: navigation, Generation: s.Models.Trace(b.Model, a)})
+		s.failStep(w, err, b.MeasureTime, start, timing, &models.Event{Navigation: navigation, Generation: s.Models.Trace(model, a)})
 		return
 	}
 	var event models.Event
@@ -362,7 +357,7 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 	}
 	timing.ToolMS = elapsedMS(toolStart)
 	event.Navigation = navigation
-	event.Generation = s.Models.Trace(b.Model, a)
+	event.Generation = s.Models.Trace(model, a)
 	if b.MeasureTime {
 		timing.TotalMS = elapsedMS(start)
 		event.Timing = &timing
@@ -561,19 +556,4 @@ func (s *Server) importDatabase(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.store(w, r, &g, 201)
-}
-
-// This endpoint is covered by the same loopback and same-origin boundary as all
-// graph mutations. It never returns keys; hosted deployments need admin access.
-func (s *Server) configureCredentials(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
-	var update models.Credentials
-	if !decode(w, r, &update) {
-		return
-	}
-	if err := s.Models.SaveCredentials(update); err != nil {
-		fail(w, 422, err)
-		return
-	}
-	reply(w, 200, s.Models.PublicConfig())
 }

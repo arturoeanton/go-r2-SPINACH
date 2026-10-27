@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/domain"
@@ -78,10 +77,9 @@ type LanguageModel interface {
 	Next(context.Context, domain.Graph, string, string, string, string, []Event) (Action, error)
 }
 
-// Runtime connects only to the Jev and OpenAI APIs. Credentials stay server-side.
+// Runtime connects only to the Jev and OpenAI APIs. Configuration is loaded once
+// at startup from the server environment and is immutable while serving requests.
 type Runtime struct {
-	mu                                                                       sync.RWMutex
-	credentials                                                              CredentialStore
 	JevURL, OpenAIURL, DefaultModel, DefaultNavigationModel, ReasoningEffort string
 	JevToken                                                                 string `json:"-"`
 	OpenAIKey                                                                string `json:"-"`
@@ -149,14 +147,13 @@ func (l *Runtime) call(ctx context.Context, base, path string, body any, dest an
 	return json.Unmarshal(raw, dest)
 }
 func (l *Runtime) Rank(ctx context.Context, g domain.Graph, question, model string) (Decision, error) {
-	return l.snapshot().rank(ctx, g, question, model)
+	return l.rank(ctx, g, question, model)
 }
 func (l *Runtime) Next(ctx context.Context, g domain.Graph, question, model, focus, responseLanguage string, events []Event) (Action, error) {
-	services := l.snapshot()
-	if services.OpenAIKey == "" {
-		return Action{}, errors.New("configure the OpenAI API key in Model connections")
+	if l.OpenAIKey == "" {
+		return Action{}, errors.New("the server's OpenAI connection is not configured")
 	}
-	return services.next(ctx, g, question, model, focus, responseLanguage, events)
+	return l.next(ctx, g, question, model, focus, responseLanguage, events)
 }
 func (l *Runtime) rank(ctx context.Context, g domain.Graph, question, model string) (Decision, error) {
 	d := Decision{Model: model, Candidates: []Candidate{}, Source: "jev"}
@@ -169,7 +166,7 @@ func (l *Runtime) rank(ctx context.Context, g domain.Graph, question, model stri
 		return d, nil
 	}
 	if l.JevToken == "" {
-		return d, errors.New("configure the Jev API key in Model connections")
+		return d, errors.New("the server's Jev connection is not configured")
 	}
 	criteria := map[string]string{}
 	for _, s := range g.Subgraphs {

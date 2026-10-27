@@ -47,21 +47,16 @@ func FromEnvironment() (*Runtime, error) {
 	return l, nil
 }
 func (l *Runtime) Models() (string, string) {
-	services := l.snapshot()
-	return services.DefaultModel, services.DefaultNavigationModel
+	return l.DefaultModel, l.DefaultNavigationModel
 }
 func (l *Runtime) PublicConfig() map[string]any {
-	services := l.snapshot()
-	model, nav := services.Models()
-	return map[string]any{"provider": "openai", "navigationProvider": "jev", "generationLabel": "OpenAI", "navigationLabel": "Jev", "defaults": map[string]string{"generation": model, "navigation": nav}, "credentials": map[string]bool{"generation": services.OpenAIKey != "", "navigation": services.JevToken != ""}}
+	model, nav := l.Models()
+	return map[string]any{"provider": "openai", "navigationProvider": "jev", "generationLabel": "OpenAI", "navigationLabel": "Jev", "defaults": map[string]string{"generation": model, "navigation": nav}}
 }
 func (l *Runtime) NavigationStatus(ctx context.Context) ServiceStatus {
-	return l.snapshot().navigationStatus(ctx)
-}
-func (l *Runtime) navigationStatus(ctx context.Context) ServiceStatus {
 	s := ServiceStatus{URL: l.JevURL, Models: []string{}}
 	if l.JevToken == "" {
-		s.Error = "Configure the Jev API key."
+		s.Error = "The server's Jev connection is not configured."
 		return s
 	}
 	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
@@ -83,12 +78,9 @@ func (l *Runtime) navigationStatus(ctx context.Context) ServiceStatus {
 	return s
 }
 func (l *Runtime) LanguageStatus(ctx context.Context) ServiceStatus {
-	return l.snapshot().languageStatus(ctx)
-}
-func (l *Runtime) languageStatus(ctx context.Context) ServiceStatus {
 	s := ServiceStatus{URL: l.OpenAIURL, Models: []string{}}
 	if l.OpenAIKey == "" {
-		s.Error = "Configure the OpenAI API key."
+		s.Error = "The server's OpenAI connection is not configured."
 		return s
 	}
 	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)

@@ -23,7 +23,6 @@ import (
 func main() {
 	addr := flag.String("addr", "127.0.0.1:8090", "dirección local")
 	dbPath := flag.String("db", "data/spinach.db", "archivo SQLite")
-	credentialPath := flag.String("credentials", "", "private API credential file; defaults beside the database")
 	envPath := flag.String("env", ".env", "optional environment file")
 	flag.Parse()
 	if err := config.LoadEnv(*envPath); err != nil {
@@ -57,13 +56,6 @@ func main() {
 	}
 	services, err := models.FromEnvironment()
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	if *credentialPath == "" {
-		*credentialPath = filepath.Join(filepath.Dir(*dbPath), "model-credentials.json")
-	}
-	if err := services.AttachCredentials(storage.FileCredentials{Path: *credentialPath}); err != nil {
 		log.Fatal(err)
 	}
 

@@ -15,21 +15,21 @@ const palette=[['#87a56b','#edf3e4','#dbe6cf'],['#ae91cd','#f3eef9','#e7ddf2'],[
 let state={graphs:[],g:null,dirty:false,selected:null,focus:null,multi:new Set(),tool:'move',linkFrom:null,undo:[],redo:[],result:null,run:null,busy:false};
 let view={x:0,y:0,k:1},drag=null,toastTimer,runController=null,runVersion=0,status=null;
 let providers={provider:'openai',navigationProvider:'jev',generationLabel:'OpenAI',navigationLabel:'Jev'};
-let prefs={generation:'gpt-5',navigation:'jev-latest'};
+
 const generatorName=()=>providers.generationLabel,navigatorName=()=>providers.navigationLabel;
 let runPrefs={useNavigation:true,measureTime:true};try{let saved=JSON.parse(localStorage.getItem('spinach-run-options')||'{}');for(let key of Object.keys(runPrefs))if(typeof saved[key]==='boolean')runPrefs[key]=saved[key]}catch{}
 async function configureModels(){
-  providers=await api('/config');prefs={...providers.defaults};
+  providers=await api('/config');
+  $('generation-model').textContent=providers.generationLabel+' · '+providers.defaults.generation;
+  $('navigation-model').textContent=providers.navigationLabel+' · '+providers.defaults.navigation;
   renderRunOptions();
 }
 const on=(id,ev,fn)=>$(id).addEventListener(ev,e=>Promise.resolve(fn(e)).catch(showError));
 async function api(path,body,method,signal){const res=await fetch('/api'+path,{method:method||(body?'POST':'GET'),headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal});let data;try{data=await res.json()}catch{throw Error('La respuesta del servidor no es válida. Abrí la app desde su servidor local.')};if(!res.ok){let error=Error(data.error||`Error ${res.status}`);error.timing=data.timing;error.trace=data.trace;throw error;}return data}
 function toast(message,error=false){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.toggle('error',error);$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,error?8000:3500)}
 function showError(e){if(e.name!=='AbortError')toast(e.message||String(e),true)}
-function modal(title,html){$('modal').classList.remove('connections-dialog');$('modal-title').textContent=title;$('modal-body').innerHTML=html;if(!$('modal').open)$('modal').showModal();$('modal-body').querySelector('input,textarea,select,button')?.focus()}
-function clearSecretFields(){$('modal-body').querySelectorAll('input[type="password"]').forEach(input=>input.value='')}
-function closeModal(){clearSecretFields();$('modal').close()}
-on('modal','close',clearSecretFields);
+function modal(title,html){$('modal-title').textContent=title;$('modal-body').innerHTML=html;if(!$('modal').open)$('modal').showModal();$('modal-body').querySelector('input,textarea,select,button')?.focus()}
+function closeModal(){$('modal').close()}
 on('modal-close','click',closeModal);on('modal','click',e=>{if(e.target===$('modal')){let r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeModal()}});
 function field(label,name,value='',extra=''){return `<label class="form-field">${label}<input name="${name}" value="${esc(value)}" ${extra}></label>`}
 function form(title,fields,save,label='Guardar',secondary=''){modal(title,`<form id="edit-form">${fields}<div id="form-error" class="form-error" hidden></div><div class="modal-actions">${secondary}<button type="button" class="button white" id="form-cancel">Cancelar</button><button class="button primary" type="submit">${label}</button></div></form>`);$('form-cancel').onclick=closeModal;$('edit-form').onsubmit=async e=>{e.preventDefault();let button=e.submitter;button.disabled=true;try{await save(new FormData(e.target));closeModal()}catch(err){$('form-error').hidden=false;$('form-error').textContent=err.message;button.disabled=false}}}
@@ -145,7 +145,7 @@ async function startRun(){
   let question=$('question-input').value.trim();
   if(!question)throw Error('Escribí una pregunta o elegí un ejemplo');
   stopRun(false);state.result=null;renderResults();state.focus=null;render();
-  let r=state.run={mode:'ai',question,index:0,events:[],traces:[],done:false,error:false,auto:false,useNavigation:runPrefs.useNavigation,measureTime:runPrefs.measureTime,metrics:createMetrics(),model:prefs.generation,navigationModel:prefs.navigation};
+  let r=state.run={mode:'ai',question,index:0,events:[],traces:[],done:false,error:false,auto:false,useNavigation:runPrefs.useNavigation,measureTime:runPrefs.measureTime,metrics:createMetrics()};
   let start=performance.now();
   runController=new AbortController();let version=runVersion;renderJourney();$('answer-box').hidden=true;
   if(!r.useNavigation){
@@ -154,7 +154,7 @@ async function startRun(){
   }
   state.busy=true;renderJourney();detail(navigatorName()+' '+t('está comparando los subgrafos disponibles…'));
   try{
-    let d=await journeyRequest(r,t('Selección inicial')+' · '+navigatorName(),()=>api('/graphs/'+state.g.id+'/route',{question,model:r.navigationModel,useNavigation:r.useNavigation,measureTime:r.measureTime},undefined,runController.signal));
+    let d=await journeyRequest(r,t('Selección inicial')+' · '+navigatorName(),()=>api('/graphs/'+state.g.id+'/route',{question,useNavigation:r.useNavigation,measureTime:r.measureTime},undefined,runController.signal));
     if(version!==runVersion)return;
     r.decision=d;state.focus=d.choice;render();
     recordStep(r,{title:'Elegir subgrafo',actor:d.source==='regla'?'Regla, sin inferencia':navigatorName(),navigation:d,timing:d.timing,outcome:'Subgrafo elegido: '+(state.g.subgraphs.find(s=>s.id===d.choice)?.name||'Todo el universo')},start,0);
@@ -169,7 +169,7 @@ async function nextStep(){
   try{
       if(r.events.length>=8)throw Error('Se alcanzó el límite de 8 acciones. Revisá los resultados o iniciá otro recorrido.');
       detail(generatorName()+' '+t('está eligiendo la próxima acción…'));
-      let ev=await journeyRequest(r,t('Acción')+' · '+generatorName(),()=>api('/graphs/'+state.g.id+'/step',{question:r.question,model:r.model,navigationModel:r.navigationModel,useNavigation:r.useNavigation,measureTime:r.measureTime,language:language(),events:r.events},undefined,runController.signal));
+      let ev=await journeyRequest(r,t('Acción')+' · '+generatorName(),()=>api('/graphs/'+state.g.id+'/step',{question:r.question,useNavigation:r.useNavigation,measureTime:r.measureTime,language:language(),events:r.events},undefined,runController.signal));
       if(version!==runVersion)return;
       r.events.push(ev);r.index=r.events.length;
       trace={...ev,title:actionTitle(ev.action.type),actor:(r.useNavigation?navigatorName()+' → ':'')+generatorName()};
@@ -196,22 +196,7 @@ async function runAll(){
   }finally{r.auto=false;if(r.fatal&&!r.done)r.paused=true;if(state.run===r)renderJourney()}
 }
 function showAnswer(text,label){$('answer-box').hidden=false;$('answer-box').innerHTML=`<strong>${esc(label)}</strong><p>${esc(text)}</p>`}
-async function checkStatus(){status=await api('/status');let online=status.generation.online&&(!runPrefs.useNavigation||status.navigation.online);$('model-status').innerHTML=`<i class="dot ${online?'':'amber'}"></i><span>${online?'Servicios conectados':'Conexiones de modelos'}</span>${icon('chevron',true)}`;return status}
-async function settings(){
-  modal('Conexiones de modelos','<div class="help-copy">Comprobando los servicios…</div>');
-  let s=await checkStatus();if(!$('modal').open)return;
-  let card=(key,title,description,secretField)=>`<section class="model-card"><h3>${esc(title)}</h3><div class="model-info"><span><i class="dot ${s[key].online?'':'amber'}"></i>${t(s[key].online?'Servicio disponible':'Conexión pendiente')}</span></div><code>${esc(s[key].url)}</code>${s[key].error?`<p class="form-error">${esc(s[key].error)}</p>`:''}<p>${t(description)}</p>${field(t('API key'),secretField,'',`type="password" autocomplete="off" spellcheck="false" autocapitalize="none" maxlength="4096" placeholder="${esc(t(s.credentials[key]?'Configurada · dejá vacío para conservarla':'Pegá tu API key'))}"`)}<p class="small-copy muted">${t(s.credentials[key]?'Clave configurada. Nunca se muestra su valor.':'Todavía no hay una clave configurada.')}</p><div class="configured-model"><span>${t('Modelo')}</span><strong>${esc(prefs[key])}</strong></div>${s[key].models.length?`<p>${t('Modelos disponibles')}: ${s[key].models.length}</p>`:''}</section>`;
-  form('Conexiones de modelos','<div class="model-connections-grid">'+card('navigation','Jev · TypeSafe API','Selecciona subgrafos y devuelve puntuaciones para orientar la exploración.','jevApiKey')+card('generation','OpenAI · Responses API','Propone acciones y consultas SPARQL, observa los resultados y redacta una síntesis.','openaiApiKey')+'</div><p class="small-copy muted">'+t('Las claves se guardan en el servidor y no se vuelven a mostrar. Dejá un campo vacío para conservar la clave actual. La pregunta y el contexto del grafo se envían a las APIs configuradas.')+'</p>',async f=>{
-    const keys={};
-    for(const name of ['jevApiKey','openaiApiKey']){const value=f.get(name).trim();if(value)keys[name]=value}
-    if(Object.keys(keys).length){
-      try{providers=await api('/credentials',keys)}
-      finally{$('edit-form').querySelectorAll('input[type="password"]').forEach(input=>input.value='')}
-    }
-    checkStatus().catch(()=>{});toast('Conexiones guardadas');
-  });
-  $('modal').classList.add('connections-dialog');
-}
+async function checkStatus(){status=await api('/status');let online=status.generation.online&&(!runPrefs.useNavigation||status.navigation.online);$('model-status').innerHTML=`<i class="dot ${online?'':'amber'}"></i><span>${t(online?'Servicios conectados':'Conexión pendiente')}</span>`;return status}
 function learn(){modal('El conocimiento es un recorrido',`<div class="help-copy"><p>SPINACH explora una base de conocimiento, ejecuta consultas y usa los resultados para decidir cómo continuar. Este laboratorio adapta esa idea para que puedas observar y modificar cada paso.</p>${learningSteps.map(([t,d],i)=>`<div class="help-step"><b>0${i+1}</b><div><strong>${t}</strong><p>${d}.</p></div></div>`).join('')}<h3>Un grafo que podés tocar</h3><p>Arrastrá los nodos para ordenarlos. Usá <strong>Conectar</strong> para crear relaciones. Hacé doble clic en un nodo para editarlo. Con <strong>Shift + clic</strong> podés seleccionar varios y reunirlos en un subgrafo. Guardá los cambios para conservarlos en SQLite.</p><h3>Lo que muestra la app</h3><p>Las acciones, consultas y resultados son observables. Los textos pedagógicos describen esas acciones; no son el razonamiento interno privado de un modelo.</p><p>Los universos precargados son ficticios y esta es una adaptación educativa, no una reproducción de los resultados del artículo.</p><p><a href="https://arxiv.org/abs/2407.11417" target="_blank" rel="noreferrer">Leer el artículo de SPINACH ↗</a></p></div>`)}
 function syntaxHelp(){modal('SPARQL y el motor de consultas',`<div class="help-copy"><p>El motor Go interpreta consultas SPARQL sobre RDF. El laboratorio muestra tablas para SELECT, booleanos para ASK y grafos para CONSTRUCT y DESCRIBE cuando están disponibles.</p><p>El servicio independiente permite inspeccionar una base SQLite existente y consultar su representación RDF. Los patrones compatibles se compilan a SQL; las operaciones que requieren el evaluador SPARQL se identifican en el resultado.</p><p>La cobertura validada y las limitaciones se documentan en el proyecto. El rendimiento depende de los datos, los índices y la consulta.</p><pre class="command">PREFIX ex: &lt;https://spinach.local/&gt;
 SELECT DISTINCT ?persona ?centro WHERE {
@@ -219,7 +204,7 @@ SELECT DISTINCT ?persona ?centro WHERE {
   ?persona ex:trabajaEn ?centro .
   ?centro ex:ubicadoEn ex:paris .
 }</pre></div>`)}
-on('save-button','click',async()=>{await saveGraph();toast('Cambios guardados en SQLite')});on('add-node','click',()=>editNode());on('move-tool','click',()=>{state.tool='move';state.linkFrom=null;render()});on('link-tool','click',()=>{state.tool=state.tool==='link'?'move':'link';state.linkFrom=null;render()});on('add-subgraph','click',()=>editSubgraph());on('all-subgraphs','click',()=>{state.focus=null;render()});on('undo-button','click',()=>{if(!state.undo.length)return;state.redo.push(clone(state.g));let rev=state.g.revision;state.g=state.undo.pop();state.g.revision=rev;changed()});on('redo-button','click',()=>{if(!state.redo.length)return;state.undo.push(clone(state.g));let rev=state.g.revision;state.g=state.redo.pop();state.g.revision=rev;changed()});on('zoom-in','click',()=>zoom(1.2));on('zoom-out','click',()=>zoom(1/1.2));on('fit-button','click',fit);on('layout-button','click',layout);on('edit-graph','click',editGraph);on('new-graph','click',newGraph);on('database-button','click',()=>databaseForm({form,api,loadGraphs,state,toast,esc,field}));on('import-button','click',importGraph);on('export-button','click',exportGraph);on('query-tab','click',()=>tab('query'));on('results-tab','click',()=>tab('results'));on('start-run','click',startRun);on('next-step','click',nextStep);on('cancel-run','click',()=>stopRun());on('model-status','click',settings);on('nav-settings','click',settings);on('nav-learn','click',learn);on('learn-button','click',learn);on('nav-lab','click',()=>window.scrollTo({top:0,behavior:'smooth'}));on('syntax-help','click',syntaxHelp);
+on('save-button','click',async()=>{await saveGraph();toast('Cambios guardados en SQLite')});on('add-node','click',()=>editNode());on('move-tool','click',()=>{state.tool='move';state.linkFrom=null;render()});on('link-tool','click',()=>{state.tool=state.tool==='link'?'move':'link';state.linkFrom=null;render()});on('add-subgraph','click',()=>editSubgraph());on('all-subgraphs','click',()=>{state.focus=null;render()});on('undo-button','click',()=>{if(!state.undo.length)return;state.redo.push(clone(state.g));let rev=state.g.revision;state.g=state.undo.pop();state.g.revision=rev;changed()});on('redo-button','click',()=>{if(!state.redo.length)return;state.undo.push(clone(state.g));let rev=state.g.revision;state.g=state.redo.pop();state.g.revision=rev;changed()});on('zoom-in','click',()=>zoom(1.2));on('zoom-out','click',()=>zoom(1/1.2));on('fit-button','click',fit);on('layout-button','click',layout);on('edit-graph','click',editGraph);on('new-graph','click',newGraph);on('database-button','click',()=>databaseForm({form,api,loadGraphs,state,toast,esc,field}));on('import-button','click',importGraph);on('export-button','click',exportGraph);on('query-tab','click',()=>tab('query'));on('results-tab','click',()=>tab('results'));on('start-run','click',startRun);on('next-step','click',nextStep);on('cancel-run','click',()=>stopRun());on('nav-learn','click',learn);on('learn-button','click',learn);on('nav-lab','click',()=>window.scrollTo({top:0,behavior:'smooth'}));on('syntax-help','click',syntaxHelp);
 on('run-all','click',runAll);
 on('pause-run','click',()=>{if(state.run){state.run.auto=false;state.run.paused=true;renderJourney();detail(state.busy?'Se pausará al terminar el paso actual.':'Recorrido pausado. Podés continuar paso a paso o ejecutar todos.')}});
 for(let [id,key] of [['use-navigation','useNavigation'],['measure-time','measureTime']])on(id,'change',()=>{

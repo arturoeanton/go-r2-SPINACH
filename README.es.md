@@ -38,7 +38,7 @@ La interfaz se inicia en **inglés**. El botón **Español / English** del encab
 ### Tu primer experimento
 
 1. Abrí **Aurora Laboratory** y seleccioná la pregunta sobre física y París.
-2. Abrí **Modelos**, ingresá las claves de Jev y OpenAI si hace falta, y guardá.
+2. El operador del servidor configura Jev y OpenAI mediante variables de entorno o `.env` (ver más abajo). Los visitantes no ingresan claves ni eligen modelos.
 3. Elegí **Paso a paso** o **Ejecutar todos los pasos**. Inspeccioná el modelo, contexto, tiempo, consulta y resultados reales de cada tarjeta.
 4. Seleccioná una entidad para inspeccionar su identificador y sus conexiones.
 5. Editá una relación, guardá y repetí la pregunta para observar si cambia el resultado.
@@ -64,20 +64,18 @@ El guardado utiliza revisiones optimistas. Si otra ventana cambió el grafo, se 
 
 ### IA mediante Jev y OpenAI
 
-Toda inferencia usa APIs autenticadas. El backend Go conserva las credenciales; el navegador recibe nombres de modelos, indicadores de clave configurada o pendiente, estados de conexión y registros observables. Ninguna API devuelve las claves guardadas.
+Toda inferencia usa APIs autenticadas. El backend Go conserva las credenciales; el navegador recibe nombres de modelos, estados de conexión de solo lectura y registros observables. Las claves nunca se envían al navegador ni se devuelven mediante una API.
 
 | Función | API | Modelo predeterminado | URL base predeterminada |
 | --- | --- | --- | --- |
 | Navegación | TypeSafe System One | `jev-latest` | `https://api.typesafe.ai/v1` |
 | Acciones, propuestas SPARQL y síntesis de respuestas | OpenAI Responses | `gpt-5` | `https://api.openai.com/v1` |
 
-El backend llama a `/systemone` de Jev y `/responses` de OpenAI. **Conexiones de modelos** comprueba el catálogo autenticado `/models` de cada servicio e informa los identificadores disponibles. Los proveedores y modelos quedan fijos en la interfaz; la configuración del servidor determina los modelos predeterminados. Cada paso registra el identificador real devuelto por el servicio cuando está disponible.
+El backend llama a `/systemone` de Jev y `/responses` de OpenAI. El indicador de conexión comprueba el catálogo autenticado `/models` de cada servicio. Los proveedores y modelos están fijos para los visitantes; cada paso registra el identificador real devuelto por el servicio cuando está disponible.
 
-Abrí **Modelos → Conexiones de modelos**, pegá cada clave de API en su campo de contraseña y elegí **Guardar**. Los campos permanecen ocultos. Dejá un campo vacío para conservar su clave actual. Los cambios se aplican sin reiniciar; al volver a abrir el modal solo se informa si hay una clave configurada, con los campos vacíos. Cancelar o cerrar el diálogo limpia los secretos ingresados. No se guardan en el almacenamiento del navegador.
+**Solo el operador del servidor configura modelos y claves de API**, mediante variables de entorno del proceso y/o un archivo `.env` opcional. No hay selector de modelos, formulario de claves ni endpoint HTTP de configuración. Las solicitudes del recorrido no pueden reemplazar ninguno de los modelos. El interruptor **Usar Jev** solo activa o desactiva la navegación para comparar; no elige un modelo.
 
-El backend conserva las claves separadas de los grafos en `model-credentials.json`, junto a la base de la aplicación (permisos exclusivos del propietario, `0600`). Este archivo está excluido de Git y el frontend no lo publica. **No está cifrado en disco**: protegé la cuenta del servidor, el volumen y los respaldos. La interfaz `CredentialStore` permite reemplazar el archivo por un gestor de secretos. Usá `-credentials /ruta/privada/model-credentials.json` para elegir otra ubicación. Conservá ese directorio en almacenamiento persistente al desplegar.
-
-Un `.env` opcional permite precargar credenciales y modelos predeterminados. Copiá `.env.example` solo si todavía no existe `.env`. Se carga desde el directorio de trabajo; las variables del proceso tienen prioridad. Usá `-env /ruta/config.env` para otro archivo. Las claves guardadas desde el modal reemplazan las precargadas en los siguientes inicios. Los cambios de entorno requieren reiniciar; los cambios del modal, no.
+Copiá `.env.example` solo si todavía no existe `.env` y completá las claves en el servidor. El archivo se carga desde el directorio de trabajo; las variables de entorno del proceso tienen prioridad. Usá `-env /ruta/config.env` para otro archivo. **Reiniciá el servidor después de cambiar la configuración.** Mantené `.env` privado (por ejemplo, `chmod 600 .env`); está excluido de Git. Un despliegue puede inyectar las mismas variables desde su gestor de secretos sin usar un archivo. La aplicación ya no lee ni escribe `model-credentials.json`.
 
 ```dotenv
 OPENAI_BASE_URL=https://api.openai.com/v1
@@ -89,7 +87,7 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=tu-token-jev
 ```
 
-En modo IA, la pregunta y el contexto relevante del grafo se envían a esas APIs. La interfaz lo informa antes del recorrido. Los proveedores pueden facturar el uso. La consola SPARQL manual ejecuta consultas sin inferencia de modelos. Si falta una clave necesaria, el modo IA indica qué conexión configurar; nunca sustituye automáticamente el servicio.
+En modo IA, la pregunta y el contexto relevante del grafo se envían a esas APIs. La interfaz lo informa antes del recorrido. Los proveedores pueden facturar el uso. La consola SPARQL manual ejecuta consultas sin inferencia de modelos. Si falta una clave necesaria, el modo IA informa que la conexión del servidor no está disponible; nunca sustituye automáticamente el servicio.
 
 Escribí una pregunta. El recorrido siempre usa OpenAI, con navegación de Jev activada por defecto. Cada clic en **Siguiente paso** solicita una acción: buscar, explorar, consultar o responder. Con **Usar Jev** activado, Jev prioriza las regiones antes de cada acción. El backend ejecuta las herramientas, reconstruye las observaciones anteriores con los datos actuales y exige una consulta exitosa antes de aceptar una respuesta. Esto establece que existe evidencia consultada; no prueba que cada oración generada se deduzca de ella.
 
@@ -252,7 +250,7 @@ En los universos educativos, los grafos son pequeños: se guardan como documento
 | Validación W3C de consultas/datasets/actualizaciones | 513 casos hoja aprobados y 9 fallidos contra la versión fijada de la suite. El subconjunto de Update ejecutado pasó; eso no establece conformidad completa de Update de extremo a extremo ni del protocolo. |
 | Vista del laboratorio | 400 nodos / 2.000 relaciones / 24 subgrafos; muestra hasta 500 filas con indicador explícito de vista limitada. |
 | Política de recursos del gateway | 20 segundos para consultas HTTP; presupuesto de 200.000 soluciones intermedias en el evaluador; límite de 100.000 filas en la ruta SQL. Son límites operativos, no truncamientos silenciosos presentados como éxito. |
-| Ejecución | Esta edición exige loopback local. Publicarla requiere un proxy inverso HTTPS y control de acceso; no incluye cuentas ni aislamiento multiusuario. Las claves guardadas configuran un servidor compartido. |
+| Ejecución | Esta edición exige loopback local. Publicarla requiere un proxy inverso HTTPS y control de acceso; no incluye cuentas ni aislamiento multiusuario. Las credenciales del entorno configuran un servidor compartido. |
 
 Por lo tanto, el proyecto **todavía no cumple el objetivo solicitado de compatibilidad SPARQL al 100%**. Falta completar federación, los casos del estándar que fallan, una matriz completa del protocolo y un contrato defendible para escrituras relacionales. La interfaz, el mapeo automático, el gateway reutilizable y las mediciones pueden evaluarse por separado de ese criterio de publicación.
 
@@ -265,7 +263,7 @@ go test ./sparqlite -run '^$' -bench BenchmarkMapping -benchmem
 
 La suma de tiempos del navegador también puede verificarse con `node --test lab/tests/*.test.mjs` (runner opcional de Node.js; Node no es necesario para ejecutar la app).
 
-Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Jev en cada paso, el protocolo de funciones estrictas de OpenAI, las credenciales exclusivas del servidor, la configuración oculta, la persistencia entre reinicios, las actualizaciones concurrentes y la carga segura de configuración.
+Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Jev en cada paso, el protocolo de funciones estrictas de OpenAI, las credenciales exclusivas del servidor, la configuración de entorno al iniciar, el rechazo de modelos elegidos desde el navegador, la ausencia de escrituras de configuración web y la carga segura de configuración.
 
 En el Apple M4 de desarrollo, una ejecución de benchmark midió aproximadamente **0,52 ms** para una consulta selectiva sobre 10.003 filas de clientes y **0,108 ms** para el join del ejemplo. Ese join tiene solamente tres filas de pedidos; no es una medición sobre un grafo grande. Son microbenchmarks locales con caché caliente, no una promesa general de rendimiento o latencia de producción. Volvé a medir con tus datos. El [informe de validación](docs/VALIDATION.md) contiene la procedencia y los casos de conformidad fallidos.
 
@@ -298,7 +296,7 @@ docs/
 ## 9. Resolver problemas
 
 - **La página abre pero no carga grafos:** usá la URL HTTP del servidor, no `file://`.
-- **Falla una llamada de API:** revisá las credenciales del servidor, la red, la cuota de la cuenta y el identificador exacto en **Conexiones de modelos**. Acceder al catálogo no garantiza que una inferencia funcione. Reiniciá después de cambiar `.env`.
+- **Falla una llamada de API:** revisá las credenciales del servidor, la red, la cuota de la cuenta y el identificador exacto de `OPENAI_MODEL` / `JEV_MODEL` en la configuración del servidor. Acceder al catálogo no garantiza que una inferencia funcione. Reiniciá después de cambiar `.env`.
 - **Falta una relación:** comprobá que la clave foránea esté declarada. El mapeador no infiere significado de negocio por similitud de nombres.
 - **Una base cargada parece desactualizada:** cargá un respaldo consistente que incluya los cambios de WAL. La copia cargada es una instantánea.
 - **Una consulta es lenta:** inspeccioná el SQL y el plan; revisá los índices y la selectividad de la fuente. El gateway no modifica la fuente para crear índices.

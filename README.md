@@ -38,7 +38,7 @@ The interface defaults to **English**. Use the **Español / English** button in 
 ### Your first experiment
 
 1. Open **Aurora Laboratory** and select the sample question about physics and Paris.
-2. Open **Models**, enter the Jev and OpenAI API keys if needed, and save.
+2. The server operator configures Jev and OpenAI through environment variables or `.env` (see below). Visitors do not enter keys or choose models.
 3. Choose **Step by step** or **Run all steps**. Inspect the model, context, time, query and real results in each card.
 4. Select an entity to inspect its identifier and connections.
 5. Edit a connection, save, and repeat the question to observe whether the result changes.
@@ -64,20 +64,18 @@ Saving uses optimistic revisions. If another window has changed the graph, a sta
 
 ### AI through Jev and OpenAI
 
-All model inference uses authenticated APIs. Credentials are held by the Go backend; the browser receives model names, configured/not-configured flags, connection status and observable traces. Stored keys are never returned by an API.
+All model inference uses authenticated APIs. Credentials are held by the Go backend; the browser receives model names, read-only connection status and observable traces. Keys are never sent to the browser or returned by an API.
 
 | Role | API | Default model | Default base URL |
 | --- | --- | --- | --- |
 | Navigation | TypeSafe System One | `jev-latest` | `https://api.typesafe.ai/v1` |
 | Actions, SPARQL proposals and answer synthesis | OpenAI Responses | `gpt-5` | `https://api.openai.com/v1` |
 
-The backend calls Jev's `/systemone` and OpenAI's `/responses`. **Model connections** checks each authenticated `/models` catalog and reports available identifiers. Providers and models are fixed in the interface; server configuration chooses the model defaults. Each step records the actual model identifier returned by the service when available.
+The backend calls Jev's `/systemone` and OpenAI's `/responses`. The connection indicator checks each authenticated `/models` catalog. Providers and models are fixed for visitors; each step records the actual model identifier returned by the service when available.
 
-Open **Models → Model connections**, paste each API key into its password field and click **Save**. Inputs remain masked. Leave a field blank to keep its existing key. Keys take effect without restarting; reopening the modal shows only whether a key is configured, with empty password fields. Canceling or closing the dialog clears entered secrets. They are not saved in browser storage.
+**Only the server operator configures models and API keys**, using process environment variables and/or an optional `.env` file. There is no model selector, key form or HTTP configuration endpoint. Journey requests cannot override either model. The **Use Jev** switch only enables or disables navigation for a comparison; it does not choose a model.
 
-The backend persists keys separately from graph data in `model-credentials.json` beside the application database (owner-only file permissions, `0600`). This file is excluded from Git and is not served by the frontend. It is **not encrypted at rest**: protect the server account, data volume and backups. The `CredentialStore` interface allows a managed secret store to replace the file implementation. Use `-credentials /private/path/model-credentials.json` to choose another location. Keep that directory on persistent storage when deploying.
-
-An optional `.env` can bootstrap credentials and model defaults. Copy `.env.example` only if `.env` does not already exist. The file is loaded from the working directory; process variables override it. Use `-env /path/to/config.env` for a different file. Keys saved through the modal override bootstrap keys on subsequent starts. Environment-based changes require a restart; modal changes do not.
+Copy `.env.example` only if `.env` does not already exist, then fill in the keys on the server. The file is loaded from the working directory; process environment variables take precedence. Use `-env /path/to/config.env` for a different file. **Restart the server after changing configuration.** Keep `.env` private (for example, `chmod 600 .env`); it is excluded from Git. A deployment can inject the same variables through its secret manager without a file. The app no longer reads or writes `model-credentials.json`.
 
 ```dotenv
 OPENAI_BASE_URL=https://api.openai.com/v1
@@ -89,7 +87,7 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=your-jev-token
 ```
 
-The question and relevant graph context are sent to these APIs in AI mode. The interface shows this before a journey. API usage may be billed by the providers. The manual SPARQL console executes database queries without model inference. If a required key is missing, AI mode reports which connection needs configuration; it never falls back to another service.
+The question and relevant graph context are sent to these APIs in AI mode. The interface shows this before a journey. API usage may be billed by the providers. The manual SPARQL console executes database queries without model inference. If a required key is missing, AI mode reports that the server connection is unavailable; it never falls back to another service.
 
 Enter a question. The journey always uses OpenAI, with Jev navigation enabled by default. Every click on **Next step** requests one action: search, explore, query or answer. With **Use Jev** enabled, Jev ranks navigation regions before each action. The backend executes tools, rebuilds earlier observations from current graph data, and requires a successful query before accepting an answer. This establishes that query evidence exists; it does not prove every sentence in a generated answer is entailed by it.
 
@@ -252,7 +250,7 @@ In the visual teaching universes, graphs are small: they are stored as applicati
 | W3C query/dataset/update validation | 513 leaf cases passed and 9 failed against the pinned W3C suite snapshot. The Update subset run passed; this does not establish complete end-to-end Update or Protocol conformance. |
 | Lab display | 400 nodes / 2,000 edges / 24 subgraphs; result display capped at 500 rows with an explicit limited-view indicator. |
 | Gateway resource policy | 20-second HTTP query timeout; evaluator budget of 200,000 intermediate solutions; pushdown result guard of 100,000 rows. These are operational limits, not silent successful truncation. |
-| Deployment | Local loopback by default and enforced in this edition. Publishing requires an HTTPS reverse proxy and access control; no accounts or multi-user isolation are included. Stored keys configure one shared server. |
+| Deployment | Local loopback by default and enforced in this edition. Publishing requires an HTTPS reverse proxy and access control; no accounts or multi-user isolation are included. Environment credentials configure one shared server. |
 
 The project therefore does **not yet meet the requested 100% SPARQL compatibility goal**. Remaining work includes federation, the failing standard cases, a complete protocol matrix and a defensible contract for relational writes. The UI, automatic mapping, reusable gateway and performance probes can be evaluated independently of that release gate.
 
@@ -265,7 +263,7 @@ go test ./sparqlite -run '^$' -bench BenchmarkMapping -benchmem
 
 The browser timing arithmetic can also be checked with `node --test lab/tests/*.test.mjs` (optional Node.js test runner; Node is not required to run the app).
 
-Tests cover real query results, duplicate semantics, SQL/evaluator agreement, typed values, null handling, foreign-key joins, escaped SQL identifiers, cancellation, protocol responses, source read-only behavior, persistence, stale-revision rejection and Jev's per-step navigation contract, OpenAI's strict tool protocol, server-only credentials, masked configuration, persistence across restarts, concurrent updates and safe configuration loading.
+Tests cover real query results, duplicate semantics, SQL/evaluator agreement, typed values, null handling, foreign-key joins, escaped SQL identifiers, cancellation, protocol responses, source read-only behavior, persistence, stale-revision rejection and Jev's per-step navigation contract, OpenAI's strict tool protocol, server-only credentials, startup environment configuration, rejected browser model overrides, unavailable web configuration writes and safe configuration loading.
 
 On the development Apple M4, a single benchmark run measured approximately **0.52 ms** for a selective query over 10,003 customer rows and **0.108 ms** for the example join. That join has only three order rows; it is not a large-graph benchmark. These are warm local microbenchmarks, not a general throughput or production-latency promise. Re-run them on your data. See [the validation report](docs/VALIDATION.md) for provenance and the failed conformance cases.
 
@@ -298,7 +296,7 @@ docs/
 ## 9. Troubleshooting
 
 - **The page opens but does not load graphs:** use the HTTP server URL, not `file://`.
-- **An API call fails:** check the server credentials, network access, account quota and exact model identifier in **Model connections**. Catalog access does not guarantee an inference request will succeed. Restart after changing `.env`.
+- **An API call fails:** check the server credentials, network access, account quota and exact `OPENAI_MODEL` / `JEV_MODEL` identifier in the server configuration. Catalog access does not guarantee an inference request will succeed. Restart after changing `.env`.
 - **A relationship is missing:** inspect whether a foreign key is actually declared. The mapper does not infer business meaning from similar column names.
 - **An uploaded database seems stale:** upload a consistent backup that includes changes committed through WAL. The uploaded copy is a snapshot.
 - **A query is slow:** inspect the generated SQL and plan; check source indexes and selectivity. The gateway does not modify the source to create indexes.

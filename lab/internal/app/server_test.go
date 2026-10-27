@@ -16,22 +16,26 @@ import (
 
 type decisions struct {
 	calls int
+	model string
 	err   error
 }
 
-func (d *decisions) Rank(_ context.Context, _ domain.Graph, _ string, _ string) (models.Decision, error) {
+func (d *decisions) Rank(_ context.Context, _ domain.Graph, _ string, model string) (models.Decision, error) {
 	d.calls++
+	d.model = model
 	return models.Decision{Model: "test-jev", Choice: "geografia", Source: "test", Candidates: []models.Candidate{}}, d.err
 }
 
 type languageModel struct {
 	action models.Action
 	focus  string
+	model  string
 	err    error
 }
 
-func (l *languageModel) Next(_ context.Context, _ domain.Graph, _, _, focus, _ string, _ []models.Event) (models.Action, error) {
+func (l *languageModel) Next(_ context.Context, _ domain.Graph, _, model, focus, _ string, _ []models.Event) (models.Action, error) {
 	l.focus = focus
+	l.model = model
 	return l.action, l.err
 }
 
@@ -55,7 +59,7 @@ func TestNavigationAndTimingSwitches(t *testing.T) {
 			if !useNavigation {
 				d.err = errors.New("Jev unavailable; this must not block OpenAI")
 			}
-			b := request{Question: "Who?", Model: "gpt-5", UseNavigation: tc.navigation, MeasureTime: tc.measure, Focus: "stale-subgraph"}
+			b := request{Question: "Who?", UseNavigation: tc.navigation, MeasureTime: tc.measure, Focus: "stale-subgraph"}
 			w := post(s, "/api/graphs/aurora/step", b)
 			if w.Code != 200 {
 				t.Fatal(w.Code, w.Body.String())
@@ -97,7 +101,7 @@ func TestDisabledRouteAndTimedFailures(t *testing.T) {
 	d := &decisions{err: errors.New("navigation unavailable")}
 	l := &languageModel{err: errors.New("generation unavailable")}
 	s.Decisions, s.Language = d, l
-	b := request{Question: "Who?", Model: "gpt-5", UseNavigation: boolValue(false), MeasureTime: true}
+	b := request{Question: "Who?", UseNavigation: boolValue(false), MeasureTime: true}
 	w := post(s, "/api/graphs/aurora/route", b)
 	if w.Code != 200 || d.calls != 0 || !bytes.Contains(w.Body.Bytes(), []byte(`"source":"disabled"`)) {
 		t.Fatal("disabled route called Jev", w.Code, w.Body.String())
@@ -180,12 +184,12 @@ func TestJevChoosesEveryStepAndEvidenceIsRebuilt(t *testing.T) {
 	l := &languageModel{action: models.Action{Type: "query", Query: domain.Seeds()[0].Examples[0].Query, Objective: "query evidence"}}
 	s.Decisions = d
 	s.Language = l
-	w := post(s, "/api/graphs/aurora/step", request{Question: "Who?", Model: "gpt-5", NavigationModel: "jev-latest", Language: "en"})
+	w := post(s, "/api/graphs/aurora/step", request{Question: "Who?", Language: "en"})
 	if w.Code != 200 || d.calls != 1 || l.focus != "geografia" {
 		t.Fatalf("%d %s calls=%d focus=%s", w.Code, w.Body.String(), d.calls, l.focus)
 	}
 	l.action = models.Action{Type: "answer", Answer: "test"}
-	w = post(s, "/api/graphs/aurora/step", request{Question: "Who?", Model: "gpt-5", Events: []models.Event{{Action: models.Action{Type: "search", Text: "Nobody"}, Observation: map[string]any{"rows": []any{"fabricated"}}}}})
+	w = post(s, "/api/graphs/aurora/step", request{Question: "Who?", Events: []models.Event{{Action: models.Action{Type: "search", Text: "Nobody"}, Observation: map[string]any{"rows": []any{"fabricated"}}}}})
 	if !bytes.Contains(w.Body.Bytes(), []byte("Antes de responder")) {
 		t.Fatal("client evidence was trusted:", w.Body.String())
 	}
@@ -202,50 +206,39 @@ func TestCrossOriginWritesRejected(t *testing.T) {
 	}
 }
 
-func TestCredentialSetupPersistsAndNeverEchoesKeys(t *testing.T) {
+func TestServerOwnsModelConfiguration(t *testing.T) {
 	s := testServer(t)
-	store := storage.FileCredentials{Path: filepath.Join(t.TempDir(), "model-credentials.json")}
-	if err := s.Models.AttachCredentials(store); err != nil {
-		t.Fatal(err)
+	s.Models.DefaultModel = "server-generation-model"
+	s.Models.DefaultNavigationModel = "server-navigation-model"
+	s.Models.OpenAIKey, s.Models.JevToken = "private-openai-test", "private-jev-test"
+	d := &decisions{}
+	l := &languageModel{action: models.Action{Type: "query", Query: domain.Seeds()[0].Examples[0].Query}}
+	s.Decisions, s.Language = d, l
+	for _, endpoint := range []string{"route", "step"} {
+		path := "/api/graphs/aurora/" + endpoint
+		w := post(s, path, request{Question: "Who?"})
+		if w.Code != 200 || d.model != s.Models.DefaultNavigationModel {
+			t.Fatal("server navigation model was not used", w.Code, w.Body.String())
+		}
+		if endpoint == "step" && (l.model != s.Models.DefaultModel || !bytes.Contains(w.Body.Bytes(), []byte(`"model":"server-generation-model"`))) {
+			t.Fatal("server generation model was not used in action and trace", w.Body.String())
+		}
+		for _, field := range []string{"model", "navigationModel"} {
+			w = post(s, path, map[string]any{"question": "Who?", field: "browser-override"})
+			if w.Code != 400 {
+				t.Fatal("browser model override accepted", field, w.Code)
+			}
+		}
 	}
-	keys := models.Credentials{OpenAIKey: "test-private-openai", JevToken: "test-private-jev"}
-	w := post(s, "/api/credentials", keys)
-	if w.Code != 200 || !bytes.Contains(w.Body.Bytes(), []byte(`"generation":true`)) || !bytes.Contains(w.Body.Bytes(), []byte(`"navigation":true`)) {
-		t.Fatal(w.Code, w.Body.String())
+	for _, endpoint := range []string{"/api/credentials", "/api/config"} {
+		w := post(s, endpoint, map[string]string{"openaiApiKey": "replacement-test-key", "model": "override"})
+		if w.Code < 400 || s.Models.OpenAIKey != "private-openai-test" || s.Models.DefaultModel != "server-generation-model" {
+			t.Fatal("web configuration write accepted", endpoint, w.Code)
+		}
 	}
-	if bytes.Contains(w.Body.Bytes(), []byte(keys.OpenAIKey)) || bytes.Contains(w.Body.Bytes(), []byte(keys.JevToken)) {
-		t.Fatal("keys echoed in response")
-	}
-	// Updating just one key preserves the other, including after a restart.
-	w = post(s, "/api/credentials", models.Credentials{OpenAIKey: "test-new-openai"})
-	if w.Code != 200 {
-		t.Fatal(w.Code, w.Body.String())
-	}
-	restarted := models.New()
-	if err := restarted.AttachCredentials(store); err != nil {
-		t.Fatal(err)
-	}
-	if restarted.OpenAIKey != "test-new-openai" || restarted.JevToken != keys.JevToken {
-		t.Fatal("saved configuration was not restored")
-	}
-	r := httptest.NewRequest("GET", "/api/config", nil)
-	public := httptest.NewRecorder()
-	s.ServeHTTP(public, r)
-	if bytes.Contains(public.Body.Bytes(), []byte("test-private")) || bytes.Contains(public.Body.Bytes(), []byte("test-new")) {
-		t.Fatal("stored keys readable through config")
-	}
-	w = post(s, "/api/credentials", models.Credentials{OpenAIKey: "bad\nkey"})
-	if w.Code != 422 || bytes.Contains(w.Body.Bytes(), []byte("bad")) {
-		t.Fatal("invalid key was accepted or echoed")
-	}
-	// The existing cross-origin mutation guard also protects credential writes.
-	raw, _ := json.Marshal(keys)
-	foreign := httptest.NewRequest("POST", "/api/credentials", bytes.NewReader(raw))
-	foreign.Header.Set("Content-Type", "application/json")
-	foreign.Header.Set("Origin", "https://untrusted.example")
-	denied := httptest.NewRecorder()
-	s.ServeHTTP(denied, foreign)
-	if denied.Code != 403 {
-		t.Fatal("cross-origin credential change accepted")
+	w := httptest.NewRecorder()
+	s.ServeHTTP(w, httptest.NewRequest("GET", "/api/config", nil))
+	if w.Code != 200 || bytes.Contains(w.Body.Bytes(), []byte(s.Models.OpenAIKey)) || bytes.Contains(w.Body.Bytes(), []byte(s.Models.JevToken)) {
+		t.Fatal("public configuration leaked a key", w.Code)
 	}
 }
