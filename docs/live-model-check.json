@@ -1,0 +1,122 @@
+{
+  "route": {
+    "model": "laya:multilingual",
+    "choice": "colaboracion",
+    "confidence": 0.998,
+    "candidates": [
+      {
+        "id": "colaboracion",
+        "name": "Colaboración",
+        "probability": 0.9986
+      },
+      {
+        "id": "ciencia",
+        "name": "Investigación",
+        "probability": 0.0011
+      },
+      {
+        "id": "geografia",
+        "name": "Geografía",
+        "probability": 0.0003
+      }
+    ],
+    "source": "ollaya"
+  },
+  "events": [
+    {
+      "action": {
+        "type": "query",
+        "objective": "Find collaborators of Elena Torres",
+        "query": "SELECT ?persona WHERE { <https://spinach.local/elena> <https://spinach.local/colaboraCon> ?persona . }"
+      },
+      "observation": {
+        "variables": [
+          "persona"
+        ],
+        "rows": [
+          {
+            "persona": {
+              "value": "https://spinach.local/sofia",
+              "label": "Sofía Vega",
+              "kind": "iri",
+              "nodeId": "https://spinach.local/sofia"
+            }
+          },
+          {
+            "persona": {
+              "value": "https://spinach.local/lina",
+              "label": "Lina Costa",
+              "kind": "iri",
+              "nodeId": "https://spinach.local/lina"
+            }
+          }
+        ],
+        "edgeIds": [],
+        "nodeIds": [
+          "https://spinach.local/lina",
+          "https://spinach.local/sofia"
+        ],
+        "truncated": false,
+        "engine": "goRDFlib 0.9.3",
+        "durationMs": 0.108
+      },
+      "navigation": {
+        "model": "laya:multilingual",
+        "choice": "colaboracion",
+        "confidence": 0.998,
+        "candidates": [
+          {
+            "id": "colaboracion",
+            "name": "Colaboración",
+            "probability": 0.9986
+          },
+          {
+            "id": "ciencia",
+            "name": "Investigación",
+            "probability": 0.0011
+          },
+          {
+            "id": "geografia",
+            "name": "Geografía",
+            "probability": 0.0003
+          }
+        ],
+        "source": "ollaya"
+      }
+    },
+    {
+      "action": {
+        "type": "answer",
+        "objective": "Identify Elena's collaborators based on the query results.",
+        "answer": "Elena collaborates with Sofía Vega and Lina Costa."
+      },
+      "observation": {
+        "answer": "Elena collaborates with Sofía Vega and Lina Costa.",
+        "notice": "Síntesis generada por Gemma; verificá su correspondencia con la tabla de evidencia."
+      },
+      "navigation": {
+        "model": "laya:multilingual",
+        "choice": "colaboracion",
+        "confidence": 0.9989,
+        "candidates": [
+          {
+            "id": "colaboracion",
+            "name": "Colaboración",
+            "probability": 0.9993
+          },
+          {
+            "id": "ciencia",
+            "name": "Investigación",
+            "probability": 0.0004
+          },
+          {
+            "id": "geografia",
+            "name": "Geografía",
+            "probability": 0.0003
+          }
+        ],
+        "source": "ollaya"
+      }
+    }
+  ]
+}

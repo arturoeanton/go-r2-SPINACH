@@ -1,0 +1,8 @@
+goos: darwin
+goarch: arm64
+pkg: spinach.local/sparqlite
+cpu: Apple M4
+BenchmarkMappingQuery10K-10    	    2174	    517791 ns/op	   32111 B/op	     314 allocs/op
+BenchmarkMappingJoin10K-10     	   10000	    107810 ns/op	   35402 B/op	     608 allocs/op
+PASS
+ok  	spinach.local/sparqlite	2.373s

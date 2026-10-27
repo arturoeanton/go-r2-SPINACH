@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#173b32"><meta name="description" content="Un laboratorio visual para aprender a preguntar, explorar y consultar grafos con SPINACH.">
+ <title>SPINACH · Laboratorio de grafos</title>
+ <link rel="icon" href="/leaf.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
+ <script type="module" src="/app.js"></script>
+</head>
+<body>
+ <aside class="rail" aria-label="Navegación principal">
+  <a class="brand-leaf" href="/" aria-label="SPINACH, inicio"><img src="/leaf.svg" alt=""></a>
+  <button class="rail-button active" id="nav-lab" title="Laboratorio" aria-label="Laboratorio"><span class="icon" data-icon="graph"></span></button>
+  <button class="rail-button" id="nav-learn" title="Cómo funciona SPINACH" aria-label="Cómo funciona SPINACH"><span class="icon" data-icon="book"></span></button>
+  <div class="rail-bottom"><button class="rail-button" id="nav-settings" title="Modelos locales" aria-label="Modelos locales"><span class="icon" data-icon="settings"></span></button><span class="avatar">S<span class="online-dot"></span></span></div>
+ </aside>
+ <div class="shell">
+  <header class="topbar"><a href="/" class="wordmark">spinach<span>LAB</span></a><div class="breadcrumb">Espacio de aprendizaje <span>/</span> <strong>Laboratorio de grafos</strong></div><button class="language-switch" id="language-switch" aria-label="Switch language">Español</button><button class="status-pill" id="model-status"><i class="dot amber"></i><span>Modelos locales</span><span class="icon small" data-icon="chevron"></span></button></header>
+  <main>
+   <section class="intro"><div><div class="eyebrow"><span class="tiny-line"></span> EXPLORAR. CONECTAR. COMPRENDER.</div><h1>Las respuestas están conectadas<span>.</span></h1><p>Hacé una pregunta. Seguí las relaciones. Descubrí cómo un grafo se convierte en conocimiento.</p></div><button class="button soft" id="learn-button"><span class="icon" data-icon="spark"></span> Cómo funciona</button></section>
+   <div class="workspace">
+    <aside class="collection panel">
+     <div class="panel-heading"><span>Tus universos</span><span class="counter" id="graph-count">0</span></div>
+     <p class="muted small-copy">Un punto de partida para explorar.</p>
+     <div id="graph-list" class="graph-list"></div>
+     <div class="collection-actions"><button id="import-button" class="button dashed"><span class="icon" data-icon="upload"></span> Importar grafo</button><button id="database-button" class="button dashed"><span class="icon" data-icon="database"></span> Explorar SQLite</button><button id="new-graph" class="text-button"><span class="icon small" data-icon="plus"></span> Crear desde cero</button></div>
+     <div class="divider"></div>
+     <div class="section-label">SUBGRAFOS <button id="add-subgraph" class="icon-button" title="Crear subgrafo" aria-label="Crear subgrafo"><span class="icon small" data-icon="plus"></span></button></div>
+     <button id="all-subgraphs" class="subgraph-all active">Todo el universo <span class="icon small" data-icon="layers"></span></button>
+     <div id="subgraph-list"></div>
+     <div class="collection-foot"><span class="icon" data-icon="lightbulb"></span><p><strong>Aprendé haciendo</strong><br>Mové nodos, cambiá relaciones y observá cómo cambia la respuesta.</p></div>
+    </aside>
+    <section class="canvas-column">
+     <div class="panel graph-panel">
+      <div class="graph-heading"><div><div class="eyebrow">LIENZO INTERACTIVO</div><h2 id="graph-title">Cargando tu universo…</h2></div><div class="heading-actions"><button id="export-button" class="icon-button" title="Exportar grafo" aria-label="Exportar grafo"><span class="icon" data-icon="download"></span></button><button class="button compact" id="save-button" disabled><span class="icon small" data-icon="check"></span> Guardado</button></div></div>
+      <div class="graph-toolbar"><div class="segmented"><button id="move-tool" class="active" title="Seleccionar y mover"><span class="icon small" data-icon="cursor"></span> Explorar</button><button id="link-tool" title="Conectar dos nodos"><span class="icon small" data-icon="link"></span> Conectar</button></div><button id="add-node" class="button compact white"><span class="icon small" data-icon="plus"></span> Nodo</button><div class="toolbar-spacer"></div><button id="undo-button" class="icon-button" title="Deshacer" aria-label="Deshacer" disabled><span class="icon small" data-icon="undo"></span></button><button id="redo-button" class="icon-button" title="Rehacer" aria-label="Rehacer" disabled><span class="icon small" data-icon="redo"></span></button></div>
+      <div class="canvas-wrap" id="canvas-wrap">
+       <svg id="graph-canvas" viewBox="0 0 1100 700" role="group" aria-label="Grafo interactivo. Seleccioná un nodo para inspeccionarlo; arrastralo para moverlo."><defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#dce4df"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs><rect width="100%" height="100%" fill="url(#dots)"/><g id="viewport"><g id="edges"></g><g id="nodes"></g></g></svg>
+       <div id="canvas-notice" class="canvas-notice" hidden></div>
+       <div class="canvas-caption"><span class="live-indicator"></span><span id="graph-stats">Preparando grafo</span></div>
+       <div class="zoom-controls"><button id="zoom-out" title="Alejar" aria-label="Alejar">−</button><span id="zoom-label">100%</span><button id="zoom-in" title="Acercar" aria-label="Acercar">+</button><button id="fit-button" title="Centrar grafo" aria-label="Centrar grafo"><span class="icon small" data-icon="fit"></span></button><button id="layout-button" title="Reorganizar nodos" aria-label="Reorganizar nodos"><span class="icon small" data-icon="shuffle"></span></button></div>
+      </div>
+      <div class="graph-footer"><div id="legend" class="legend"></div><button id="edit-graph" class="text-button small-copy">Editar universo <span class="icon small" data-icon="edit"></span></button></div>
+     </div>
+     <div class="panel console-panel"><div class="console-tabs" role="tablist" aria-label="Consulta y evidencia"><button id="query-tab" role="tab" aria-selected="true" class="active">Consulta SPARQL <span class="code-badge">&lt;/&gt;</span></button><button id="results-tab" role="tab" aria-selected="false">Resultados <span class="counter" id="result-count">0</span></button><button id="execute-query" class="text-button execute"><span class="icon small" data-icon="play"></span> Ejecutar</button></div><div id="query-pane" role="tabpanel" aria-labelledby="query-tab"><div class="query-prefix">Prefijos disponibles: <code>ex:</code> spinach.local · <code>rdfs:</code> RDF Schema</div><textarea id="query-editor" spellcheck="false" aria-label="Editor de consulta SPARQL"></textarea><div class="query-note">SPARQL · consultas, resultados y evidencia <button class="text-button" id="syntax-help">Ver alcance</button></div></div><div id="results-pane" role="tabpanel" aria-labelledby="results-tab" hidden><div class="empty-state">Ejecutá una consulta para ver la evidencia.</div></div></div>
+    </section>
+    <aside class="right-column">
+     <section class="panel journey-panel"><div class="panel-heading"><span><span class="icon" data-icon="spark"></span> Preguntale al grafo</span><span class="tag">SPINACH</span></div><p class="muted small-copy">De una pregunta a una respuesta verificable.</p><label class="sr-only" for="question-input">Tu pregunta</label><textarea id="question-input" rows="3" placeholder="¿Qué querés descubrir?"></textarea><div class="example-pills" id="example-list"></div><div class="run-options"><label for="run-mode">Recorrido</label><select id="run-mode"><option value="guided">Práctica guiada · sin IA</option><option value="ai">IA local · Laya + Gemma</option></select></div><button id="start-run" class="button primary full"><span class="icon small" data-icon="play"></span> Explorar la pregunta <span class="icon small" data-icon="arrow"></span></button><div class="journey-divider"><span>EL RECORRIDO</span><span id="step-count">0 / 5</span></div><ol id="journey-steps" class="journey-steps"></ol><div id="journey-detail" class="journey-detail">Elegí una pregunta de ejemplo para ver cómo se conectan las piezas.</div><div class="journey-controls"><button id="next-step" class="button primary full" hidden>Siguiente paso <span class="icon small" data-icon="arrow"></span></button><button id="cancel-run" class="text-button" hidden>Detener recorrido</button></div><div id="answer-box" class="answer-box" hidden></div></section>
+     <section class="panel inspector-panel"><div class="section-label">INSPECTOR <span class="icon small" data-icon="info"></span></div><div id="inspector-content"></div></section>
+    </aside>
+   </div>
+   <footer class="page-footer"><span><span class="icon small" data-icon="leaf"></span> SPINACH Lab <span class="footer-dot">·</span> Conocimiento que podés explorar</span><span>Go + SQLite <span class="footer-dot">·</span> Modelos en tu equipo</span></footer>
+  </main>
+ </div>
+ <dialog id="modal"><div class="modal-header"><div><div class="eyebrow" id="modal-eyebrow">TU LABORATORIO</div><h2 id="modal-title"></h2></div><button id="modal-close" class="icon-button" aria-label="Cerrar ventana"><span class="icon" data-icon="close"></span></button></div><div id="modal-body"></div></dialog>
+ <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

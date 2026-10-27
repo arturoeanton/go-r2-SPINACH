@@ -1,0 +1,2104 @@
+{
+  "dependency": "github.com/tggo/goRDFlib@v0.9.3",
+  "suite": "https://github.com/w3c/rdf-tests",
+  "suiteCommit": "bfefa770267ec0e5b6e45764bbca4ee43789ba72",
+  "scope": [
+    "SPARQL 1.1 query/syntax",
+    "SPARQL 1.0 dataset",
+    "SPARQL 1.1 update/syntax"
+  ],
+  "summary": {
+    "pass": 513,
+    "fail": 9
+  },
+  "cases": [
+    {
+      "name": "TestW3C/eval/(pp01)_Simple_path",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp02)_Star_path",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp03)_Simple_path_with_loop",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp06)_Path_with_two_graphs",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp07)_Path_with_one_graph",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp08)_Reverse_path",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp09)_Reverse_sequence_path",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp10)_Path_with_negation",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp11)_Simple_path_and_two_paths_to_same_target_node",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp12)_Variable_length_path_and_two_paths_to_same_target_node",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp14)_Star_path_over_foaf:knows",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp16)_Duplicate_paths_and_cycles_through_foaf:knows*",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp21)_Diamond_--_:p+",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp23)_Diamond,_with_tail_--_:p+",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp25)_Diamond,_with_loop_--_:p+",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp28a)_Diamond,_with_loop_--_(:p/:p)?",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp30)_Operator_precedence_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp31)_Operator_precedence_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp32)_Operator_precedence_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp33)_Operator_precedence_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp34)_Named_Graph_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp35)_Named_Graph_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp36)_Arbitrary_path_with_bound_endpoints",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/(pp37)_Nested_(*)*",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/*_with_end_being_a_constant_on_the_empty_dataset",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/*_with_start_being_a_constant_on_the_empty_dataset",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/?_with_end_being_a_constant_on_the_empty_dataset",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/?_with_start_being_a_constant_on_the_empty_dataset",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/ABS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/AVG",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/AVG_DISTINCT_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/AVG_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/AVG_with_empty_group_(value_defined_to_be_0)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/BNODE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/BNODE(str)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CEIL()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COALESCE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COALESCE()_without_arguments",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONCAT()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONCAT()_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONCAT()_with_a_single_parameter",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONCAT()_without_parameter",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONSTRUCT_list",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/CONTAINS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT(DISTINCT_*)_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT:_no_GROUP_BY_inside_of_GRAPH",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT:_no_match,_no_group",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT:_no_match,_with_group",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_5",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_8b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/COUNT_DISTINCT_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Calculate_proper_subset",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Calculate_which_sets_are_subsets_of_others_(exclude_A_subsetOf_A)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Calculate_which_sets_are_subsets_of_others_(include_A_subsetOf_A)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Calculate_which_sets_have_the_same_elements",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/DAY()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/ENCODE_FOR_URI()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/ENCODE_FOR_URI()_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Error_in_AVG",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Exists_with_ground_triple",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Exists_with_one_constant",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Exists_within_graph_pattern",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Expression_has_undefined_variable",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Expression_has_variable_that_may_be_unbound",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Expression_is_equality",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Expression_may_return_no_value",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Expression_raise_an_error",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/FLOOR()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GRAPH_variable_inside_of_EXISTS_is_bound_to_external_variable",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GRAPH_with_a_fixed_IRI_outside_the_dataset_around_VALUES,_with_FROM_NAMED",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_BY_with_a_built-in_function",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_BY_with_a_function",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_DISTINCT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_with_SEPARATOR",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_with_different_language_tags",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_with_one_element",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/GROUP_CONCAT_with_same_language_tag",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Graph_name_variable_bound_outside_GRAPH_to_graphs_outside_the_dataset,_with_FROM_NAMED",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/Group-1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Group-3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Group-4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Group-5",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/HAVING:_multiple_conditions",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/HOURS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IF()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IF()_error_propogation",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IN_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IN_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IRI()/URI()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/IRI()/URI()_when_the_input_is_an_IRI",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Inline_VALUES_graph_pattern",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/LCASE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/LCASE()_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MAX",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MAX_DISTINCT_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MAX_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MD5()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MD5()_over_Unicode_data",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MIN",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MINUTES()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MIN_DISTINCT_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MIN_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/MONTH()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Medical,_temporal_proximity_by_exclusion_(NOT_EXISTS)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/NOT_IN_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/NOT_IN_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/NOW()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Negated_Property_Set_with_both_direct_and_inverse_properties",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Negated_Property_Set_with_inverse_properties",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Negated_Property_Set_with_the_inverse_rdf:type_property_written_using_'^a'",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Negated_Property_Set_with_the_rdf:type_property_written_using_'a'",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Nested_negative_exists_in_positive_exists",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Nested_positive_exists",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Positive_EXISTS_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Positive_EXISTS_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_(OPTIONAL)_obj-var,_1_row",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_2_obj-vars,_1_row",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_2_obj-vars,_1_row_with_UNDEF",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_2_obj-vars,_2_rows_with_UNDEF",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_ASK",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_CONSTRUCT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_CONSTRUCT_and_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_CONSTRUCT_and_LIMIT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_DISTINCT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_GROUP_BY_and_ORDER_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_GROUP_BY_and_VALUES_variable_in_SELECT_expression",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_GROUP_BY_and_projected_VALUES_variable",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_GROUP_BY_joined_on_the_grouping_variable",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_OFFSET_and_LIMIT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_ORDER_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_SELECT_*",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_obj-var,_1_row",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_pred-var,_1_row",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_subj-var,_1_row",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_with_subj/obj-vars,_2_rows_with_UNDEF",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_without_variables_and_with_two_rows",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-query_VALUES_without_variables_and_without_rows",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-subquery_VALUES",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Post-subquery_VALUES_with_OFFSET_and_LIMIT",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/Protect_from_error_in_AVG",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/RAND()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/REPLACE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/REPLACE()_with_captured_substring",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/REPLACE()_with_overlapping_pattern",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/REPLACE()_with_the_'i'_option",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/ROUND()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Reuse_a_project_expression_variable_in_order_by",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Reuse_a_project_expression_variable_in_select",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SAMPLE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SAMPLE_DISTINCT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SECONDS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA1()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA1()_on_Unicode_data",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA256()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA256()_on_Unicode_data",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA384()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA384()_on_Unicode_data",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA512()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SHA512()_on_Unicode_data",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRAFTER()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRAFTER()_datatyping",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRBEFORE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRBEFORE()_datatyping",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRDT()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRDT()_TypeErrors_(updated_for_RDF_1.1)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRDT(STR())",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRENDS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLANG()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLANG()_TypeErrors_(updated_for_RDF_1.1)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLANG()_with_language_tags_differing_in_case",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLANG(STR())",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLEN()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRLEN()_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRSTARTS()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/STRUUID()_pattern_match",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUBSTR()_(2-argument)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUBSTR()_(2-argument)_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUBSTR()_(3-argument)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUBSTR()_(3-argument)_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUM",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUM_DISTINCT_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/SUM_with_GROUP_BY",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Subsets_by_exclusion_(MINUS)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Subsets_by_exclusion_(NOT_EXISTS)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Subtraction_with_MINUS_from_a_fully_bound_minuend",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/Subtraction_with_MINUS_from_a_partially_bound_minuend",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/TIMEZONE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/TZ()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/UCASE()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/UCASE()_on_non-BMP_unicode_strings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/UUID()_pattern_match",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/UUID()_per_binding",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/VALUES_inside_GRAPH_binding_the_graph_name_variable,_with_FROM_NAMED",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/eval/VALUES_inside_GRAPH_binding_the_same_variable_as_the_graph_name",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/VALUES_inside_GRAPH_not_mentioning_the_graph_name_variable",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/YEAR()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/ZeroOrX_property_paths_should_only_return_terms_in_the_graph_and_not_also_terms_defined_in_the_query",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/agg_on_empty_set,_explicit_grouping",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/agg_on_empty_set,_no_grouping",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind01_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind02_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind03_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind04_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind05_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind06_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind07_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind08_-_BIND",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind10_-_BIND_scoping_-_Variable_in_filter_not_in_scope",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/bind11_-_BIND_scoping_-_Variable_in_filter_in_scope",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/constructwhere01_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/constructwhere02_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/constructwhere03_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/constructwhere04_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/isNumeric()",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/outer_GRAPH_operator_does_not_affect_MINUS_disjointness",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/plus-1-corrected",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/plus-2-corrected",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq01_-_Subquery_within_graph_pattern",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq02_-_Subquery_within_graph_pattern,_graph_variable_is_bound",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq03_-_Subquery_within_graph_pattern,_graph_variable_is_not_bound",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq04_-_Subquery_within_graph_pattern,_default_graph_does_not_apply",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq05_-_Subquery_within_graph_pattern,_from_named_applies",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq06_-_Subquery_with_graph_pattern,_from_named_applies",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq07_-_Subquery_with_from_",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq08_-_Subquery_with_aggregate",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq09_-_Nested_Subqueries",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq10_-_Subquery_with_exists",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq11_-_Subquery_limit_per_resource",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq12_-_Subquery_in_CONSTRUCT_with_built-ins",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq13_-_Subqueries_don't_inject_bindings",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq14_-_limit_by_resource",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq15_-_Subquery_with_OFFSET/LIMIT_over_VALUES_inside_GRAPH",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/sq16_-_Subquery_with_ORDER_BY/OFFSET/LIMIT_inside_GRAPH",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:boolean_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:decimal_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:double_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:float_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:integer_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/eval/xsd:string_cast",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/GROUP_BY_with_trailing_VALUES_variable_in_SELECT_expression",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/syntax+/GROUP_BY_with_trailing_VALUES_variable_in_projection",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/syntax+/PrefixName_with_hex-encoded_colons",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/PrefixName_with_unescaped_colons",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/\\U_and_\\u_unicode_codepoint_escaping_in_literal_using_codepoints_at_notable_unicode_boundaries",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/\\U_unicode_codepoint_escaping_in_literal",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-02",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-03",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-04",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-05",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-06",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-07",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-08",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pname-09",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syn-pp-in-collection",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-BINDscope1.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-BINDscope2.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-BINDscope3.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-BINDscope4.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-BINDscope5.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-SELECTscope1.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-SELECTscope3.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-04.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-05.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-06.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-07.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-08.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-09.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-10.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-11.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-12.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-13.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-14.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-aggregate-15.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-bind-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-bindingBINDscopes-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-bindings-02a.rq_with_VALUES_clause",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-bindings-03a.rq_with_VALUES_clause",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-bindings-05a.rq_with_VALUES_clause",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-construct-where-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-construct-where-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-exists-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-exists-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-exists-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-minus-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-not-exists-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-not-exists-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-not-exists-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-oneof-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-oneof-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-oneof-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-propertyPaths-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-select-expr-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-select-expr-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-select-expr-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-select-expr-04.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-select-expr-05.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-subquery-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-subquery-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/syntax-subquery-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax+/utf8_literal_using_codepoints_at_notable_unicode_boundaries",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/COUNT_10",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/COUNT_11",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/COUNT_12",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/COUNT_8",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/COUNT_9",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/GROUP_BY_with_trailing_VALUES_variable_reassigned_by_SELECT_expression",
+      "status": "fail"
+    },
+    {
+      "name": "TestW3C/syntax-/Group-6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/Group-7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/Invalid_multi-pass_codepoint_escaping_(\\U_then_\\u)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/Invalid_multi-pass_codepoint_escaping_(\\u_then_\\U)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/Too_few_values_in_a_VALUE_clause_compared_to_the_number_of_variables",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/Too_many_values_in_a_VALUE_clause_compared_to_the_number_of_variables",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/\\u_unicode_codepoint_escaping_in_literal_using_partial_surrogate_pair",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/constructwhere05_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/constructwhere06_-_CONSTRUCT_WHERE",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-01.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-02.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-03.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-04.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-05.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-06.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-07.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-08.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-02",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-03",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-04",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-05",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-06",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-07",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-08",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-09",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-10",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-11",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-12",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syn-bad-pname-13",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syntax-BINDscope6.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syntax-BINDscope7.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syntax-BINDscope8.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syntax-SELECTscope2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3C/syntax-/syntax-bindings-09.rq",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-02",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-03",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-04",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-05",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-06",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-07",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-08",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-09b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-10b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-11",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CDataset/dataset-12b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_5",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_8",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_SILENT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/ADD_SILENT_TO_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_ALL",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_GRAPH",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_NAMED",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_SILENT_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CLEAR_SILENT_GRAPH_iri",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_SILENT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/COPY_SILENT_TO_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/CREATE_SILENT_iri",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_1b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_1c",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_4b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_5b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DELETE_INSERT_6b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_ALL",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_GRAPH",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_NAMED",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_SILENT_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/DROP_SILENT_GRAPH_iri",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_1_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_1_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_2_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_2_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_DATA_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_DATA_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_WHERE_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Graph-specific_DELETE_WHERE_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Halloween_Problem:_A_delete/insert_operation_should_not_be_able_to_read_its_own_writes",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_02",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_03",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_04",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_USING_01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERT_same_bnode_twice",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERTing_the_same_bnode_with_INSERT_DATA_into_two_different_Graphs_is_the_same_bnode",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERTing_the_same_bnode_with_two_INSERT_WHERE_statement_within_one_request_is_NOT_the_same_bnode",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/INSERTing_the_same_bnode_with_two_INSERT_WHERE_statement_within_one_request_is_NOT_the_same_bnode_even_if_both_WHERE_clauses_have_the_empty_solution_mapping_as_the_only_solution.",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/LOAD_SILENT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/LOAD_SILENT_INTO",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_SILENT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/MOVE_SILENT_TO_DEFAULT",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_1_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_1_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_2_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_2_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_3_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_3_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_4_(USING)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_4_(WITH)",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_DATA_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_DATA_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_DATA_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_DATA_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_WHERE_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_WHERE_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_WHERE_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_DELETE_WHERE_4",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_insert_data_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_insert_data_named_1",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_insert_data_named_2",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/eval/Simple_insert_data_named_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-01.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-02.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-03.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-04.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-05.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-06.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-07.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-08.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-09.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-10.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-11.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-12.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-13.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-14.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-15.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-16.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-17.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-18.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-19.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-20.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-21.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-22.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-23.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-24.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-25.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-26.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-27.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-28.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-29.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-30.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-31.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-32.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-33.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-34.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-35.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-36.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-37.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-38.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-39.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-40.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-53.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax+/syntax-update-other-01",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_3",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_3b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_5",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_6",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_7",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_7b",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_8",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/DELETE_INSERT_9",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-54.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-01.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-02.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-03.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-04.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-05.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-06.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-07.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-08.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-09.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-10.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-11.ru",
+      "status": "pass"
+    },
+    {
+      "name": "TestW3CUpdate/syntax-/syntax-update-bad-12.ru",
+      "status": "pass"
+    }
+  ]
+}
