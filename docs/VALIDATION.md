@@ -2,7 +2,7 @@
 
 The project distinguishes library conformance, gateway behavior and application behavior. Passing a subset in one layer does not certify the other layers.
 
-## Local project tests
+## Project tests
 
 Run from the repository root:
 
@@ -10,7 +10,9 @@ Run from the repository root:
 CGO_ENABLED=0 go test ./lab/... ./sparqlite/...
 ```
 
-The tests verify automatic schema mapping, real BGP joins against SQLite, duplicate projection behavior, a zero LIMIT, comparison with a materialized RDF reference, FILTER/OPTIONAL/COUNT and CONSTRUCT examples, HTTP result encoding, cancellation, explicit rejection of unsupported SERVICE, read-only source access, graph persistence and optimistic revisions. App tests verify that Laya is called for each model action and that client-supplied observations cannot stand in for successful query evidence.
+The tests verify automatic schema mapping, real BGP joins against SQLite, duplicate projection behavior, a zero LIMIT, comparison with a materialized RDF reference, FILTER/OPTIONAL/COUNT and CONSTRUCT examples, HTTP result encoding, cancellation, explicit rejection of unsupported SERVICE, read-only source access, graph persistence and optimistic revisions. App tests verify that navigation runs for each model action when enabled, disabling it bypasses Jev, timing metadata is opt-in, and client-supplied observations cannot stand in for successful query evidence. Model tests verify the official Jev decision protocol, OpenAI Responses authentication and strict tool definitions, the successful-query gate, actual model identifiers, API error redaction and safe public configuration. Configuration tests cover environment precedence and parsing without shell evaluation. Credential tests cover startup without keys, partial updates that preserve existing keys, persistence across a restart, owner-only file permissions, refusal to follow a credential-file symlink, failed-save rollback, concurrent snapshots and rejection of cross-origin credential writes. API responses are checked for secret leakage.
+
+Frontend tests (`node --test lab/tests/*.test.mjs`) verify exclusion of reading pauses, failed-request accounting, sequential automatic execution, pausing after an in-flight action, resuming, recoverable tool errors, failed requests, escaped context display and timing-off cards.
 
 These tests are representative regression tests, not an exhaustive SPARQL specification suite.
 
@@ -64,18 +66,30 @@ Measured on an Apple M4, macOS arm64, Go 1.27.1, CGO disabled:
 
 The fixture has 10,003 customer rows and three order rows. The second probe is small and selective. The first has no name index. Fixture creation is outside the timed section; parser, cached-schema lookup, transaction, compilation, EXPLAIN and execution are inside it. See [raw benchmark output](benchmark-results.txt).
 
-These are a single warm local run. No p95, sustained concurrency, cold-start, large-graph scaling or comparison against a third-party engine is claimed. Laya's effect on end-to-end SPINACH latency and answer quality has not been benchmarked.
+These are a single warm local run. No p95, sustained concurrency, cold-start, large-graph scaling or comparison against a third-party engine is claimed. Jev's effect on end-to-end SPINACH latency and answer quality has not been benchmarked.
 
-## Application and local-model checks
+## Application and real API checks
 
-- The HTTP application served successfully on loopback.
-- Browser verification exercised a guided question, its real SPARQL result (Elena Torres / Instituto Aurora), and the English-to-Spanish interface switch.
-- LM Studio advertised `google/gemma-4-12b` through `/v1/models`.
-- Ollaya advertised Laya variants through `/api/tags` and answered a real navigation request. It selected Research with probability 0.9542 in that probe; that value is a model option score, not a correctness guarantee.
-- An initial live Gemma probe produced a search action and a subsequent generation timed out. Later probes attempted premature answers, which the backend rejected. The structured-output action schema now excludes `answer` until a successful query exists, and replay preserves that gate.
-- A final live journey completed successfully in two model actions: Laya selected Collaboration (initial probability 0.9986), Gemma executed a query that returned Sofía Vega and Lina Costa, and its English answer named exactly those two collaborators. The navigation decision was re-evaluated before each action. See [live-model-check.json](live-model-check.json). This is a functional check, not a reliability or latency benchmark.
-- Browser verification also uploaded the disposable business SQLite fixture, ran a three-pattern query with three correct result rows via SQL pushdown, created and saved an editor node, then used undo and save to restore the original example. The browser recorded no console errors in that check.
-- Automated application tests use controlled model responses to verify orchestration independently of model latency and quality.
+The app uses Jev through TypeSafe and OpenAI Responses exclusively. A real authenticated check on 2026-10-27 UTC used the fictional Aurora graph and the question “Who does Elena collaborate with?”. Both service catalogs were reachable. Configuration requested `jev-latest` and `gpt-5`; OpenAI returned `gpt-5-2025-08-07`.
+
+Two journeys completed:
+
+| Mode | Model actions | Query evidence | Final answer |
+| --- | --- | --- | --- |
+| Jev enabled | query → answer | Sofía Vega and Lina Costa | Both collaborators correctly named |
+| Jev disabled | query → answer | Sofía Vega and Lina Costa | Both collaborators correctly named |
+
+Jev chose Collaboration initially and was called again before each action when enabled. Without Jev, navigation was absent and the reported navigation duration was exactly zero. Each answer followed a real successful SPARQL query. [Recorded requests, results and model traces](live-model-check.json) contain only the fictional test graph and API outputs, without credentials.
+
+In that single run, the two server step totals were approximately 8.52 s and 5.36 s with Jev; without Jev they were 5.62 s and 3.77 s. These are functional observations, not a controlled comparison: request ordering, provider latency and model variability are uncontrolled. No speedup or reliability estimate follows from them.
+
+Earlier browser checks verified real SPARQL results, English/Spanish switching, SQLite upload and SQL pushdown, and editor save/undo. Automated application tests use controlled model responses to check orchestration independently of live latency and quality.
+
+## Journey controls and trace verification
+
+Question journeys always use OpenAI with optional Jev navigation. They can run one action at a time or automatically, with pause after the in-flight action and cancellation that retains completed cards. Each card records the responsible provider/model, observable input, action, output and duration. Timing can be hidden. Browser processing time excludes reading pauses; server timing separates navigation, generation, evidence replay and tools. Journey traces remain in the current page session.
+
+Traces expose application inputs, actions and observations; they do not expose private model reasoning. Frontend tests cover these controls and trace rendering. See the API record above for real Jev and GPT-5 outputs.
 
 ## Release gates
 
@@ -84,6 +98,12 @@ These are a single warm local run. No p95, sustained concurrency, cold-start, la
 3. Specify or explicitly exclude inverse relational updates; arbitrary SQLite schemas do not make that mapping unambiguous.
 4. Broaden SQLite fixtures: mixed-type keys, collations, nullable composite primary keys, WITHOUT ROWID, views, generated columns and malformed foreign-key declarations.
 5. Measure warm/cold latency, concurrency and representative large datasets.
-6. Compare navigation with/without Laya on the same questions, measuring both latency and answer quality.
+6. Compare navigation with/without Jev on the same questions, measuring both latency and answer quality.
 
 Until these gates pass, this is an experimental implementation rather than a 100%-conformant high-performance product claim.
+
+## Complex-question fixture
+
+The Research network fixture contains 99 nodes, 295 edges and six subgraphs. Six reference questions are tested against exact expected evidence: multihop country/project/funder joins (4 rows), distinct-country aggregation (8 projects), a negative retraction condition (1 researcher), transitive partnerships (2 institutions), a deduplicated citation aggregate (Project 05, 100 citations), and cross-country collaboration/project/coauthor joins (8 researcher pairs). The generator no longer receives example SPARQL queries. The earlier simple API record predates this removal and is functional evidence only.
+
+The connection modal now masks key entry, clears secrets on close, saves them on the backend and returns only configuration flags. Startup without a bootstrap environment file and saving from the browser were exercised with disposable test credentials. Stored credentials are owner-only files, not encrypted at rest. Model/provider selectors and the no-AI journey have been removed from the interface. The Jev comparison switch is retained.

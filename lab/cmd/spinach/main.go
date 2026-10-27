@@ -14,21 +14,21 @@ import (
 	"time"
 
 	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/app"
+	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/config"
 	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/domain"
 	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/models"
 	"github.com/arturoeanton/go-r2-SPINACH/lab/internal/storage"
 )
 
-func env(key, def string) string {
-	if s := os.Getenv(key); s != "" {
-		return s
-	}
-	return def
-}
 func main() {
 	addr := flag.String("addr", "127.0.0.1:8090", "dirección local")
 	dbPath := flag.String("db", "data/spinach.db", "archivo SQLite")
+	credentialPath := flag.String("credentials", "", "private API credential file; defaults beside the database")
+	envPath := flag.String("env", ".env", "optional environment file")
 	flag.Parse()
+	if err := config.LoadEnv(*envPath); err != nil {
+		log.Fatal(err)
+	}
 	host, _, err := net.SplitHostPort(*addr)
 	if err != nil {
 		log.Fatal(err)
@@ -55,15 +55,24 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	local := models.New(env("OLLAMA_URL", "http://127.0.0.1:11434"), env("OLLAYA_URL", "http://127.0.0.1:11435"))
-	local.Provider = env("LLM_PROVIDER", "lmstudio")
-	local.LMStudioURL = env("LMSTUDIO_URL", "http://127.0.0.1:1234")
+	services, err := models.FromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if *credentialPath == "" {
+		*credentialPath = filepath.Join(filepath.Dir(*dbPath), "model-credentials.json")
+	}
+	if err := services.AttachCredentials(storage.FileCredentials{Path: *credentialPath}); err != nil {
+		log.Fatal(err)
+	}
+
 	sources, err := storage.NewSources(filepath.Join(filepath.Dir(*dbPath), "sources"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer sources.Close()
-	server := &http.Server{Addr: *addr, Handler: app.New(repo, local, sources), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 200 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 16}
+	server := &http.Server{Addr: *addr, Handler: app.New(repo, services, sources), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 240 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 16}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	go func() {

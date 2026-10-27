@@ -6,7 +6,7 @@ The project's application code is distributed under the repository's MIT license
 - **goRDFlib v0.9.3** — parser, SPARQL evaluator, RDF model/parsers, native SQLite RDF store and native HTTP endpoint. BSD-3-Clause; [included license](licenses/goRDFlib-LICENSE.txt), [upstream](https://github.com/tggo/goRDFlib).
 - **modernc.org/sqlite v1.60.1** — CGO-free SQLite port/driver. [Included license](licenses/modernc-sqlite-LICENSE.txt), [package](https://pkg.go.dev/modernc.org/sqlite). Its transitive packages and bundled components have their own notices.
 - **W3C RDF tests** — fetched separately for validation, pinned in the validation report. Consult the [test repository](https://github.com/w3c/rdf-tests) for its license and test-data terms. The full suite is not bundled with this project.
-- **Laya and Ollaya** — externally installed navigation model/runtime. [Laya documentation](https://ollaya.dev/library/laya). Model weights are not redistributed.
-- **Gemma / LM Studio / Ollama** — externally installed generation model and runtime adapters. Model weights and inference runtimes are not redistributed.
+- **Jev / TypeSafe API** — external authenticated navigation service. [System One API](https://docs.typesafe.ai/api/system-one). Model weights are not redistributed.
+- **OpenAI API** — external authenticated action-generation and synthesis service. [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create). Model weights are not redistributed.
 
 No measured superiority over SPINACH, Fuseki, Neo4j or another engine is claimed. Attribution to the original research and third-party evaluator does not imply endorsement.

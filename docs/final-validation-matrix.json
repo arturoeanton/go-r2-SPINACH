@@ -1,0 +1,3209 @@
+{
+  "checkedAt": "2026-10-27T05:57:36.307096+00:00",
+  "graph": "research-network",
+  "revision": 1,
+  "reasoningEffort": "medium",
+  "concurrentJourneys": 2,
+  "purpose": "Functional validation, not a latency benchmark. Reference queries are used only by this verifier, never supplied to the generator.",
+  "runs": [
+    {
+      "questionNumber": 6,
+      "question": "Who collaborates with someone in another country, shares a project with them, and coauthors a published paper with them?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Encontrar parejas de personas que colaboran, comparten proyecto y coautorían un artículo publicado estando en países distintos",
+            "query": "SELECT DISTINCT ?a ?aLabel ?b ?bLabel ?proj ?projLabel ?paper ?paperLabel ?countryA ?countryALabel ?countryB ?countryBLabel WHERE {\n  ?a ex:collaboratesWith ?b .\n  ?a ex:worksAt ?labA .\n  ?labA ex:locatedIn ?cityA .\n  ?cityA ex:country ?countryA .\n  ?b ex:worksAt ?labB .\n  ?labB ex:locatedIn ?cityB .\n  ?cityB ex:country ?countryB .\n  FILTER(?countryA != ?countryB)\n  ?a (ex:participatesIn|ex:leads) ?proj .\n  ?b (ex:participatesIn|ex:leads) ?proj .\n  ?a ex:authored ?paper .\n  ?b ex:authored ?paper .\n  ?paper ex:status ex:published .\n  OPTIONAL { ?a rdfs:label ?aLabel }\n  OPTIONAL { ?b rdfs:label ?bLabel }\n  OPTIONAL { ?proj rdfs:label ?projLabel }\n  OPTIONAL { ?paper rdfs:label ?paperLabel }\n  OPTIONAL { ?countryA rdfs:label ?countryALabel }\n  OPTIONAL { ?countryB rdfs:label ?countryBLabel }\n}\nORDER BY ?aLabel ?bLabel ?projLabel ?paperLabel"
+          },
+          "timing": {
+            "totalMs": 26272.391333,
+            "navigationMs": 0,
+            "generationMs": 26270.421416,
+            "replayMs": 0,
+            "toolMs": 1.657541
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "a",
+              "aLabel",
+              "b",
+              "bLabel",
+              "proj",
+              "projLabel",
+              "paper",
+              "paperLabel",
+              "countryA",
+              "countryALabel",
+              "countryB",
+              "countryBLabel"
+            ],
+            "rows": [
+              {
+                "a": {
+                  "value": "https://spinach.local/r01",
+                  "label": "Ava Mora",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r01"
+                },
+                "aLabel": {
+                  "value": "Ava Mora",
+                  "label": "Ava Mora",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r02",
+                  "label": "Bruno Paz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r02"
+                },
+                "bLabel": {
+                  "value": "Bruno Paz",
+                  "label": "Bruno Paz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper01",
+                  "label": "Paper 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper01"
+                },
+                "paperLabel": {
+                  "value": "Paper 01",
+                  "label": "Paper 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r04",
+                  "label": "Diego Mar",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r04"
+                },
+                "aLabel": {
+                  "value": "Diego Mar",
+                  "label": "Diego Mar",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r05",
+                  "label": "Eva Lago",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r05"
+                },
+                "bLabel": {
+                  "value": "Eva Lago",
+                  "label": "Eva Lago",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country3",
+                  "label": "Chile",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country3"
+                },
+                "countryALabel": {
+                  "value": "Chile",
+                  "label": "Chile",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper04",
+                  "label": "Paper 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper04"
+                },
+                "paperLabel": {
+                  "value": "Paper 04",
+                  "label": "Paper 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r07",
+                  "label": "Gala Luz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r07"
+                },
+                "aLabel": {
+                  "value": "Gala Luz",
+                  "label": "Gala Luz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r08",
+                  "label": "Hugo Valle",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r08"
+                },
+                "bLabel": {
+                  "value": "Hugo Valle",
+                  "label": "Hugo Valle",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper07",
+                  "label": "Paper 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper07"
+                },
+                "paperLabel": {
+                  "value": "Paper 07",
+                  "label": "Paper 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r10",
+                  "label": "Julián Río",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r10"
+                },
+                "aLabel": {
+                  "value": "Julián Río",
+                  "label": "Julián Río",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r11",
+                  "label": "Kiara Sur",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r11"
+                },
+                "bLabel": {
+                  "value": "Kiara Sur",
+                  "label": "Kiara Sur",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country2",
+                  "label": "Italy",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country2"
+                },
+                "countryBLabel": {
+                  "value": "Italy",
+                  "label": "Italy",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper10",
+                  "label": "Paper 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper10"
+                },
+                "paperLabel": {
+                  "value": "Paper 10",
+                  "label": "Paper 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r13",
+                  "label": "Mara Vega",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r13"
+                },
+                "aLabel": {
+                  "value": "Mara Vega",
+                  "label": "Mara Vega",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r14",
+                  "label": "Nico Costa",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r14"
+                },
+                "bLabel": {
+                  "value": "Nico Costa",
+                  "label": "Nico Costa",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper13",
+                  "label": "Paper 13",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper13"
+                },
+                "paperLabel": {
+                  "value": "Paper 13",
+                  "label": "Paper 13",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r16",
+                  "label": "Pablo Cielo",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r16"
+                },
+                "aLabel": {
+                  "value": "Pablo Cielo",
+                  "label": "Pablo Cielo",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r17",
+                  "label": "Quimey Vidal",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r17"
+                },
+                "bLabel": {
+                  "value": "Quimey Vidal",
+                  "label": "Quimey Vidal",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper16",
+                  "label": "Paper 16",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper16"
+                },
+                "paperLabel": {
+                  "value": "Paper 16",
+                  "label": "Paper 16",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r19",
+                  "label": "Simón Nube",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r19"
+                },
+                "aLabel": {
+                  "value": "Simón Nube",
+                  "label": "Simón Nube",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r20",
+                  "label": "Tania Vidal",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r20"
+                },
+                "bLabel": {
+                  "value": "Tania Vidal",
+                  "label": "Tania Vidal",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country2",
+                  "label": "Italy",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country2"
+                },
+                "countryALabel": {
+                  "value": "Italy",
+                  "label": "Italy",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country3",
+                  "label": "Chile",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country3"
+                },
+                "countryBLabel": {
+                  "value": "Chile",
+                  "label": "Chile",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper01",
+                  "label": "Paper 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper01"
+                },
+                "paperLabel": {
+                  "value": "Paper 01",
+                  "label": "Paper 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r22",
+                  "label": "Vera Roble",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r22"
+                },
+                "aLabel": {
+                  "value": "Vera Roble",
+                  "label": "Vera Roble",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r23",
+                  "label": "Waldo Cruz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r23"
+                },
+                "bLabel": {
+                  "value": "Waldo Cruz",
+                  "label": "Waldo Cruz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryA": {
+                  "value": "https://spinach.local/country1",
+                  "label": "Argentina",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country1"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryB": {
+                  "value": "https://spinach.local/country0",
+                  "label": "France",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/country0"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper04",
+                  "label": "Paper 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper04"
+                },
+                "paperLabel": {
+                  "value": "Paper 04",
+                  "label": "Paper 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/country0",
+              "https://spinach.local/country1",
+              "https://spinach.local/country2",
+              "https://spinach.local/country3",
+              "https://spinach.local/paper01",
+              "https://spinach.local/paper04",
+              "https://spinach.local/paper07",
+              "https://spinach.local/paper10",
+              "https://spinach.local/paper13",
+              "https://spinach.local/paper16",
+              "https://spinach.local/project01",
+              "https://spinach.local/project04",
+              "https://spinach.local/project07",
+              "https://spinach.local/project10",
+              "https://spinach.local/r01",
+              "https://spinach.local/r02",
+              "https://spinach.local/r04",
+              "https://spinach.local/r05",
+              "https://spinach.local/r07",
+              "https://spinach.local/r08",
+              "https://spinach.local/r10",
+              "https://spinach.local/r11",
+              "https://spinach.local/r13",
+              "https://spinach.local/r14",
+              "https://spinach.local/r16",
+              "https://spinach.local/r17",
+              "https://spinach.local/r19",
+              "https://spinach.local/r20",
+              "https://spinach.local/r22",
+              "https://spinach.local/r23"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.645
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify cross-country collaborators who share a project and coauthor a published paper",
+            "answer": "The graph shows 8 collaborator pairs who are in different countries, share a project, and coauthor a published paper:\n- Ava Mora with Bruno Paz — Project 01; Paper 01 (France–Argentina)\n- Diego Mar with Eva Lago — Project 04; Paper 04 (Chile–France)\n- Gala Luz with Hugo Valle — Project 07; Paper 07 (France–Argentina)\n- Julián Río with Kiara Sur — Project 10; Paper 10 (Argentina–Italy)\n- Mara Vega with Nico Costa — Project 01; Paper 13 (France–Argentina)\n- Pablo Cielo with Quimey Vidal — Project 04; Paper 16 (Argentina–France)\n- Simón Nube with Tania Vidal — Project 07; Paper 01 (Italy–Chile)\n- Vera Roble with Waldo Cruz — Project 10; Paper 04 (Argentina–France)"
+          },
+          "timing": {
+            "totalMs": 22497.786416,
+            "navigationMs": 0,
+            "generationMs": 22493.061167,
+            "replayMs": 2.312292,
+            "toolMs": 0.002625
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "The graph shows 8 collaborator pairs who are in different countries, share a project, and coauthor a published paper:\n- Ava Mora with Bruno Paz — Project 01; Paper 01 (France–Argentina)\n- Diego Mar with Eva Lago — Project 04; Paper 04 (Chile–France)\n- Gala Luz with Hugo Valle — Project 07; Paper 07 (France–Argentina)\n- Julián Río with Kiara Sur — Project 10; Paper 10 (Argentina–Italy)\n- Mara Vega with Nico Costa — Project 01; Paper 13 (France–Argentina)\n- Pablo Cielo with Quimey Vidal — Project 04; Paper 16 (Argentina–France)\n- Simón Nube with Tania Vidal — Project 07; Paper 01 (Italy–Chile)\n- Vera Roble with Waldo Cruz — Project 10; Paper 04 (Argentina–France)",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "colleague": {
+            "value": "https://spinach.local/r02",
+            "label": "Bruno Paz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r02"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r01",
+            "label": "Ava Mora",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r01"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r05",
+            "label": "Eva Lago",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r05"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r04",
+            "label": "Diego Mar",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r04"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r07",
+            "label": "Gala Luz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r07"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r11",
+            "label": "Kiara Sur",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r11"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r10",
+            "label": "Julián Río",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r10"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r14",
+            "label": "Nico Costa",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r14"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r13",
+            "label": "Mara Vega",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r13"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r17",
+            "label": "Quimey Vidal",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r17"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r16",
+            "label": "Pablo Cielo",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r16"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r20",
+            "label": "Tania Vidal",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r20"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r19",
+            "label": "Simón Nube",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r19"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r23",
+            "label": "Waldo Cruz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r23"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r22",
+            "label": "Vera Roble",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r22"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 3,
+      "question": "Which Argentina-based researchers lead renewable-energy projects and have no retracted papers?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find Argentina-based renewable‑energy project leaders without retractions",
+            "query": "SELECT DISTINCT ?person ?personLabel WHERE {\n  ?person <https://spinach.local/worksAt> ?lab .\n  ?lab <https://spinach.local/locatedIn> ?city .\n  ?city <https://spinach.local/country> <https://spinach.local/country1> .\n  ?person <https://spinach.local/leads> ?proj .\n  ?proj <https://spinach.local/topic> <https://spinach.local/topic3> .\n  FILTER NOT EXISTS {\n    ?person <https://spinach.local/authored> ?paper .\n    ?paper <https://spinach.local/status> <https://spinach.local/retracted> .\n  }\n  OPTIONAL { ?person rdfs:label ?personLabel }\n}\nORDER BY ?personLabel"
+          },
+          "timing": {
+            "totalMs": 28330.732583,
+            "navigationMs": 74.534917,
+            "generationMs": 28253.578333,
+            "replayMs": 4.2e-05,
+            "toolMs": 1.759083
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "person",
+              "personLabel"
+            ],
+            "rows": [
+              {
+                "person": {
+                  "value": "https://spinach.local/r08",
+                  "label": "Hugo Valle",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r08"
+                },
+                "personLabel": {
+                  "value": "Hugo Valle",
+                  "label": "Hugo Valle",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/r08"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.74
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Argentina-based renewable‑energy leaders without retractions",
+            "answer": "Hugo Valle.\nNo other Argentina-based researchers in this graph both lead renewable‑energy projects and have zero retracted papers."
+          },
+          "timing": {
+            "totalMs": 18277.404083,
+            "navigationMs": 80.203458,
+            "generationMs": 18193.661792,
+            "replayMs": 1.172334,
+            "toolMs": 0.0065
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Hugo Valle.\nNo other Argentina-based researchers in this graph both lead renewable‑energy projects and have zero retracted papers.",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 6,
+      "question": "Who collaborates with someone in another country, shares a project with them, and coauthors a published paper with them?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Encontrar pares de investigadores que colaboran entre países, comparten proyecto y coautoran un paper publicado",
+            "query": "SELECT DISTINCT ?a ?aLabel ?b ?bLabel ?proj ?projLabel ?paper ?paperLabel ?countryALabel ?countryBLabel WHERE {\n  # Collaboration in either direction\n  { ?a <https://spinach.local/collaboratesWith> ?b }\n  UNION\n  { ?b <https://spinach.local/collaboratesWith> ?a } .\n  FILTER(?a != ?b)\n\n  # Countries via institutions -> cities -> countries\n  ?a <https://spinach.local/worksAt> ?labA .\n  ?b <https://spinach.local/worksAt> ?labB .\n  ?labA <https://spinach.local/locatedIn> ?cityA .\n  ?labB <https://spinach.local/locatedIn> ?cityB .\n  ?cityA <https://spinach.local/country> ?countryA .\n  ?cityB <https://spinach.local/country> ?countryB .\n  FILTER(?countryA != ?countryB)\n\n  # Shared project (either leads or participates)\n  { { ?a <https://spinach.local/participatesIn> ?proj } UNION { ?a <https://spinach.local/leads> ?proj } }\n  { { ?b <https://spinach.local/participatesIn> ?proj } UNION { ?b <https://spinach.local/leads> ?proj } }\n\n  # Coauthored a published paper together\n  ?a <https://spinach.local/authored> ?paper .\n  ?b <https://spinach.local/authored> ?paper .\n  ?paper <https://spinach.local/status> <https://spinach.local/published> .\n\n  OPTIONAL { ?a <http://www.w3.org/2000/01/rdf-schema#label> ?aLabel }\n  OPTIONAL { ?b <http://www.w3.org/2000/01/rdf-schema#label> ?bLabel }\n  OPTIONAL { ?proj <http://www.w3.org/2000/01/rdf-schema#label> ?projLabel }\n  OPTIONAL { ?paper <http://www.w3.org/2000/01/rdf-schema#label> ?paperLabel }\n  OPTIONAL { ?countryA <http://www.w3.org/2000/01/rdf-schema#label> ?countryALabel }\n  OPTIONAL { ?countryB <http://www.w3.org/2000/01/rdf-schema#label> ?countryBLabel }\n}\nORDER BY ?a ?b ?proj ?paper"
+          },
+          "timing": {
+            "totalMs": 30560.042541,
+            "navigationMs": 210.942417,
+            "generationMs": 30348.524417,
+            "replayMs": 0,
+            "toolMs": 0.195
+          },
+          "model": "gpt-5-2025-08-07",
+          "error": "sparql parse error at pos 460: unexpected token in group graph pattern"
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find cross-country collaborators sharing a project and a published coauthored paper",
+            "query": "SELECT DISTINCT ?a ?aLabel ?b ?bLabel WHERE {\n  { ?a <https://spinach.local/collaboratesWith> ?b }\n  UNION\n  { ?b <https://spinach.local/collaboratesWith> ?a } .\n  FILTER(?a != ?b)\n  FILTER(STR(?a) < STR(?b))\n\n  FILTER EXISTS {\n    ?a <https://spinach.local/worksAt> ?labA .\n    ?b <https://spinach.local/worksAt> ?labB .\n    ?labA <https://spinach.local/locatedIn> ?cityA .\n    ?labB <https://spinach.local/locatedIn> ?cityB .\n    ?cityA <https://spinach.local/country> ?countryA .\n    ?cityB <https://spinach.local/country> ?countryB .\n    FILTER(?countryA != ?countryB)\n  }\n\n  FILTER EXISTS {\n    { ?a <https://spinach.local/participatesIn> ?proj } UNION { ?a <https://spinach.local/leads> ?proj } .\n    { ?b <https://spinach.local/participatesIn> ?proj } UNION { ?b <https://spinach.local/leads> ?proj } .\n  }\n\n  FILTER EXISTS {\n    ?a <https://spinach.local/authored> ?paper .\n    ?b <https://spinach.local/authored> ?paper .\n    ?paper <https://spinach.local/status> <https://spinach.local/published> .\n  }\n\n  OPTIONAL { ?a <http://www.w3.org/2000/01/rdf-schema#label> ?aLabel }\n  OPTIONAL { ?b <http://www.w3.org/2000/01/rdf-schema#label> ?bLabel }\n}\nORDER BY ?a ?b"
+          },
+          "timing": {
+            "totalMs": 33358.841875,
+            "navigationMs": 86.636167,
+            "generationMs": 33270.563333,
+            "replayMs": 0.184708,
+            "toolMs": 0.300833
+          },
+          "model": "gpt-5-2025-08-07",
+          "error": "sparql parse error at pos 356: unexpected token in group graph pattern"
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find cross-country collaborators who share a project and coauthor a published paper",
+            "query": "SELECT DISTINCT ?a ?aLabel ?b ?bLabel ?proj ?projLabel ?paper ?paperLabel ?countryALabel ?countryBLabel WHERE {\n  { ?a <https://spinach.local/collaboratesWith> ?b }\n  UNION\n  { ?b <https://spinach.local/collaboratesWith> ?a } .\n  FILTER(?a != ?b)\n  FILTER(STR(?a) < STR(?b))\n\n  ?a <https://spinach.local/worksAt> ?labA .\n  ?b <https://spinach.local/worksAt> ?labB .\n  ?labA <https://spinach.local/locatedIn> ?cityA .\n  ?labB <https://spinach.local/locatedIn> ?cityB .\n  ?cityA <https://spinach.local/country> ?countryA .\n  ?cityB <https://spinach.local/country> ?countryB .\n  FILTER(?countryA != ?countryB)\n\n  ?a (<https://spinach.local/participatesIn>|<https://spinach.local/leads>) ?proj .\n  ?b (<https://spinach.local/participatesIn>|<https://spinach.local/leads>) ?proj .\n\n  ?a <https://spinach.local/authored> ?paper .\n  ?b <https://spinach.local/authored> ?paper .\n  ?paper <https://spinach.local/status> <https://spinach.local/published> .\n\n  OPTIONAL { ?a rdfs:label ?aLabel }\n  OPTIONAL { ?b rdfs:label ?bLabel }\n  OPTIONAL { ?proj rdfs:label ?projLabel }\n  OPTIONAL { ?paper rdfs:label ?paperLabel }\n  OPTIONAL { ?countryA rdfs:label ?countryALabel }\n  OPTIONAL { ?countryB rdfs:label ?countryBLabel }\n}\nORDER BY ?a ?b ?proj ?paper"
+          },
+          "timing": {
+            "totalMs": 17388.911209,
+            "navigationMs": 73.512625,
+            "generationMs": 17312.757459,
+            "replayMs": 0.461083,
+            "toolMs": 0.35225
+          },
+          "model": "gpt-5-2025-08-07",
+          "error": "sparql parse error at pos 422: unexpected token in group graph pattern"
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find cross-country collaborators sharing a project and a published paper",
+            "query": "SELECT DISTINCT ?a ?aLabel ?b ?bLabel ?proj ?projLabel ?paper ?paperLabel ?countryALabel ?countryBLabel WHERE {\n  { ?a ex:collaboratesWith ?b } UNION { ?b ex:collaboratesWith ?a }\n  FILTER(?a != ?b)\n  FILTER(STR(?a) < STR(?b))\n\n  ?a ex:worksAt ?labA .\n  ?b ex:worksAt ?labB .\n  ?labA ex:locatedIn ?cityA .\n  ?labB ex:locatedIn ?cityB .\n  ?cityA ex:country ?countryA .\n  ?cityB ex:country ?countryB .\n  FILTER(?countryA != ?countryB)\n\n  { ?a ex:participatesIn ?proj } UNION { ?a ex:leads ?proj }\n  { ?b ex:participatesIn ?proj } UNION { ?b ex:leads ?proj }\n\n  ?a ex:authored ?paper .\n  ?b ex:authored ?paper .\n  ?paper ex:status ex:published .\n\n  OPTIONAL { ?a rdfs:label ?aLabel }\n  OPTIONAL { ?b rdfs:label ?bLabel }\n  OPTIONAL { ?proj rdfs:label ?projLabel }\n  OPTIONAL { ?paper rdfs:label ?paperLabel }\n  OPTIONAL { ?countryA rdfs:label ?countryALabel }\n  OPTIONAL { ?countryB rdfs:label ?countryBLabel }\n}\nORDER BY ?a ?b ?proj ?paper"
+          },
+          "timing": {
+            "totalMs": 28181.694792,
+            "navigationMs": 65.529375,
+            "generationMs": 28099.519791,
+            "replayMs": 0.786208,
+            "toolMs": 12.411875
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "a",
+              "aLabel",
+              "b",
+              "bLabel",
+              "proj",
+              "projLabel",
+              "paper",
+              "paperLabel",
+              "countryALabel",
+              "countryBLabel"
+            ],
+            "rows": [
+              {
+                "a": {
+                  "value": "https://spinach.local/r01",
+                  "label": "Ava Mora",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r01"
+                },
+                "aLabel": {
+                  "value": "Ava Mora",
+                  "label": "Ava Mora",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r02",
+                  "label": "Bruno Paz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r02"
+                },
+                "bLabel": {
+                  "value": "Bruno Paz",
+                  "label": "Bruno Paz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper01",
+                  "label": "Paper 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper01"
+                },
+                "paperLabel": {
+                  "value": "Paper 01",
+                  "label": "Paper 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r04",
+                  "label": "Diego Mar",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r04"
+                },
+                "aLabel": {
+                  "value": "Diego Mar",
+                  "label": "Diego Mar",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r05",
+                  "label": "Eva Lago",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r05"
+                },
+                "bLabel": {
+                  "value": "Eva Lago",
+                  "label": "Eva Lago",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "Chile",
+                  "label": "Chile",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper04",
+                  "label": "Paper 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper04"
+                },
+                "paperLabel": {
+                  "value": "Paper 04",
+                  "label": "Paper 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r07",
+                  "label": "Gala Luz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r07"
+                },
+                "aLabel": {
+                  "value": "Gala Luz",
+                  "label": "Gala Luz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r08",
+                  "label": "Hugo Valle",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r08"
+                },
+                "bLabel": {
+                  "value": "Hugo Valle",
+                  "label": "Hugo Valle",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper07",
+                  "label": "Paper 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper07"
+                },
+                "paperLabel": {
+                  "value": "Paper 07",
+                  "label": "Paper 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r10",
+                  "label": "Julián Río",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r10"
+                },
+                "aLabel": {
+                  "value": "Julián Río",
+                  "label": "Julián Río",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r11",
+                  "label": "Kiara Sur",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r11"
+                },
+                "bLabel": {
+                  "value": "Kiara Sur",
+                  "label": "Kiara Sur",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "Italy",
+                  "label": "Italy",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper10",
+                  "label": "Paper 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper10"
+                },
+                "paperLabel": {
+                  "value": "Paper 10",
+                  "label": "Paper 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r13",
+                  "label": "Mara Vega",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r13"
+                },
+                "aLabel": {
+                  "value": "Mara Vega",
+                  "label": "Mara Vega",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r14",
+                  "label": "Nico Costa",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r14"
+                },
+                "bLabel": {
+                  "value": "Nico Costa",
+                  "label": "Nico Costa",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper13",
+                  "label": "Paper 13",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper13"
+                },
+                "paperLabel": {
+                  "value": "Paper 13",
+                  "label": "Paper 13",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r16",
+                  "label": "Pablo Cielo",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r16"
+                },
+                "aLabel": {
+                  "value": "Pablo Cielo",
+                  "label": "Pablo Cielo",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r17",
+                  "label": "Quimey Vidal",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r17"
+                },
+                "bLabel": {
+                  "value": "Quimey Vidal",
+                  "label": "Quimey Vidal",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper16",
+                  "label": "Paper 16",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper16"
+                },
+                "paperLabel": {
+                  "value": "Paper 16",
+                  "label": "Paper 16",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r19",
+                  "label": "Simón Nube",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r19"
+                },
+                "aLabel": {
+                  "value": "Simón Nube",
+                  "label": "Simón Nube",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r20",
+                  "label": "Tania Vidal",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r20"
+                },
+                "bLabel": {
+                  "value": "Tania Vidal",
+                  "label": "Tania Vidal",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "Italy",
+                  "label": "Italy",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "Chile",
+                  "label": "Chile",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper01",
+                  "label": "Paper 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper01"
+                },
+                "paperLabel": {
+                  "value": "Paper 01",
+                  "label": "Paper 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "a": {
+                  "value": "https://spinach.local/r22",
+                  "label": "Vera Roble",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r22"
+                },
+                "aLabel": {
+                  "value": "Vera Roble",
+                  "label": "Vera Roble",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "b": {
+                  "value": "https://spinach.local/r23",
+                  "label": "Waldo Cruz",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r23"
+                },
+                "bLabel": {
+                  "value": "Waldo Cruz",
+                  "label": "Waldo Cruz",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryALabel": {
+                  "value": "Argentina",
+                  "label": "Argentina",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "countryBLabel": {
+                  "value": "France",
+                  "label": "France",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "paper": {
+                  "value": "https://spinach.local/paper04",
+                  "label": "Paper 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/paper04"
+                },
+                "paperLabel": {
+                  "value": "Paper 04",
+                  "label": "Paper 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "proj": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/paper01",
+              "https://spinach.local/paper04",
+              "https://spinach.local/paper07",
+              "https://spinach.local/paper10",
+              "https://spinach.local/paper13",
+              "https://spinach.local/paper16",
+              "https://spinach.local/project01",
+              "https://spinach.local/project04",
+              "https://spinach.local/project07",
+              "https://spinach.local/project10",
+              "https://spinach.local/r01",
+              "https://spinach.local/r02",
+              "https://spinach.local/r04",
+              "https://spinach.local/r05",
+              "https://spinach.local/r07",
+              "https://spinach.local/r08",
+              "https://spinach.local/r10",
+              "https://spinach.local/r11",
+              "https://spinach.local/r13",
+              "https://spinach.local/r14",
+              "https://spinach.local/r16",
+              "https://spinach.local/r17",
+              "https://spinach.local/r19",
+              "https://spinach.local/r20",
+              "https://spinach.local/r22",
+              "https://spinach.local/r23"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 12.388
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Cross-country collaborators sharing project and published paper",
+            "answer": "Pairs found (researchers from different countries who collaborate, share a project, and coauthor a published paper):\n- Ava Mora (France) and Bruno Paz (Argentina) — Project 01; Paper 01\n- Diego Mar (Chile) and Eva Lago (France) — Project 04; Paper 04\n- Gala Luz (France) and Hugo Valle (Argentina) — Project 07; Paper 07\n- Julián Río (Argentina) and Kiara Sur (Italy) — Project 10; Paper 10\n- Mara Vega (France) and Nico Costa (Argentina) — Project 01; Paper 13\n- Pablo Cielo (Argentina) and Quimey Vidal (France) — Project 04; Paper 16\n- Simón Nube (Italy) and Tania Vidal (Chile) — Project 07; Paper 01\n- Vera Roble (Argentina) and Waldo Cruz (France) — Project 10; Paper 04"
+          },
+          "timing": {
+            "totalMs": 15694.312625,
+            "navigationMs": 117.538042,
+            "generationMs": 15562.95,
+            "replayMs": 9.453666,
+            "toolMs": 0.00375
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Pairs found (researchers from different countries who collaborate, share a project, and coauthor a published paper):\n- Ava Mora (France) and Bruno Paz (Argentina) — Project 01; Paper 01\n- Diego Mar (Chile) and Eva Lago (France) — Project 04; Paper 04\n- Gala Luz (France) and Hugo Valle (Argentina) — Project 07; Paper 07\n- Julián Río (Argentina) and Kiara Sur (Italy) — Project 10; Paper 10\n- Mara Vega (France) and Nico Costa (Argentina) — Project 01; Paper 13\n- Pablo Cielo (Argentina) and Quimey Vidal (France) — Project 04; Paper 16\n- Simón Nube (Italy) and Tania Vidal (Chile) — Project 07; Paper 01\n- Vera Roble (Argentina) and Waldo Cruz (France) — Project 10; Paper 04",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "colleague": {
+            "value": "https://spinach.local/r02",
+            "label": "Bruno Paz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r02"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r01",
+            "label": "Ava Mora",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r01"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r05",
+            "label": "Eva Lago",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r05"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r04",
+            "label": "Diego Mar",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r04"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r07",
+            "label": "Gala Luz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r07"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r11",
+            "label": "Kiara Sur",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r11"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r10",
+            "label": "Julián Río",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r10"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r14",
+            "label": "Nico Costa",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r14"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r13",
+            "label": "Mara Vega",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r13"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r17",
+            "label": "Quimey Vidal",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r17"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r16",
+            "label": "Pablo Cielo",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r16"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r20",
+            "label": "Tania Vidal",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r20"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r19",
+            "label": "Simón Nube",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r19"
+          }
+        },
+        {
+          "colleague": {
+            "value": "https://spinach.local/r23",
+            "label": "Waldo Cruz",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r23"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r22",
+            "label": "Vera Roble",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r22"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 3,
+      "question": "Which Argentina-based researchers lead renewable-energy projects and have no retracted papers?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find Argentina-based leaders in renewable energy without retracted papers",
+            "query": "SELECT DISTINCT ?person ?personLabel WHERE {\n  ?person <https://spinach.local/worksAt> ?inst .\n  ?inst <https://spinach.local/locatedIn> ?city .\n  ?city <https://spinach.local/country> <https://spinach.local/country1> .\n  ?person <https://spinach.local/leads> ?proj .\n  ?proj <https://spinach.local/topic> <https://spinach.local/topic3> .\n  FILTER NOT EXISTS {\n    ?person <https://spinach.local/authored> ?paper .\n    ?paper <https://spinach.local/status> <https://spinach.local/retracted> .\n  }\n  OPTIONAL { ?person rdfs:label ?personLabel }\n}\nORDER BY ?personLabel ?person"
+          },
+          "timing": {
+            "totalMs": 19548.9635,
+            "navigationMs": 0,
+            "generationMs": 19547.034292,
+            "replayMs": 0.000708,
+            "toolMs": 0.622167
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "person",
+              "personLabel"
+            ],
+            "rows": [
+              {
+                "person": {
+                  "value": "https://spinach.local/r08",
+                  "label": "Hugo Valle",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r08"
+                },
+                "personLabel": {
+                  "value": "Hugo Valle",
+                  "label": "Hugo Valle",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/r08"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.609
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify Argentina-based renewable-energy project leaders without retractions",
+            "answer": "Hugo Valle"
+          },
+          "timing": {
+            "totalMs": 13864.00525,
+            "navigationMs": 0,
+            "generationMs": 13861.478667,
+            "replayMs": 0.662459,
+            "toolMs": 0.003709
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Hugo Valle",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 5,
+      "question": "Which project has the most citations from published papers with authors in France, counting each paper once?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Sum of citations per project from published papers with at least one author in France, counting each paper once, and return the top project(s)",
+            "query": "PREFIX ex: <https://spinach.local/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT ?project ?projectLabel ?total WHERE {\n  {\n    SELECT ?project (SUM(?cit) AS ?total) WHERE {\n      SELECT DISTINCT ?project ?paper (xsd:integer(?c) AS ?cit) WHERE {\n        ?paper ex:status ex:published .\n        ?paper ex:aboutProject ?project .\n        ?author ex:authored ?paper .\n        ?author ex:worksAt ?lab .\n        ?lab ex:locatedIn ?city .\n        ?city ex:country ex:country0 .\n        ?paper ex:citations ?c .\n      }\n    }\n    GROUP BY ?project\n  }\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n  {\n    SELECT (MAX(?total) AS ?maxTotal) WHERE {\n      SELECT ?project (SUM(?cit) AS ?total) WHERE {\n        SELECT DISTINCT ?project ?paper (xsd:integer(?c) AS ?cit) WHERE {\n          ?paper ex:status ex:published .\n          ?paper ex:aboutProject ?project .\n          ?author ex:authored ?paper .\n          ?author ex:worksAt ?lab .\n          ?lab ex:locatedIn ?city .\n          ?city ex:country ex:country0 .\n          ?paper ex:citations ?c .\n        }\n      }\n      GROUP BY ?project\n    }\n  }\n  FILTER(?total = ?maxTotal)\n}\nORDER BY COALESCE(?projectLabel, STR(?project))"
+          },
+          "timing": {
+            "totalMs": 55107.260958,
+            "navigationMs": 0,
+            "generationMs": 55104.58875,
+            "replayMs": 0.000417,
+            "toolMs": 1.768
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "total"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                },
+                "projectLabel": {
+                  "value": "Project 05",
+                  "label": "Project 05",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "total": {
+                  "value": "100",
+                  "label": "100",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project05"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.748
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Top-cited project from published France-authored papers (dedup per paper)",
+            "answer": "Project 05 has the most citations: 100 citations from published papers with at least one author in France (each paper counted once)."
+          },
+          "timing": {
+            "totalMs": 12677.898792,
+            "navigationMs": 0,
+            "generationMs": 12673.375583,
+            "replayMs": 2.494542,
+            "toolMs": 0.004708
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Project 05 has the most citations: 100 citations from published papers with at least one author in France (each paper counted once).",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project05",
+            "label": "Project 05",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project05"
+          },
+          "totalCitations": {
+            "value": "100",
+            "label": "100",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 5,
+      "question": "Which project has the most citations from published papers with authors in France, counting each paper once?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find top-cited project from published, France-authored papers",
+            "query": "PREFIX ex: <https://spinach.local/>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n# Projects with total citations from published papers that have at least one author in France\nSELECT ?project ?total WHERE {\n  {\n    SELECT ?project (SUM(?c) AS ?total)\n    WHERE {\n      {\n        SELECT DISTINCT ?paper ?project ?c\n        WHERE {\n          ?paper ex:status ex:published .\n          ?paper ex:aboutProject ?project .\n          ?paper ex:citations ?cLit .\n          BIND(xsd:integer(?cLit) AS ?c)\n          FILTER(isNumeric(?c))\n          EXISTS {\n            ?author ex:authored ?paper .\n            ?author ex:worksAt ?inst .\n            ?inst ex:locatedIn ?city .\n            ?city ex:country ex:country0 . # France\n          }\n        }\n      }\n    }\n    GROUP BY ?project\n  }\n  {\n    SELECT (MAX(?total2) AS ?maxTotal)\n    WHERE {\n      {\n        SELECT ?project2 (SUM(?c2) AS ?total2)\n        WHERE {\n          {\n            SELECT DISTINCT ?paper2 ?project2 ?c2\n            WHERE {\n              ?paper2 ex:status ex:published .\n              ?paper2 ex:aboutProject ?project2 .\n              ?paper2 ex:citations ?cLit2 .\n              BIND(xsd:integer(?cLit2) AS ?c2)\n              FILTER(isNumeric(?c2))\n              EXISTS {\n                ?author2 ex:authored ?paper2 .\n                ?author2 ex:worksAt ?inst2 .\n                ?inst2 ex:locatedIn ?city2 .\n                ?city2 ex:country ex:country0 .\n              }\n            }\n          }\n        }\n        GROUP BY ?project2\n      }\n    }\n  }\n  FILTER(?total = ?maxTotal)\n}\nORDER BY ?project"
+          },
+          "timing": {
+            "totalMs": 40744.235792,
+            "navigationMs": 243.144417,
+            "generationMs": 40499.616167,
+            "replayMs": 0.000209,
+            "toolMs": 0.416291
+          },
+          "model": "gpt-5-2025-08-07",
+          "error": "sparql parse error at pos 795: unexpected token in group graph pattern"
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Top-cited project from published France-authored papers (deduplicated by paper)",
+            "query": "PREFIX ex: <https://spinach.local/>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\n# Projects with total citations from published papers that have at least one author affiliated in France; each paper counted once\nSELECT ?project ?total WHERE {\n  {\n    SELECT ?project (SUM(?c) AS ?total)\n    WHERE {\n      {\n        SELECT DISTINCT ?paper ?project (xsd:integer(?cLit) AS ?c)\n        WHERE {\n          ?paper ex:status ex:published .\n          ?paper ex:aboutProject ?project .\n          ?paper ex:citations ?cLit .\n          ?author ex:authored ?paper .\n          ?author ex:worksAt ?inst .\n          ?inst ex:locatedIn ?city .\n          ?city ex:country ex:country0 .\n        }\n      }\n    }\n    GROUP BY ?project\n  }\n  {\n    SELECT (MAX(?total2) AS ?maxTotal)\n    WHERE {\n      {\n        SELECT ?project2 (SUM(?c2) AS ?total2)\n        WHERE {\n          {\n            SELECT DISTINCT ?paper2 ?project2 (xsd:integer(?cLit2) AS ?c2)\n            WHERE {\n              ?paper2 ex:status ex:published .\n              ?paper2 ex:aboutProject ?project2 .\n              ?paper2 ex:citations ?cLit2 .\n              ?author2 ex:authored ?paper2 .\n              ?author2 ex:worksAt ?inst2 .\n              ?inst2 ex:locatedIn ?city2 .\n              ?city2 ex:country ex:country0 .\n            }\n          }\n        }\n        GROUP BY ?project2\n      }\n    }\n  }\n  FILTER(?total = ?maxTotal)\n}\nORDER BY ?project"
+          },
+          "timing": {
+            "totalMs": 24881.78325,
+            "navigationMs": 101.178959,
+            "generationMs": 24776.428167,
+            "replayMs": 0.408458,
+            "toolMs": 1.689667
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "total"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                },
+                "total": {
+                  "value": "100",
+                  "label": "100",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project05"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.673
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Top-cited project from published France-authored papers",
+            "answer": "Project 05, with 100 citations (counting each paper once)."
+          },
+          "timing": {
+            "totalMs": 9023.73725,
+            "navigationMs": 99.810208,
+            "generationMs": 8918.864375,
+            "replayMs": 1.67975,
+            "toolMs": 0.00375
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Project 05, with 100 citations (counting each paper once).",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project05",
+            "label": "Project 05",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project05"
+          },
+          "totalCitations": {
+            "value": "100",
+            "label": "100",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 1,
+      "question": "Which climate projects funded by Aurora Foundation involve researchers in France, and who are they?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Encontrar proyectos de clima financiados por Aurora con investigadores en Francia",
+            "query": "SELECT DISTINCT ?project ?researcher WHERE {\n  ?project ex:topic ex:topic0 .\n  ?project ex:fundedBy ex:funder0 .\n  { ?researcher ex:participatesIn ?project }\n  UNION\n  { ?researcher ex:leads ?project }\n  ?researcher ex:worksAt ?inst .\n  ?inst ex:locatedIn ?city .\n  ?city ex:country ex:country0 .\n} ORDER BY ?project ?researcher"
+          },
+          "timing": {
+            "totalMs": 34765.791083,
+            "navigationMs": 0,
+            "generationMs": 34763.538334,
+            "replayMs": 0.000375,
+            "toolMs": 0.725583
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "researcher"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "researcher": {
+                  "value": "https://spinach.local/r01",
+                  "label": "Ava Mora",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r01"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "researcher": {
+                  "value": "https://spinach.local/r09",
+                  "label": "Iris Alba",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r09"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "researcher": {
+                  "value": "https://spinach.local/r13",
+                  "label": "Mara Vega",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r13"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "researcher": {
+                  "value": "https://spinach.local/r21",
+                  "label": "Uma Campo",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r21"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/r01",
+              "https://spinach.local/r09",
+              "https://spinach.local/r13",
+              "https://spinach.local/r21"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.7
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify Aurora-funded climate projects with France-based researchers",
+            "answer": "Project 01 — Ava Mora; Iris Alba; Mara Vega; Uma Campo."
+          },
+          "timing": {
+            "totalMs": 15990.9545,
+            "navigationMs": 0,
+            "generationMs": 15987.304667,
+            "replayMs": 0.840209,
+            "toolMs": 0.001458
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Project 01 — Ava Mora; Iris Alba; Mara Vega; Uma Campo.",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r01",
+            "label": "Ava Mora",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r01"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r09",
+            "label": "Iris Alba",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r09"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r13",
+            "label": "Mara Vega",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r13"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r21",
+            "label": "Uma Campo",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r21"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 1,
+      "question": "Which climate projects funded by Aurora Foundation involve researchers in France, and who are they?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find Aurora-funded climate projects with researchers based in France",
+            "query": "SELECT DISTINCT ?project ?projectLabel ?person ?personLabel WHERE {\n  ?project <https://spinach.local/topic> <https://spinach.local/topic0> .\n  ?project <https://spinach.local/fundedBy> <https://spinach.local/funder0> .\n  { ?person <https://spinach.local/leads> ?project }\n  UNION\n  { ?person <https://spinach.local/participatesIn> ?project } .\n  ?person <https://spinach.local/worksAt> ?inst .\n  ?inst <https://spinach.local/locatedIn> ?city .\n  ?city <https://spinach.local/country> <https://spinach.local/country0> .\n  OPTIONAL { ?project <http://www.w3.org/2000/01/rdf-schema#label> ?projectLabel }\n  OPTIONAL { ?person  <http://www.w3.org/2000/01/rdf-schema#label> ?personLabel }\n}\nORDER BY ?projectLabel ?personLabel"
+          },
+          "timing": {
+            "totalMs": 38624.171834,
+            "navigationMs": 110.760917,
+            "generationMs": 38511.939667,
+            "replayMs": 0.000625,
+            "toolMs": 0.516083
+          },
+          "model": "gpt-5-2025-08-07",
+          "error": "sparql parse error at pos 539: unexpected token in group graph pattern"
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find Aurora-funded climate projects with researchers based in France",
+            "query": "SELECT DISTINCT ?project ?projectLabel ?person ?personLabel WHERE {\n  ?project ex:topic ex:topic0 ;\n           ex:fundedBy ex:funder0 .\n  {\n    ?person ex:leads ?project .\n  }\n  UNION\n  {\n    ?person ex:participatesIn ?project .\n  }\n  ?person ex:worksAt ?inst .\n  ?inst ex:locatedIn ?city .\n  ?city ex:country ex:country0 .\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n  OPTIONAL { ?person rdfs:label ?personLabel }\n}\nORDER BY ?projectLabel ?personLabel"
+          },
+          "timing": {
+            "totalMs": 22242.8005,
+            "navigationMs": 99.704584,
+            "generationMs": 22138.634709,
+            "replayMs": 0.493333,
+            "toolMs": 0.705833
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "person",
+              "personLabel"
+            ],
+            "rows": [
+              {
+                "person": {
+                  "value": "https://spinach.local/r01",
+                  "label": "Ava Mora",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r01"
+                },
+                "personLabel": {
+                  "value": "Ava Mora",
+                  "label": "Ava Mora",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "person": {
+                  "value": "https://spinach.local/r09",
+                  "label": "Iris Alba",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r09"
+                },
+                "personLabel": {
+                  "value": "Iris Alba",
+                  "label": "Iris Alba",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "person": {
+                  "value": "https://spinach.local/r13",
+                  "label": "Mara Vega",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r13"
+                },
+                "personLabel": {
+                  "value": "Mara Vega",
+                  "label": "Mara Vega",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "person": {
+                  "value": "https://spinach.local/r21",
+                  "label": "Uma Campo",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/r21"
+                },
+                "personLabel": {
+                  "value": "Uma Campo",
+                  "label": "Uma Campo",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/r01",
+              "https://spinach.local/r09",
+              "https://spinach.local/r13",
+              "https://spinach.local/r21"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.695
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Answer: Aurora-funded climate projects with France-based researchers",
+            "answer": "In this graph, the only climate project funded by Aurora Foundation that involves researchers based in France is:\n- Project 01 — Ava Mora, Iris Alba, Mara Vega, Uma Campo."
+          },
+          "timing": {
+            "totalMs": 20466.239584,
+            "navigationMs": 118.692208,
+            "generationMs": 20343.628791,
+            "replayMs": 1.034042,
+            "toolMs": 0.001458
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "In this graph, the only climate project funded by Aurora Foundation that involves researchers based in France is:\n- Project 01 — Ava Mora, Iris Alba, Mara Vega, Uma Campo.",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r01",
+            "label": "Ava Mora",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r01"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r09",
+            "label": "Iris Alba",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r09"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r13",
+            "label": "Mara Vega",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r13"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r21",
+            "label": "Uma Campo",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r21"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 2,
+      "question": "Which projects involve researchers from at least two countries, and how many countries does each involve?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Count distinct researcher countries per project",
+            "query": "SELECT ?project (SAMPLE(?label) AS ?projectLabel) (COUNT(DISTINCT ?country) AS ?countryCount)\nWHERE {\n  {\n    SELECT DISTINCT ?project ?person WHERE {\n      { ?person ex:participatesIn ?project . }\n      UNION\n      { ?person ex:leads ?project . }\n    }\n  }\n  ?person ex:worksAt ?inst .\n  ?inst ex:locatedIn ?city .\n  ?city ex:country ?country .\n  OPTIONAL { ?project rdfs:label ?label }\n}\nGROUP BY ?project\nHAVING (COUNT(DISTINCT ?country) >= 2)\nORDER BY ?projectLabel"
+          },
+          "timing": {
+            "totalMs": 23707.27275,
+            "navigationMs": 122.286541,
+            "generationMs": 23583.418708,
+            "replayMs": 4.2e-05,
+            "toolMs": 1.17125
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "countryCount"
+            ],
+            "rows": [
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project03",
+                  "label": "Project 03",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project03"
+                },
+                "projectLabel": {
+                  "value": "Project 03",
+                  "label": "Project 03",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "3",
+                  "label": "3",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projectLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "4",
+                  "label": "4",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projectLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project08",
+                  "label": "Project 08",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project08"
+                },
+                "projectLabel": {
+                  "value": "Project 08",
+                  "label": "Project 08",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "3",
+                  "label": "3",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projectLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project11",
+                  "label": "Project 11",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project11"
+                },
+                "projectLabel": {
+                  "value": "Project 11",
+                  "label": "Project 11",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project12",
+                  "label": "Project 12",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project12"
+                },
+                "projectLabel": {
+                  "value": "Project 12",
+                  "label": "Project 12",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/project03",
+              "https://spinach.local/project04",
+              "https://spinach.local/project07",
+              "https://spinach.local/project08",
+              "https://spinach.local/project10",
+              "https://spinach.local/project11",
+              "https://spinach.local/project12"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.156
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "List multi-country projects with counts",
+            "answer": "Projects involving researchers from at least two countries (distinct country counts):\n- Project 01 — 2 countries\n- Project 03 — 2 countries\n- Project 04 — 3 countries\n- Project 07 — 4 countries\n- Project 08 — 2 countries\n- Project 10 — 3 countries\n- Project 11 — 2 countries\n- Project 12 — 2 countries"
+          },
+          "timing": {
+            "totalMs": 10576.461541,
+            "navigationMs": 199.059709,
+            "generationMs": 10373.376417,
+            "replayMs": 2.055625,
+            "toolMs": 0.003
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Projects involving researchers from at least two countries (distinct country counts):\n- Project 01 — 2 countries\n- Project 03 — 2 countries\n- Project 04 — 3 countries\n- Project 07 — 4 countries\n- Project 08 — 2 countries\n- Project 10 — 3 countries\n- Project 11 — 2 countries\n- Project 12 — 2 countries",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project03",
+            "label": "Project 03",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project03"
+          }
+        },
+        {
+          "countries": {
+            "value": "3",
+            "label": "3",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project04",
+            "label": "Project 04",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project04"
+          }
+        },
+        {
+          "countries": {
+            "value": "4",
+            "label": "4",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project07",
+            "label": "Project 07",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project07"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          }
+        },
+        {
+          "countries": {
+            "value": "3",
+            "label": "3",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project10",
+            "label": "Project 10",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project10"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project11",
+            "label": "Project 11",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project11"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project12",
+            "label": "Project 12",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project12"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 4,
+      "question": "Which institutions can reach Pacific Lab through one or more partnerships and employ a climate-project leader?",
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Encontrar instituciones con ruta de alianzas a Pacific Lab y que emplean líderes de proyectos de clima",
+            "query": "PREFIX ex: <https://spinach.local/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT DISTINCT ?inst ?inst_label WHERE {\n  ?inst ex:partnersWith+ ex:lab7 .\n  ?person ex:worksAt ?inst .\n  ?person ex:leads ?proj .\n  ?proj ex:topic ex:topic0 .\n  OPTIONAL { ?inst rdfs:label ?inst_label }\n}\nORDER BY ?inst_label ?inst"
+          },
+          "timing": {
+            "totalMs": 22916.736333,
+            "navigationMs": 122.964833,
+            "generationMs": 22792.339,
+            "replayMs": 0.00075,
+            "toolMs": 0.515417
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "inst",
+              "inst_label"
+            ],
+            "rows": [
+              {
+                "inst": {
+                  "value": "https://spinach.local/lab4",
+                  "label": "Andes Lab",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/lab4"
+                },
+                "inst_label": {
+                  "value": "Andes Lab",
+                  "label": "Andes Lab",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "inst": {
+                  "value": "https://spinach.local/lab0",
+                  "label": "Aurora Institute",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/lab0"
+                },
+                "inst_label": {
+                  "value": "Aurora Institute",
+                  "label": "Aurora Institute",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/lab0",
+              "https://spinach.local/lab4"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.505
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Institutions with partnership path to Pacific Lab and a climate‑project leader",
+            "answer": "Andes Lab; Aurora Institute."
+          },
+          "timing": {
+            "totalMs": 11029.880792,
+            "navigationMs": 169.568791,
+            "generationMs": 10857.96275,
+            "replayMs": 0.837708,
+            "toolMs": 0.003458
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Andes Lab; Aurora Institute.",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "lab": {
+            "value": "https://spinach.local/lab0",
+            "label": "Aurora Institute",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/lab0"
+          }
+        },
+        {
+          "lab": {
+            "value": "https://spinach.local/lab4",
+            "label": "Andes Lab",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/lab4"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 2,
+      "question": "Which projects involve researchers from at least two countries, and how many countries does each involve?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Count countries per project (multinational teams)",
+            "query": "SELECT ?project ?projectLabel (COUNT(DISTINCT ?country) AS ?countryCount)\nWHERE {\n  ?person <https://spinach.local/participatesIn> ?project .\n  ?person <https://spinach.local/worksAt> ?lab .\n  ?lab <https://spinach.local/locatedIn> ?city .\n  ?city <https://spinach.local/country> ?country .\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n}\nGROUP BY ?project ?projectLabel\nHAVING (COUNT(DISTINCT ?country) >= 2)\nORDER BY ?project"
+          },
+          "timing": {
+            "totalMs": 16968.186083,
+            "navigationMs": 0,
+            "generationMs": 16966.841291,
+            "replayMs": 0.000292,
+            "toolMs": 0.921292
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "countryCount"
+            ],
+            "rows": [
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project03",
+                  "label": "Project 03",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project03"
+                },
+                "projectLabel": {
+                  "value": "Project 03",
+                  "label": "Project 03",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "3",
+                  "label": "3",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "projectLabel": {
+                  "value": "Project 04",
+                  "label": "Project 04",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "4",
+                  "label": "4",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "projectLabel": {
+                  "value": "Project 07",
+                  "label": "Project 07",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project08",
+                  "label": "Project 08",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project08"
+                },
+                "projectLabel": {
+                  "value": "Project 08",
+                  "label": "Project 08",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "3",
+                  "label": "3",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project10",
+                  "label": "Project 10",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project10"
+                },
+                "projectLabel": {
+                  "value": "Project 10",
+                  "label": "Project 10",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project11",
+                  "label": "Project 11",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project11"
+                },
+                "projectLabel": {
+                  "value": "Project 11",
+                  "label": "Project 11",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "countryCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project12",
+                  "label": "Project 12",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project12"
+                },
+                "projectLabel": {
+                  "value": "Project 12",
+                  "label": "Project 12",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/project03",
+              "https://spinach.local/project04",
+              "https://spinach.local/project07",
+              "https://spinach.local/project08",
+              "https://spinach.local/project10",
+              "https://spinach.local/project11",
+              "https://spinach.local/project12"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.901
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify multinational projects and their country counts",
+            "answer": "Projects involving researchers from at least two countries and their counts:\n- Project 07 — 4 countries\n- Project 04 — 3 countries\n- Project 10 — 3 countries\n- Project 01 — 2 countries\n- Project 03 — 2 countries\n- Project 08 — 2 countries\n- Project 11 — 2 countries\n- Project 12 — 2 countries\n\nNote: ties occur at 3 countries (Projects 04 and 10) and at 2 countries (Projects 01, 03, 08, 11, 12)."
+          },
+          "timing": {
+            "totalMs": 24342.693167,
+            "navigationMs": 0,
+            "generationMs": 24338.732916,
+            "replayMs": 1.828708,
+            "toolMs": 0.00125
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Projects involving researchers from at least two countries and their counts:\n- Project 07 — 4 countries\n- Project 04 — 3 countries\n- Project 10 — 3 countries\n- Project 01 — 2 countries\n- Project 03 — 2 countries\n- Project 08 — 2 countries\n- Project 11 — 2 countries\n- Project 12 — 2 countries\n\nNote: ties occur at 3 countries (Projects 04 and 10) and at 2 countries (Projects 01, 03, 08, 11, 12).",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project01",
+            "label": "Project 01",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project01"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project03",
+            "label": "Project 03",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project03"
+          }
+        },
+        {
+          "countries": {
+            "value": "3",
+            "label": "3",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project04",
+            "label": "Project 04",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project04"
+          }
+        },
+        {
+          "countries": {
+            "value": "4",
+            "label": "4",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project07",
+            "label": "Project 07",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project07"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          }
+        },
+        {
+          "countries": {
+            "value": "3",
+            "label": "3",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project10",
+            "label": "Project 10",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project10"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project11",
+            "label": "Project 11",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project11"
+          }
+        },
+        {
+          "countries": {
+            "value": "2",
+            "label": "2",
+            "kind": "literal",
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+          },
+          "project": {
+            "value": "https://spinach.local/project12",
+            "label": "Project 12",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project12"
+          }
+        }
+      ]
+    },
+    {
+      "questionNumber": 4,
+      "question": "Which institutions can reach Pacific Lab through one or more partnerships and employ a climate-project leader?",
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Encontrar instituciones con ruta de alianzas a Pacific Lab y que emplean a líderes de proyectos de clima",
+            "query": "PREFIX ex: <https://spinach.local/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT DISTINCT ?inst ?instLabel WHERE {\n  ?inst ex:partnersWith+ ex:lab7 .\n  ?person ex:worksAt ?inst .\n  ?person ex:leads ?proj .\n  ?proj ex:topic ex:topic0 .\n  OPTIONAL { ?inst rdfs:label ?instLabel }\n}\nORDER BY COALESCE(?instLabel, STR(?inst))"
+          },
+          "timing": {
+            "totalMs": 24048.242792,
+            "navigationMs": 0,
+            "generationMs": 24046.852459,
+            "replayMs": 0.001,
+            "toolMs": 0.434375
+          },
+          "model": "gpt-5-2025-08-07",
+          "evidence": {
+            "variables": [
+              "inst",
+              "instLabel"
+            ],
+            "rows": [
+              {
+                "inst": {
+                  "value": "https://spinach.local/lab4",
+                  "label": "Andes Lab",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/lab4"
+                },
+                "instLabel": {
+                  "value": "Andes Lab",
+                  "label": "Andes Lab",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              },
+              {
+                "inst": {
+                  "value": "https://spinach.local/lab0",
+                  "label": "Aurora Institute",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/lab0"
+                },
+                "instLabel": {
+                  "value": "Aurora Institute",
+                  "label": "Aurora Institute",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/lab0",
+              "https://spinach.local/lab4"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.423
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Find institutions with partnership paths to Pacific Lab that employ a climate‑project leader",
+            "answer": "Andes Lab; Aurora Institute."
+          },
+          "timing": {
+            "totalMs": 18522.072625,
+            "navigationMs": 0,
+            "generationMs": 18520.107708,
+            "replayMs": 0.513291,
+            "toolMs": 0.004958
+          },
+          "model": "gpt-5-2025-08-07"
+        }
+      ],
+      "answer": "Andes Lab; Aurora Institute.",
+      "expectedEvidenceFound": true,
+      "complete": true,
+      "referenceRows": [
+        {
+          "lab": {
+            "value": "https://spinach.local/lab0",
+            "label": "Aurora Institute",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/lab0"
+          }
+        },
+        {
+          "lab": {
+            "value": "https://spinach.local/lab4",
+            "label": "Andes Lab",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/lab4"
+          }
+        }
+      ]
+    }
+  ]
+}

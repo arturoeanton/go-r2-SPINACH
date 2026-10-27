@@ -1,5 +1,8 @@
 import {databaseForm,schemaModal} from './databases.js';
 import {t,initLanguage,language,applyLanguage} from './i18n.js';
+import {advanceUntilDone} from './run-controller.js';
+import {actionTitle,traceSteps} from './journey-view.js';
+import {createMetrics,finishRequest,summarizeMetrics,formatDuration} from './run-metrics.js';
 const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg', EX='https://spinach.local/';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const local=s=>String(s).split(/[/#:]/).filter(Boolean).at(-1)||s;
@@ -11,13 +14,22 @@ document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.datase
 const palette=[['#87a56b','#edf3e4','#dbe6cf'],['#ae91cd','#f3eef9','#e7ddf2'],['#79a3c1','#edf4fa','#d6e5f0'],['#d0a261','#fbf4e8','#efe2c7'],['#c3818b','#fbf0f1','#efdde0']];
 let state={graphs:[],g:null,dirty:false,selected:null,focus:null,multi:new Set(),tool:'move',linkFrom:null,undo:[],redo:[],result:null,run:null,busy:false};
 let view={x:0,y:0,k:1},drag=null,toastTimer,runController=null,runVersion=0,status=null;
-let prefs={ollama:'google/gemma-4-12b',ollaya:'laya:multilingual'};try{Object.assign(prefs,JSON.parse(localStorage.getItem('spinach-models')||'{}'))}catch{}
+let providers={provider:'openai',navigationProvider:'jev',generationLabel:'OpenAI',navigationLabel:'Jev'};
+let prefs={generation:'gpt-5',navigation:'jev-latest'};
+const generatorName=()=>providers.generationLabel,navigatorName=()=>providers.navigationLabel;
+let runPrefs={useNavigation:true,measureTime:true};try{let saved=JSON.parse(localStorage.getItem('spinach-run-options')||'{}');for(let key of Object.keys(runPrefs))if(typeof saved[key]==='boolean')runPrefs[key]=saved[key]}catch{}
+async function configureModels(){
+  providers=await api('/config');prefs={...providers.defaults};
+  renderRunOptions();
+}
 const on=(id,ev,fn)=>$(id).addEventListener(ev,e=>Promise.resolve(fn(e)).catch(showError));
-async function api(path,body,method,signal){const res=await fetch('/api'+path,{method:method||(body?'POST':'GET'),headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal});let data;try{data=await res.json()}catch{throw Error('La respuesta del servidor no es válida. Abrí la app desde su servidor local.')};if(!res.ok)throw Error(data.error||`Error ${res.status}`);return data}
+async function api(path,body,method,signal){const res=await fetch('/api'+path,{method:method||(body?'POST':'GET'),headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal});let data;try{data=await res.json()}catch{throw Error('La respuesta del servidor no es válida. Abrí la app desde su servidor local.')};if(!res.ok){let error=Error(data.error||`Error ${res.status}`);error.timing=data.timing;error.trace=data.trace;throw error;}return data}
 function toast(message,error=false){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.toggle('error',error);$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,error?8000:3500)}
 function showError(e){if(e.name!=='AbortError')toast(e.message||String(e),true)}
-function modal(title,html){$('modal-title').textContent=title;$('modal-body').innerHTML=html;if(!$('modal').open)$('modal').showModal();$('modal-body').querySelector('input,textarea,select,button')?.focus()}
-function closeModal(){$('modal').close()}
+function modal(title,html){$('modal').classList.remove('connections-dialog');$('modal-title').textContent=title;$('modal-body').innerHTML=html;if(!$('modal').open)$('modal').showModal();$('modal-body').querySelector('input,textarea,select,button')?.focus()}
+function clearSecretFields(){$('modal-body').querySelectorAll('input[type="password"]').forEach(input=>input.value='')}
+function closeModal(){clearSecretFields();$('modal').close()}
+on('modal','close',clearSecretFields);
 on('modal-close','click',closeModal);on('modal','click',e=>{if(e.target===$('modal')){let r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeModal()}});
 function field(label,name,value='',extra=''){return `<label class="form-field">${label}<input name="${name}" value="${esc(value)}" ${extra}></label>`}
 function form(title,fields,save,label='Guardar',secondary=''){modal(title,`<form id="edit-form">${fields}<div id="form-error" class="form-error" hidden></div><div class="modal-actions">${secondary}<button type="button" class="button white" id="form-cancel">Cancelar</button><button class="button primary" type="submit">${label}</button></div></form>`);$('form-cancel').onclick=closeModal;$('edit-form').onsubmit=async e=>{e.preventDefault();let button=e.submitter;button.disabled=true;try{await save(new FormData(e.target));closeModal()}catch(err){$('form-error').hidden=false;$('form-error').textContent=err.message;button.disabled=false}}}
@@ -58,19 +70,149 @@ function exportGraph(){let blob=new Blob([JSON.stringify(state.g,null,2)],{type:
 function setExample(i){let e=state.g.examples?.[i];if(e){$('question-input').value=t(e.question);$('query-editor').value=e.query}else{$('question-input').value='';$('query-editor').value='SELECT ?s ?p ?o WHERE {\n  ?s ?p ?o .\n} LIMIT 25'}$('example-list').innerHTML=(state.g.examples||[]).map((x,k)=>`<button class="example-pill ${i===k?'active':''}" data-index="${k}">${esc(x.question)}</button>`).join('');$('example-list').querySelectorAll('button').forEach(b=>b.onclick=()=>{stopRun(false);setExample(+b.dataset.index)})}
 function tab(name){$('query-tab').classList.toggle('active',name==='query');$('results-tab').classList.toggle('active',name==='results');$('query-tab').setAttribute('aria-selected',name==='query');$('results-tab').setAttribute('aria-selected',name==='results');$('query-pane').hidden=name!=='query';$('results-pane').hidden=name!=='results'}
 function renderResults(){let r=state.result;$('result-count').textContent=r?.rows?.length||0;if(!r){$('results-pane').innerHTML='<div class="empty-state">Ejecutá una consulta para ver la evidencia.</div>';return}let html=r.boolean!==undefined?`<div class="empty-state">ASK → <strong>${r.boolean?'Verdadero':'Falso'}</strong></div>`:r.rows.length?`<div class="results-wrap"><table><thead><tr>${r.variables.map(v=>`<th>?${esc(v)}</th>`).join('')}</tr></thead><tbody>${r.rows.map(row=>`<tr>${r.variables.map(v=>{let c=row[v];return `<td>${c?.nodeId?`<button data-node="${esc(c.nodeId)}" title="${esc(c.value)}">${esc(c.label||c.value)}</button>`:esc(c?.label??c?.value??'—')}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state">No hay coincidencias para esta consulta en el grafo actual.</div>';html+=`<div class="result-summary">${r.rows.length} filas${r.truncated?' · vista limitada':''}${r.durationMs!==undefined?' · '+r.durationMs.toFixed(2)+' ms':''} · ${r.engine?esc(r.engine):'Motor local'}<br>${r.edgeIds?.length?'Relaciones participantes resaltadas en el lienzo.':'Los nodos devueltos se resaltan; la tabla es la evidencia de la consulta.'}${r.sql?`<details><summary>SQL generado y plan de ejecución</summary><pre class="command">${esc(r.sql)}</pre>${(r.plan||[]).map(p=>`<div>${esc(p)}</div>`).join('')}</details>`:''}</div>`;$('results-pane').innerHTML=html;$('results-pane').querySelectorAll('[data-node]').forEach(b=>b.onclick=()=>selectNode(b.dataset.node))}
-async function executeQuery(query=$('query-editor').value,signal){await saveGraph();let r=await api('/graphs/'+state.g.id+'/query',{query},undefined,signal);state.result=r;$('query-editor').value=query;renderGraph();renderResults();tab('results');return r}
+async function executeQuery(query=$('query-editor').value,signal,run=null){await saveGraph();let request=()=>api('/graphs/'+state.g.id+'/query',{query},undefined,signal);let r=run?await journeyRequest(run,'Consulta SPARQL',request):await request();state.result=r;$('query-editor').value=query;renderGraph();renderResults();tab('results');return r}
 on('execute-query','click',async()=>{let b=$('execute-query');b.disabled=true;try{await executeQuery()}catch(e){$('results-pane').innerHTML=`<div class="form-error">${esc(e.message)}</div>`;tab('results');throw e}finally{b.disabled=false}});
-const guidedSteps=[['Entender la pregunta','Identificar qué queremos descubrir'],['Elegir dónde empezar','Ubicar las conexiones relevantes'],['Explorar relaciones','Reconocer entidades y propiedades'],['Consultar el grafo','Unir patrones con SPARQL'],['Verificar la respuesta','Volver de los resultados a la evidencia']];
-function renderJourney(){let r=state.run,steps=r?.mode==='ai'?[["Elegir subgrafo","Laya · selección inicial"],...(r.events||[]).map(e=>[({search:'Buscar entidades',explore:'Explorar conexiones',query:'Ejecutar consulta',answer:'Verificar respuesta'})[e.action.type]||'Acción',(e.navigation?'Laya → '+(state.g.subgraphs.find(s=>s.id===e.navigation.choice)?.name||'graph')+' · ':'')+(e.action.objective||e.action.type)])]:guidedSteps;let index=r?.index??-1;$('step-count').textContent=r?`${Math.min(index+1,steps.length)} / ${r.mode==='ai'?'máx. 9':steps.length}`:'0 / 5';$('journey-steps').innerHTML=steps.map(([title,desc],i)=>`<li class="journey-step ${i<index||r?.done?'done':i===index?'current':''}"><span class="step-number">${i<index||r?.done?'✓':String(i+1).padStart(2,'0')}</span><div><strong>${esc(title)}</strong><p>${esc(desc)}</p></div></li>`).join('');$('next-step').hidden=!r||r.done;$('next-step').disabled=state.busy;$('next-step').innerHTML=state.busy?'<span class="busy-dot"></span> Procesando…':`Siguiente paso ${icon('arrow',true)}`;$('start-run').disabled=state.busy;$('cancel-run').hidden=!r||r.done;$('question-input').disabled=!!r&&!r.done;$('run-mode').disabled=!!r&&!r.done;$('journey-detail').classList.toggle('error',!!r?.error);if(!r){$('journey-detail').textContent='Elegí una pregunta de ejemplo para ver cómo se conectan las piezas.';$('answer-box').hidden=true}}
+const learningSteps=[['Entender la pregunta','Identificar qué queremos descubrir'],['Elegir dónde empezar','Ubicar las conexiones relevantes'],['Explorar relaciones','Reconocer entidades y propiedades'],['Consultar el grafo','Unir patrones con SPARQL'],['Verificar la respuesta','Volver de los resultados a la evidencia']];
+function renderRunOptions(){
+  let locked=!!state.run&&!state.run.done;
+  $('use-navigation').checked=runPrefs.useNavigation;
+  $('use-navigation').disabled=locked;
+  $('measure-time').checked=runPrefs.measureTime;
+  $('measure-time').disabled=locked;
+  $('navigation-label').textContent=t('Usar')+' '+navigatorName();
+  $('cloud-notice').hidden=false;
+  $('model-location').textContent=t('APIs configuradas');
+  $('navigation-hint').textContent=runPrefs.useNavigation?navigatorName()+' '+t('elige los subgrafos para el generador.'):generatorName()+' '+t('explora sin el modelo de navegación.');
+}
+function renderRunMetrics(){
+  let r=state.run,box=$('run-metrics');box.hidden=!r?.measureTime;
+  if(box.hidden){box.replaceChildren();return}
+  let m=summarizeMetrics(r.metrics,performance.now());
+  let stat=(label,value)=>`<div><span>${label}</span><strong>${formatDuration(value)}</strong></div>`;
+  box.innerHTML=`<div class="metrics-heading"><span>TIEMPO DE PROCESAMIENTO</span><span class="metrics-mode">${(r.useNavigation?t('Con'):t('Sin'))+' '+navigatorName()}</span></div><div class="metrics-total" data-metric="total">${formatDuration(m.requestMs)}</div><p class="option-hint">Tiempo activo de los pasos, incluida la red. No cuenta las pausas entre pasos.</p><div class="metrics-breakdown">${stat(navigatorName(),m.navigationMs)+stat(generatorName(),m.generationMs)+stat('Revalidar evidencia',m.replayMs)}${stat('Consultas y herramientas',m.toolMs)}</div>${r.metrics.active?'<p class="metrics-status"><span class="busy-dot"></span> Midiendo…</p>':''}${r.metrics.requests.length?`<details><summary>Tiempo de cada paso</summary><ol>${r.metrics.requests.map(q=>`<li><span>${esc(q.label)}${q.failed?' · '+t('Error'):''}</span><strong>${formatDuration(q.durationMs)}</strong></li>`).join('')}</ol></details>`:''}`;
+}
+async function journeyRequest(run,label,request){
+  if(!run.measureTime)return request();
+  let start=performance.now(),timing,failed=false;
+  run.metrics.active={start,label};renderRunMetrics();
+  let timer=setInterval(()=>{if(state.run===run){let value=$('run-metrics').querySelector('[data-metric=total]');if(value)value.textContent=formatDuration(summarizeMetrics(run.metrics,performance.now()).requestMs)}},100);
+  try{let data=await request();timing=data.timing||(data.durationMs!==undefined?{toolMs:data.durationMs}:undefined);failed=!!data.error;return data}
+  catch(e){timing=e.timing;failed=true;throw e}
+  finally{clearInterval(timer);finishRequest(run.metrics,label,start,performance.now(),timing,failed);if(state.run===run)renderRunMetrics()}
+}
+function renderJourney(){
+  let r=state.run;
+  $('step-count').textContent=`${r?.events.length||0} / 8 ${t('acciones')}`;
+  $('journey-steps').innerHTML=traceSteps(r,state.g,learningSteps);
+  if(r?.auto){let list=$('journey-steps'),card=list.querySelector('.journey-step:last-of-type');if(card)list.scrollTop+=card.getBoundingClientRect().top-list.getBoundingClientRect().top;}
+  $('journey-steps').querySelectorAll('[data-trace]').forEach(button=>button.onclick=()=>{
+    let trace=r.traces[Number(button.dataset.trace)];state.result=trace.observation;
+    $('query-editor').value=trace.action.query;renderGraph();renderResults();tab('results');
+  });
+  $('next-step').hidden=!r||r.done||r.auto;$('next-step').disabled=state.busy;
+  $('next-step').innerHTML=state.busy?'<span class="busy-dot"></span> Procesando…':`Siguiente paso ${icon('arrow',true)}`;
+  $('start-run').disabled=state.busy||!!r?.auto;
+  $('run-all').disabled=state.busy||!!r?.auto;
+  $('run-all').innerHTML=r?.auto?'<span class="busy-dot"></span> Ejecutando todos los pasos…':icon('play',true)+' '+t('Ejecutar todos los pasos');
+  $('pause-run').hidden=!r?.auto;
+  $('run-status').hidden=!r;
+  $('run-status').textContent=!r?'':r.stopped?'Recorrido detenido. Los pasos completados se conservan.':r.done?(r.error?'Recorrido incompleto. Revisá el último paso.':'Recorrido completado. Abrí cada paso para inspeccionarlo.'):r.paused?(state.busy?'Se pausará al terminar el paso actual.':'Recorrido pausado. Podés continuar paso a paso o ejecutar todos.'):r.auto?'Ejecutando todos los pasos…':state.busy?'Procesando…':'Listo para el siguiente paso.';
+  $('cancel-run').hidden=!r||r.done;
+  $('question-input').disabled=!!r&&!r.done;
+  $('journey-detail').classList.toggle('error',!!r?.error);
+  renderRunOptions();renderRunMetrics();
+  if(!r){$('journey-detail').textContent='Elegí una pregunta de ejemplo para ver cómo se conectan las piezas.';$('answer-box').hidden=true}
+}
+function recordStep(run,trace,start,requestCount){
+  if(run.measureTime){
+    let requests=run.metrics.requests.slice(requestCount);
+    if(requests.length)trace.durationMs=requests.reduce((sum,r)=>sum+r.durationMs,0);
+    else{let end=performance.now();trace.durationMs=end-start;finishRequest(run.metrics,trace.title,start,end,undefined,!!trace.error)}
+  }
+  if(run.measureTime)for(let request of run.metrics.requests.slice(requestCount))request.label=String(run.traces.length+1).padStart(2,'0')+' · '+t(trace.title);
+  run.traces.push(trace);
+}
 function detail(text,error=false){$('journey-detail').classList.toggle('error',error);$('journey-detail').textContent=text}
-function stopRun(show=true){runVersion++;runController?.abort();runController=null;state.busy=false;state.run=null;renderJourney();if(show)toast('Recorrido detenido. Podés seguir explorando.');$('question-input').disabled=false}
-function guidedFocus(query){let s=state.g.subgraphs;let scores=s.map(sub=>{let ids=new Set(sub.nodes);return {sub,score:state.g.edges.filter(e=>ids.has(e.source)&&ids.has(e.target)&&query.includes('ex:'+local(e.predicate))).length}}).sort((a,b)=>b.score-a.score);return scores[0]?.sub.id||null}
-async function startRun(){if(state.busy)return;await saveGraph();let question=$('question-input').value.trim(),mode=$('run-mode').value;if(!question)throw Error('Escribí una pregunta o elegí un ejemplo');let example=state.g.examples.find(x=>x.question===question||t(x.question)===question);if(mode==='guided'&&!example)throw Error('La práctica guiada usa las preguntas de ejemplo. Para una pregunta libre elegí IA local.');stopRun(false);state.result=null;renderResults();state.run={mode,question,example,index:0,events:[],done:false,error:false};runController=new AbortController();let version=runVersion;renderJourney();$('answer-box').hidden=true;if(mode==='guided'){detail(state.g.sqliteSource?'La consulta accederá a toda la base SQLite. El lienzo muestra una vista parcial de sus datos.':'La pregunta será respondida con los datos actuales del grafo. Si modificás una relación, puede cambiar el resultado.');return}state.busy=true;renderJourney();detail('Laya está comparando los subgrafos disponibles…');try{let d=await api('/graphs/'+state.g.id+'/route',{question,model:prefs.ollaya},undefined,runController.signal);if(version!==runVersion)return;state.run.decision=d;state.focus=d.choice;render();$('journey-detail').innerHTML=`<strong>${esc(d.model)}</strong> · ${d.source==='regla'?'Selección por estructura, sin inferencia':'Puntuaciones para elegir dónde explorar'}${d.candidates.map(c=>`<div class="prob-row"><span>${esc(c.name)}</span><span>${Math.round(c.probability*100)}%</span><div class="prob-bar"><i style="width:${Math.max(0,Math.min(100,c.probability*100))}%"></i></div></div>`).join('')}<p class="small-copy">Estas puntuaciones priorizan la exploración; no expresan certeza sobre la respuesta.</p>`}catch(e){if(e.name!=='AbortError'){state.run=null;detail(e.message,true);showError(e)}}finally{if(version===runVersion){state.busy=false;renderJourney()}}}
-async function nextStep(){let r=state.run;if(!r||state.busy)return;let version=runVersion;state.busy=true;r.error=false;renderJourney();try{if(r.mode==='guided'){let step=r.index+1;if(step===1){state.focus=guidedFocus(r.example.query);render();detail('Empezamos por '+(state.g.subgraphs.find(s=>s.id===state.focus)?.name||'el grafo completo')+'. Esta selección es parte de la práctica guiada y no utiliza Laya.')}else if(step===2){let predicates=[...new Set(state.g.edges.filter(e=>r.example.query.includes('ex:'+local(e.predicate))).map(e=>e.label))];detail('Vamos a conectar los patrones '+predicates.join(' → ')+'. Las variables compartidas unen las relaciones; cada salto agrega una condición.');$('query-editor').value=r.example.query;tab('query')}else if(step===3){let result=await executeQuery(r.example.query,runController.signal);r.result=result;detail(`La consulta devolvió ${result.rows.length} filas. Cada fila satisface todos los patrones de WHERE sobre el grafo actual.`)}else if(step===4){let res=r.result;let answer=res.rows.length?res.rows.map(row=>res.variables.map(v=>`${v}: ${row[v]?.label||row[v]?.value||'—'}`).join(' · ')).join('\n'):'No se encontraron coincidencias en este grafo.';showAnswer(answer,'RESULTADOS VERIFICABLES');detail('La respuesta se construye con las filas reales de la tabla. Probá cambiar una relación y volver a ejecutar la misma pregunta.');r.done=true}r.index=step}else{if(r.events.length>=8)throw Error('Se alcanzó el límite de 8 acciones. Revisá los resultados o iniciá otro recorrido.');detail('Gemma está eligiendo la próxima acción…');let ev=await api('/graphs/'+state.g.id+'/step',{question:r.question,model:prefs.ollama,navigationModel:prefs.ollaya,language:language(),focus:state.focus||'',events:r.events},undefined,runController.signal);if(version!==runVersion)return;r.events.push(ev);r.index=r.events.length;if(ev.navigation){r.decision=ev.navigation;state.focus=ev.navigation.choice;render();}if(ev.error){r.error=true;detail(ev.error+' Gemma recibirá este error al continuar.',true)}else if(ev.action.type==='query'){state.result=ev.observation;$('query-editor').value=ev.action.query;renderGraph();renderResults();tab('results');detail(`${ev.action.objective} · ${ev.observation.rows.length} filas obtenidas.`)}else if(ev.action.type==='answer'){r.done=true;showAnswer(ev.action.answer,'SÍNTESIS DE GEMMA');detail('La síntesis fue generada por el modelo. Contrastala con las filas de la consulta.')}else if(ev.action.type==='explore'){state.selected={type:'node',id:ev.action.nodeId};renderGraph();renderInspector();detail(`${ev.action.objective} · ${ev.observation.length} relaciones encontradas.`)}else detail(`${ev.action.objective} · ${ev.observation.length} entidades encontradas.`)}}catch(e){if(e.name!=='AbortError'){r.error=true;detail(e.message,true)}}finally{if(version===runVersion){state.busy=false;renderJourney()}}}
+function stopRun(show=true){
+  runVersion++;runController?.abort();runController=null;state.busy=false;
+  if(show&&state.run){if(state.run.metrics.active){let active=state.run.metrics.active;state.run.traces.push({title:'Acción interrumpida',actor:'Solicitud cancelada',error:'Se canceló la solicitud; no se recibió un resultado.',input:{question:state.run.question},durationMs:state.run.measureTime?performance.now()-active.start:undefined})}state.run.done=true;state.run.stopped=true;state.run.auto=false;detail('Recorrido detenido. Los pasos completados se conservan.')}
+  else state.run=null;
+  renderJourney();if(show)toast('Recorrido detenido. Podés seguir explorando.');$('question-input').disabled=false;
+}
+async function startRun(){
+  if(state.busy)return;
+  await saveGraph();
+  let question=$('question-input').value.trim();
+  if(!question)throw Error('Escribí una pregunta o elegí un ejemplo');
+  stopRun(false);state.result=null;renderResults();state.focus=null;render();
+  let r=state.run={mode:'ai',question,index:0,events:[],traces:[],done:false,error:false,auto:false,useNavigation:runPrefs.useNavigation,measureTime:runPrefs.measureTime,metrics:createMetrics(),model:prefs.generation,navigationModel:prefs.navigation};
+  let start=performance.now();
+  runController=new AbortController();let version=runVersion;renderJourney();$('answer-box').hidden=true;
+  if(!r.useNavigation){
+    recordStep(r,{title:'Preparar exploración',actor:'Navegador · sin inferencia',input:{question,useNavigation:false},outcome:generatorName()+' '+t('elegirá sus acciones usando una vista del grafo completo.')},start,0);
+    detail(generatorName()+' '+t('explora sin el modelo de navegación.'));renderJourney();return;
+  }
+  state.busy=true;renderJourney();detail(navigatorName()+' '+t('está comparando los subgrafos disponibles…'));
+  try{
+    let d=await journeyRequest(r,t('Selección inicial')+' · '+navigatorName(),()=>api('/graphs/'+state.g.id+'/route',{question,model:r.navigationModel,useNavigation:r.useNavigation,measureTime:r.measureTime},undefined,runController.signal));
+    if(version!==runVersion)return;
+    r.decision=d;state.focus=d.choice;render();
+    recordStep(r,{title:'Elegir subgrafo',actor:d.source==='regla'?'Regla, sin inferencia':navigatorName(),navigation:d,timing:d.timing,outcome:'Subgrafo elegido: '+(state.g.subgraphs.find(s=>s.id===d.choice)?.name||'Todo el universo')},start,0);
+    detail('Revisá las opciones y el contexto de navegación en el primer paso.');
+  }catch(e){if(e.name!=='AbortError'){r.error=true;r.done=true;recordStep(r,{...e.trace,title:'Elegir subgrafo',actor:navigatorName(),input:{question,subgraphs:state.g.subgraphs},error:e.message,timing:e.timing},start,0);detail(e.message,true);showError(e)}}
+  finally{if(version===runVersion){state.busy=false;renderJourney()}}
+}
+async function nextStep(){
+  let r=state.run;if(!r||r.done||state.busy)return;
+  let version=runVersion,start=performance.now(),requestCount=r.metrics.requests.length,trace;
+  state.busy=true;r.error=false;r.fatal=false;r.paused=false;renderJourney();
+  try{
+      if(r.events.length>=8)throw Error('Se alcanzó el límite de 8 acciones. Revisá los resultados o iniciá otro recorrido.');
+      detail(generatorName()+' '+t('está eligiendo la próxima acción…'));
+      let ev=await journeyRequest(r,t('Acción')+' · '+generatorName(),()=>api('/graphs/'+state.g.id+'/step',{question:r.question,model:r.model,navigationModel:r.navigationModel,useNavigation:r.useNavigation,measureTime:r.measureTime,language:language(),events:r.events},undefined,runController.signal));
+      if(version!==runVersion)return;
+      r.events.push(ev);r.index=r.events.length;
+      trace={...ev,title:actionTitle(ev.action.type),actor:(r.useNavigation?navigatorName()+' → ':'')+generatorName()};
+      if(ev.navigation){r.decision=ev.navigation;state.focus=ev.navigation.choice;render()}
+      if(ev.error){r.error=true;detail(ev.error+' '+t('El generador recibirá este error al continuar.'),true)}
+      else if(ev.action.type==='query'){
+        state.result=ev.observation;$('query-editor').value=ev.action.query;renderGraph();renderResults();tab('results');detail(`${ev.action.objective} · ${ev.observation.rows.length} filas obtenidas.`);
+      }else if(ev.action.type==='answer'){
+        r.done=true;showAnswer(ev.action.answer,t('SÍNTESIS')+' · '+generatorName());trace.outcome=ev.action.answer;detail('La síntesis fue generada por el modelo. Contrastala con las filas de la consulta.');
+      }else if(ev.action.type==='explore'){
+        state.selected={type:'node',id:ev.action.nodeId};renderGraph();renderInspector();detail(`${ev.action.objective} · ${ev.observation.length} relaciones encontradas.`);
+      }else detail(`${ev.action.objective} · ${ev.observation.length} entidades encontradas.`);
+      if(r.events.length>=8&&!r.done){r.done=true;r.error=true;detail('Se alcanzó el límite de 8 acciones. Revisá los resultados o iniciá otro recorrido.',true)}
+  }catch(e){if(e.name!=='AbortError'){r.error=true;r.fatal=true;trace={...e.trace,title:trace?.title||'Acción interrumpida',actor:e.trace?.navigation&&!e.trace?.generation?navigatorName():generatorName(),error:e.message,timing:e.timing,input:trace?.input};detail(e.message,true)}}
+  finally{if(version===runVersion){if(trace)recordStep(r,trace,start,requestCount);state.busy=false;renderJourney()}}
+}
+async function runAll(){
+  if(state.busy||state.run?.auto)return;
+  if(!state.run||state.run.done)await startRun();
+  let r=state.run;if(!r||r.done)return;
+  r.auto=true;r.error=false;r.paused=false;renderJourney();
+  try{
+    await advanceUntilDone(r,nextStep,()=>state.run===r);
+  }finally{r.auto=false;if(r.fatal&&!r.done)r.paused=true;if(state.run===r)renderJourney()}
+}
 function showAnswer(text,label){$('answer-box').hidden=false;$('answer-box').innerHTML=`<strong>${esc(label)}</strong><p>${esc(text)}</p>`}
-async function checkStatus(){status=await api('/status');let online=status.ollama.online&&status.ollaya.online;$('model-status').innerHTML=`<i class="dot ${online?'':'amber'}"></i><span>${online?'Servicios conectados':'Modelos locales'}</span>${icon('chevron',true)}`;return status}
-async function settings(){modal('Tus modelos, en tu equipo','<div class="help-copy">Comprobando los servicios locales…</div>');let s=await checkStatus();if(!$('modal').open)return;let card=(key,title,desc,commands)=>`<section class="model-card"><h3>${title}</h3><div class="model-info"><span><i class="dot ${s[key].online?'':'amber'}"></i>${s[key].online?'Servicio disponible':'Servicio apagado o inaccesible'}</span><code>${esc(s[key].url)}</code></div><p>${desc}</p>${field('Modelo seleccionado',key,prefs[key],`list="${key}-models" required`)}<datalist id="${key}-models">${s[key].models.map(m=>`<option value="${esc(m)}">`).join('')}</datalist><p>${s[key].models.length?'Instalados: '+esc(s[key].models.join(', ')):'No se detectaron modelos instalados.'}</p><pre class="command">${commands}</pre></section>`;form('Tus modelos, en tu equipo',card('ollaya','Laya · decisiones sobre subgrafos','Compara opciones y devuelve puntuaciones. Usamos la variante multilingüe para preguntas en español.','ollaya serve\nollaya pull laya:multilingual')+card('ollama','Gemma · LM Studio','Propone acciones y consultas SPARQL, observa los resultados y redacta una síntesis.','LM Studio → Developer → Start Server\nModelo: google/gemma-4-12b')+'<p class="small-copy muted">La app no descarga modelos automáticamente. Los nombres seleccionados deben existir en el servicio correspondiente. La práctica guiada funciona sin estos servicios.</p>',f=>{prefs={ollaya:f.get('ollaya').trim(),ollama:f.get('ollama').trim()};localStorage.setItem('spinach-models',JSON.stringify(prefs));toast('Preferencias guardadas')})}
-function learn(){modal('El conocimiento es un recorrido',`<div class="help-copy"><p>SPINACH explora una base de conocimiento, ejecuta consultas y usa los resultados para decidir cómo continuar. Este laboratorio adapta esa idea para que puedas observar y modificar cada paso.</p>${guidedSteps.map(([t,d],i)=>`<div class="help-step"><b>0${i+1}</b><div><strong>${t}</strong><p>${d}.</p></div></div>`).join('')}<h3>Un grafo que podés tocar</h3><p>Arrastrá los nodos para ordenarlos. Usá <strong>Conectar</strong> para crear relaciones. Hacé doble clic en un nodo para editarlo. Con <strong>Shift + clic</strong> podés seleccionar varios y reunirlos en un subgrafo. Guardá los cambios para conservarlos en SQLite.</p><h3>Lo que muestra la app</h3><p>Las acciones, consultas y resultados son observables. Los textos pedagógicos describen esas acciones; no son el razonamiento interno privado de un modelo.</p><p>Los universos precargados son ficticios y esta es una adaptación educativa, no una reproducción de los resultados del artículo.</p><p><a href="https://arxiv.org/abs/2407.11417" target="_blank" rel="noreferrer">Leer el artículo de SPINACH ↗</a></p></div>`)}
+async function checkStatus(){status=await api('/status');let online=status.generation.online&&(!runPrefs.useNavigation||status.navigation.online);$('model-status').innerHTML=`<i class="dot ${online?'':'amber'}"></i><span>${online?'Servicios conectados':'Conexiones de modelos'}</span>${icon('chevron',true)}`;return status}
+async function settings(){
+  modal('Conexiones de modelos','<div class="help-copy">Comprobando los servicios…</div>');
+  let s=await checkStatus();if(!$('modal').open)return;
+  let card=(key,title,description,secretField)=>`<section class="model-card"><h3>${esc(title)}</h3><div class="model-info"><span><i class="dot ${s[key].online?'':'amber'}"></i>${t(s[key].online?'Servicio disponible':'Conexión pendiente')}</span></div><code>${esc(s[key].url)}</code>${s[key].error?`<p class="form-error">${esc(s[key].error)}</p>`:''}<p>${t(description)}</p>${field(t('API key'),secretField,'',`type="password" autocomplete="off" spellcheck="false" autocapitalize="none" maxlength="4096" placeholder="${esc(t(s.credentials[key]?'Configurada · dejá vacío para conservarla':'Pegá tu API key'))}"`)}<p class="small-copy muted">${t(s.credentials[key]?'Clave configurada. Nunca se muestra su valor.':'Todavía no hay una clave configurada.')}</p><div class="configured-model"><span>${t('Modelo')}</span><strong>${esc(prefs[key])}</strong></div>${s[key].models.length?`<p>${t('Modelos disponibles')}: ${s[key].models.length}</p>`:''}</section>`;
+  form('Conexiones de modelos','<div class="model-connections-grid">'+card('navigation','Jev · TypeSafe API','Selecciona subgrafos y devuelve puntuaciones para orientar la exploración.','jevApiKey')+card('generation','OpenAI · Responses API','Propone acciones y consultas SPARQL, observa los resultados y redacta una síntesis.','openaiApiKey')+'</div><p class="small-copy muted">'+t('Las claves se guardan en el servidor y no se vuelven a mostrar. Dejá un campo vacío para conservar la clave actual. La pregunta y el contexto del grafo se envían a las APIs configuradas.')+'</p>',async f=>{
+    const keys={};
+    for(const name of ['jevApiKey','openaiApiKey']){const value=f.get(name).trim();if(value)keys[name]=value}
+    if(Object.keys(keys).length){
+      try{providers=await api('/credentials',keys)}
+      finally{$('edit-form').querySelectorAll('input[type="password"]').forEach(input=>input.value='')}
+    }
+    checkStatus().catch(()=>{});toast('Conexiones guardadas');
+  });
+  $('modal').classList.add('connections-dialog');
+}
+function learn(){modal('El conocimiento es un recorrido',`<div class="help-copy"><p>SPINACH explora una base de conocimiento, ejecuta consultas y usa los resultados para decidir cómo continuar. Este laboratorio adapta esa idea para que puedas observar y modificar cada paso.</p>${learningSteps.map(([t,d],i)=>`<div class="help-step"><b>0${i+1}</b><div><strong>${t}</strong><p>${d}.</p></div></div>`).join('')}<h3>Un grafo que podés tocar</h3><p>Arrastrá los nodos para ordenarlos. Usá <strong>Conectar</strong> para crear relaciones. Hacé doble clic en un nodo para editarlo. Con <strong>Shift + clic</strong> podés seleccionar varios y reunirlos en un subgrafo. Guardá los cambios para conservarlos en SQLite.</p><h3>Lo que muestra la app</h3><p>Las acciones, consultas y resultados son observables. Los textos pedagógicos describen esas acciones; no son el razonamiento interno privado de un modelo.</p><p>Los universos precargados son ficticios y esta es una adaptación educativa, no una reproducción de los resultados del artículo.</p><p><a href="https://arxiv.org/abs/2407.11417" target="_blank" rel="noreferrer">Leer el artículo de SPINACH ↗</a></p></div>`)}
 function syntaxHelp(){modal('SPARQL y el motor de consultas',`<div class="help-copy"><p>El motor Go interpreta consultas SPARQL sobre RDF. El laboratorio muestra tablas para SELECT, booleanos para ASK y grafos para CONSTRUCT y DESCRIBE cuando están disponibles.</p><p>El servicio independiente permite inspeccionar una base SQLite existente y consultar su representación RDF. Los patrones compatibles se compilan a SQL; las operaciones que requieren el evaluador SPARQL se identifican en el resultado.</p><p>La cobertura validada y las limitaciones se documentan en el proyecto. El rendimiento depende de los datos, los índices y la consulta.</p><pre class="command">PREFIX ex: &lt;https://spinach.local/&gt;
 SELECT DISTINCT ?persona ?centro WHERE {
   ?persona ex:investiga ex:fisica .
@@ -78,10 +220,18 @@ SELECT DISTINCT ?persona ?centro WHERE {
   ?centro ex:ubicadoEn ex:paris .
 }</pre></div>`)}
 on('save-button','click',async()=>{await saveGraph();toast('Cambios guardados en SQLite')});on('add-node','click',()=>editNode());on('move-tool','click',()=>{state.tool='move';state.linkFrom=null;render()});on('link-tool','click',()=>{state.tool=state.tool==='link'?'move':'link';state.linkFrom=null;render()});on('add-subgraph','click',()=>editSubgraph());on('all-subgraphs','click',()=>{state.focus=null;render()});on('undo-button','click',()=>{if(!state.undo.length)return;state.redo.push(clone(state.g));let rev=state.g.revision;state.g=state.undo.pop();state.g.revision=rev;changed()});on('redo-button','click',()=>{if(!state.redo.length)return;state.undo.push(clone(state.g));let rev=state.g.revision;state.g=state.redo.pop();state.g.revision=rev;changed()});on('zoom-in','click',()=>zoom(1.2));on('zoom-out','click',()=>zoom(1/1.2));on('fit-button','click',fit);on('layout-button','click',layout);on('edit-graph','click',editGraph);on('new-graph','click',newGraph);on('database-button','click',()=>databaseForm({form,api,loadGraphs,state,toast,esc,field}));on('import-button','click',importGraph);on('export-button','click',exportGraph);on('query-tab','click',()=>tab('query'));on('results-tab','click',()=>tab('results'));on('start-run','click',startRun);on('next-step','click',nextStep);on('cancel-run','click',()=>stopRun());on('model-status','click',settings);on('nav-settings','click',settings);on('nav-learn','click',learn);on('learn-button','click',learn);on('nav-lab','click',()=>window.scrollTo({top:0,behavior:'smooth'}));on('syntax-help','click',syntaxHelp);
+on('run-all','click',runAll);
+on('pause-run','click',()=>{if(state.run){state.run.auto=false;state.run.paused=true;renderJourney();detail(state.busy?'Se pausará al terminar el paso actual.':'Recorrido pausado. Podés continuar paso a paso o ejecutar todos.')}});
+for(let [id,key] of [['use-navigation','useNavigation'],['measure-time','measureTime']])on(id,'change',()=>{
+  runPrefs[key]=$(id).checked;
+  try{localStorage.setItem('spinach-run-options',JSON.stringify(runPrefs))}catch{}
+  renderRunOptions();if(status)checkStatus().catch(()=>{});
+});
+renderRunOptions();
 window.addEventListener('beforeunload',e=>{if(state.dirty){e.preventDefault();e.returnValue=''}});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveGraph().then(()=>toast('Cambios guardados')).catch(showError)}if(e.key==='Escape'&&state.tool==='link'){state.tool='move';state.linkFrom=null;render()}});
-async function boot(){try{let saved;try{saved=localStorage.getItem('spinach-graph')}catch{}await loadGraphs(saved);checkStatus().catch(()=>{});}catch(e){$('graph-title').textContent='Iniciá el servidor del laboratorio';$('inspector-content').innerHTML='<div class="help-copy">Abrí la app desde <strong>http://127.0.0.1:8090</strong>. El archivo HTML necesita su backend Go para acceder a los grafos.</div>';showError(e)}}
-initLanguage(()=>{if(!state.g)return;stopRun(false);setExample(0);render();renderResults();applyLanguage()});
+async function boot(){try{let saved;try{saved=localStorage.getItem('spinach-graph')}catch{}await configureModels();await loadGraphs(saved);checkStatus().catch(()=>{});}catch(e){$('graph-title').textContent='Iniciá el servidor del laboratorio';$('inspector-content').innerHTML='<div class="help-copy">Abrí la app desde <strong>http://127.0.0.1:8090</strong>. El archivo HTML necesita su backend Go para acceder a los grafos.</div>';showError(e)}}
+initLanguage(()=>{if(!state.g)return;render();renderRunOptions();renderJourney();renderResults();if(!$('answer-box').hidden)$('answer-box').querySelector('strong').textContent=t('SÍNTESIS')+' · '+generatorName();applyLanguage()});
 boot();
 
 function editable(){if(!state.g.sqliteSource)return true;toast('La base SQLite se consulta en modo de solo lectura. Podés mover nodos y editar los subgrafos.',true);return false}

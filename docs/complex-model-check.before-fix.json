@@ -1,0 +1,419 @@
+{
+  "checkedAt": "2026-10-27T05:43:18.339204+00:00",
+  "question": "Which project has the most citations from published papers with authors in France, counting each paper once?",
+  "graph": "research-network",
+  "expected": {
+    "project": "Project 05",
+    "citations": 100
+  },
+  "note": "One sequential pair is a functional check, not comparative benchmark evidence. Solved example queries were not supplied to the generator.",
+  "runs": [
+    {
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Contar papers publicados con autores en France por proyecto",
+            "query": "SELECT ?project ?projectLabel (COUNT(DISTINCT ?paper) AS ?paperCount)\nWHERE {\n  ?paper ex:aboutProject ?project .\n  ?paper ex:status ex:published .\n  ?author ex:authored ?paper .\n  ?author ex:worksAt ?lab .\n  ?lab ex:locatedIn ?city .\n  ?city ex:country ex:country0 .\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n}\nGROUP BY ?project ?projectLabel\nORDER BY DESC(?paperCount) ?project\nLIMIT 1"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 9274.175333,
+            "navigationMs": 83.354042,
+            "generationMs": 9189.448375,
+            "replayMs": 8.4e-05,
+            "toolMs": 0.958875
+          },
+          "error": null,
+          "navigation": {
+            "model": "jev-1.14.0",
+            "choice": "publications",
+            "source": "jev"
+          },
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "paperCount"
+            ],
+            "rows": [
+              {
+                "paperCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.945
+          }
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find project with highest citations from published papers with at least one author in France",
+            "query": "SELECT ?project ?projectLabel (SUM(?cVal) AS ?totalCitations)\nWHERE {\n  {\n    SELECT DISTINCT ?paper ?project ?cVal\n    WHERE {\n      ?paper ex:status ex:published .\n      ?paper ex:aboutProject ?project .\n      ?paper ex:citations ?c .\n      ?author ex:authored ?paper .\n      ?author ex:worksAt ?lab .\n      ?lab ex:locatedIn ?city .\n      ?city ex:country ex:country0 .\n      BIND(xsd:integer(STRAFTER(STR(?c), \"citations\")) AS ?cVal)\n    }\n  }\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n}\nGROUP BY ?project ?projectLabel\nORDER BY DESC(?totalCitations) ?project\nLIMIT 1"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 12766.580625,
+            "navigationMs": 111.532708,
+            "generationMs": 12651.200042,
+            "replayMs": 0.759208,
+            "toolMs": 0.72075
+          },
+          "error": null,
+          "navigation": {
+            "model": "jev-1.14.0",
+            "choice": "publications",
+            "source": "jev"
+          },
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "totalCitations"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "projectLabel": {
+                  "value": "Project 01",
+                  "label": "Project 01",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.71
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Report top project by distinct published France-authored papers",
+            "answer": "Project 01"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 4947.203333,
+            "navigationMs": 67.905292,
+            "generationMs": 4876.259625,
+            "replayMs": 1.333625,
+            "toolMs": 0.006667
+          },
+          "error": null,
+          "navigation": {
+            "model": "jev-1.14.0",
+            "choice": "publications",
+            "source": "jev"
+          }
+        }
+      ],
+      "answer": "Project 01",
+      "seconds": 26.987959291000003,
+      "expectedEvidenceFound": false
+    },
+    {
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Calcular citas por proyecto con autores en France",
+            "query": "SELECT ?project (SUM(?n) AS ?totalCitations)\nWHERE {\n  {\n    SELECT DISTINCT ?paper ?project ?n WHERE {\n      ?r ex:authored ?paper .\n      ?paper ex:status ex:published .\n      ?paper ex:aboutProject ?project .\n      ?paper ex:citations ?c .\n      BIND(xsd:integer(STRAFTER(STR(?c), \"citations\")) AS ?n)\n      ?r ex:worksAt ?lab .\n      ?lab ex:locatedIn ?city .\n      ?city ex:country ex:country0 .\n    }\n  }\n}\nGROUP BY ?project\nORDER BY DESC(?totalCitations)\nLIMIT 50"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 10349.341167,
+            "navigationMs": 0,
+            "generationMs": 10347.133542,
+            "replayMs": 0.000375,
+            "toolMs": 0.813792
+          },
+          "error": null,
+          "evidence": {
+            "variables": [
+              "project",
+              "totalCitations"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project09",
+                  "label": "Project 09",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project09"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              },
+              {
+                "project": {
+                  "value": "https://spinach.local/project03",
+                  "label": "Project 03",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project03"
+                },
+                "totalCitations": {
+                  "value": "0",
+                  "label": "0",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/project03",
+              "https://spinach.local/project04",
+              "https://spinach.local/project05",
+              "https://spinach.local/project07",
+              "https://spinach.local/project09"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.804
+          }
+        },
+        {
+          "action": {
+            "type": "query",
+            "objective": "Count published papers by France-based authors per project",
+            "query": "SELECT ?project (COUNT(DISTINCT ?paper) AS ?paperCount)\nWHERE {\n  ?r ex:authored ?paper .\n  ?paper ex:status ex:published .\n  ?paper ex:aboutProject ?project .\n  ?r ex:worksAt ?lab .\n  ?lab ex:locatedIn ?city .\n  ?city ex:country ex:country0 .\n}\nGROUP BY ?project\nORDER BY DESC(?paperCount) ?project\nLIMIT 50"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 16923.032542,
+            "navigationMs": 0,
+            "generationMs": 16920.176834,
+            "replayMs": 0.730333,
+            "toolMs": 0.831042
+          },
+          "error": null,
+          "evidence": {
+            "variables": [
+              "project",
+              "paperCount"
+            ],
+            "rows": [
+              {
+                "paperCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project01",
+                  "label": "Project 01",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project01"
+                }
+              },
+              {
+                "paperCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project03",
+                  "label": "Project 03",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project03"
+                }
+              },
+              {
+                "paperCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project04",
+                  "label": "Project 04",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project04"
+                }
+              },
+              {
+                "paperCount": {
+                  "value": "2",
+                  "label": "2",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                }
+              },
+              {
+                "paperCount": {
+                  "value": "1",
+                  "label": "1",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project07",
+                  "label": "Project 07",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project07"
+                }
+              },
+              {
+                "paperCount": {
+                  "value": "1",
+                  "label": "1",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                },
+                "project": {
+                  "value": "https://spinach.local/project09",
+                  "label": "Project 09",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project09"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project01",
+              "https://spinach.local/project03",
+              "https://spinach.local/project04",
+              "https://spinach.local/project05",
+              "https://spinach.local/project07",
+              "https://spinach.local/project09"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 0.817
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify top project(s) by France-authored published papers",
+            "answer": "It’s a tie: Project 01, Project 03, Project 04, and Project 05 each have 2 published papers by France-based authors."
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 5215.879792,
+            "navigationMs": 0,
+            "generationMs": 5213.637,
+            "replayMs": 0.769917,
+            "toolMs": 0.001458
+          },
+          "error": null
+        }
+      ],
+      "answer": "It’s a tie: Project 01, Project 03, Project 04, and Project 05 each have 2 published papers by France-based authors.",
+      "seconds": 32.488253501,
+      "expectedEvidenceFound": false
+    }
+  ]
+}

@@ -45,7 +45,7 @@ func Seeds() []Graph {
 		{"alba", "destino", "marte"}, {"nova", "destino", "luna"}, {"iris", "destino", "europa"}, {"alba", "lleva", "rover"}, {"alba", "lleva", "camara"}, {"nova", "lleva", "camara"}, {"iris", "lleva", "sensor"}, {"agencia", "opera", "alba"}, {"agencia", "opera", "iris"}, {"consorcio", "opera", "nova"},
 	}, []Example{{"¿Qué agencia opera misiones que llevan una cámara?", "SELECT ?agencia ?mision WHERE {\n  ?agencia ex:opera ?mision .\n  ?mision ex:lleva ex:camara .\n}"}, {"¿A dónde viaja cada misión?", "SELECT ?mision ?destino WHERE { ?mision ex:destino ?destino . }"}})
 	space.Subgraphs = []Subgraph{{"rutas", "Rutas", "Misiones y sus destinos", ids("alba", "nova", "iris", "marte", "luna", "europa")}, {"equipamiento", "Equipamiento", "Misiones e instrumentos científicos", ids("alba", "nova", "iris", "rover", "camara", "sensor")}, {"operadores", "Operadores", "Agencias que operan las misiones", ids("alba", "nova", "iris", "agencia", "consorcio")}}
-	return []Graph{science, books, space}
+	return []Graph{science, books, space, ChallengeGraph()}
 }
 func ids(local ...string) []string {
 	out := []string{}

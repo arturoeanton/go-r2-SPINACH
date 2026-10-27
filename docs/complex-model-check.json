@@ -1,0 +1,174 @@
+{
+  "checkedAt": "2026-10-27T05:47:38.506226+00:00",
+  "question": "Which project has the most citations from published papers with authors in France, counting each paper once?",
+  "graph": "research-network",
+  "expected": {
+    "project": "Project 05",
+    "citations": 100
+  },
+  "note": "One sequential pair is a functional check, not comparative benchmark evidence. Solved example queries were not supplied to the generator.",
+  "runs": [
+    {
+      "useNavigation": true,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Sumar citas por proyecto con autores en Francia",
+            "query": "SELECT ?project ?projectLabel (SUM(?c) AS ?totalCitations)\nWHERE {\n  {\n    SELECT DISTINCT ?paper WHERE {\n      ?paper <https://spinach.local/status> <https://spinach.local/published> .\n      ?author <https://spinach.local/authored> ?paper .\n      ?author <https://spinach.local/worksAt> ?lab .\n      ?lab <https://spinach.local/locatedIn> ?city .\n      ?city <https://spinach.local/country> <https://spinach.local/country0> .\n    }\n  }\n  ?paper <https://spinach.local/aboutProject> ?project .\n  ?paper <https://spinach.local/citations> ?c .\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n}\nGROUP BY ?project ?projectLabel\nORDER BY DESC(?totalCitations)\nLIMIT 1"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 7960.949125,
+            "navigationMs": 150.409917,
+            "generationMs": 7807.101375,
+            "replayMs": 0.00025,
+            "toolMs": 2.641291
+          },
+          "error": null,
+          "navigation": {
+            "model": "jev-1.14.0",
+            "choice": "publications",
+            "source": "jev"
+          },
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "totalCitations"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                },
+                "projectLabel": {
+                  "value": "Project 05",
+                  "label": "Project 05",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "totalCitations": {
+                  "value": "100",
+                  "label": "100",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project05"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 2.548
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify the most-cited project from published papers with authors in France (counting each paper once)",
+            "answer": "Project 05 — 100 citations."
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 6047.471875,
+            "navigationMs": 92.283542,
+            "generationMs": 5952.629125,
+            "replayMs": 0.616917,
+            "toolMs": 0.002959
+          },
+          "error": null,
+          "navigation": {
+            "model": "jev-1.14.0",
+            "choice": "publications",
+            "source": "jev"
+          }
+        }
+      ],
+      "answer": "Project 05 — 100 citations.",
+      "seconds": 14.008421,
+      "expectedEvidenceFound": true
+    },
+    {
+      "useNavigation": false,
+      "steps": [
+        {
+          "action": {
+            "type": "query",
+            "objective": "Find top-cited project from published papers with at least one author in France, counting each paper once",
+            "query": "SELECT ?project ?projectLabel ?total WHERE {\n  {\n    SELECT ?project ?total WHERE {\n      {\n        SELECT (MAX(?t) AS ?maxTotal) WHERE {\n          SELECT ?project (SUM(?cInt) AS ?t) WHERE {\n            SELECT DISTINCT ?paper ?project (xsd:integer(?c) AS ?cInt) WHERE {\n              ?paper ex:status ex:published ;\n                     ex:aboutProject ?project ;\n                     ex:citations ?c .\n              ?author ex:authored ?paper .\n              ?author ex:worksAt ?lab .\n              ?lab ex:locatedIn ?city .\n              ?city ex:country ex:country0 .\n            }\n          }\n          GROUP BY ?project\n        }\n      }\n      {\n        SELECT ?project (SUM(?cInt) AS ?total) WHERE {\n          SELECT DISTINCT ?paper ?project (xsd:integer(?c) AS ?cInt) WHERE {\n            ?paper ex:status ex:published ;\n                   ex:aboutProject ?project ;\n                   ex:citations ?c .\n            ?author ex:authored ?paper .\n            ?author ex:worksAt ?lab .\n            ?lab ex:locatedIn ?city .\n            ?city ex:country ex:country0 .\n          }\n        }\n        GROUP BY ?project\n      }\n      FILTER(?total = ?maxTotal)\n    }\n  }\n  OPTIONAL { ?project rdfs:label ?projectLabel }\n}\nORDER BY ?projectLabel"
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 12173.680125,
+            "navigationMs": 0,
+            "generationMs": 12170.646334,
+            "replayMs": 0.000292,
+            "toolMs": 1.807375
+          },
+          "error": null,
+          "evidence": {
+            "variables": [
+              "project",
+              "projectLabel",
+              "total"
+            ],
+            "rows": [
+              {
+                "project": {
+                  "value": "https://spinach.local/project05",
+                  "label": "Project 05",
+                  "kind": "iri",
+                  "nodeId": "https://spinach.local/project05"
+                },
+                "projectLabel": {
+                  "value": "Project 05",
+                  "label": "Project 05",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                },
+                "total": {
+                  "value": "100",
+                  "label": "100",
+                  "kind": "literal",
+                  "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            ],
+            "edgeIds": [],
+            "nodeIds": [
+              "https://spinach.local/project05"
+            ],
+            "truncated": false,
+            "engine": "goRDFlib 0.9.3",
+            "durationMs": 1.786
+          }
+        },
+        {
+          "action": {
+            "type": "answer",
+            "objective": "Identify top-cited project from published papers with France-based authors (deduplicated papers)",
+            "answer": "Project 05 has the highest total, with 100 citations from published papers authored by researchers in France (counting each paper once)."
+          },
+          "model": "gpt-5-2025-08-07",
+          "timing": {
+            "totalMs": 4039.935584,
+            "navigationMs": 0,
+            "generationMs": 4037.048625,
+            "replayMs": 0.96775,
+            "toolMs": 0.002375
+          },
+          "error": null
+        }
+      ],
+      "answer": "Project 05 has the highest total, with 100 citations from published papers authored by researchers in France (counting each paper once).",
+      "seconds": 16.213615709000003,
+      "expectedEvidenceFound": true
+    }
+  ]
+}

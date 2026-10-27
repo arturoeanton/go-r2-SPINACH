@@ -4,3 +4,9 @@
 /examples/*.sqlite*
 *.db*
 .DS_Store
+.env
+.env.*
+!.env.example
+
+model-credentials.json
+.model-credentials-*

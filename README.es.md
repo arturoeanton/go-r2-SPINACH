@@ -10,22 +10,22 @@ Dos proyectos conectados que también pueden usarse de forma independiente: un l
 
 | Parte | Qué hace | ¿Funciona por separado? |
 | --- | --- | --- |
-| **SPINACH Lab** (`lab/`) | Un editor interactivo de grafos y una experiencia educativa de preguntas y respuestas paso a paso. | Sí. La práctica guiada no necesita modelos. |
+| **SPINACH Lab** (`lab/`) | Un editor interactivo de grafos y una experiencia educativa de preguntas y respuestas paso a paso. | Sí. Los recorridos usan Jev y OpenAI; editar grafos y ejecutar SPARQL manual no necesita claves de API. |
 | **SPARQLite** (`sparqlite/`) | Inspecciona un esquema SQLite existente, genera un vocabulario RDF virtual y responde SPARQL mediante compilación a SQL o un evaluador Go. También ofrece un modo separado de almacenamiento RDF nativo. | Sí, como biblioteca Go o servidor HTTP local. |
 
 El frontend usa HTML, CSS, módulos JavaScript y SVG, sin framework ni proceso de compilación. El backend y el gateway usan Go y un controlador SQLite que no requiere CGO. El repositorio de grafos, el modelo de decisiones, el modelo de lenguaje y el registro de fuentes relacionales tienen interfaces separadas.
 
-### Nuestra extensión: navegación guiada por Laya
+### Nuestra extensión: navegación guiada por Jev
 
-El enfoque educativo se inspira en [SPINACH, Liu y colaboradores](https://arxiv.org/abs/2407.11417), que explora una base de conocimiento, ejecuta SPARQL y utiliza las observaciones para continuar.
+El enfoque educativo está inspirado en [SPINACH, Liu y colaboradores](https://arxiv.org/abs/2407.11417), que explora una base de conocimiento, ejecuta SPARQL y usa las observaciones para continuar.
 
-Nuestro experimento incorpora **Laya como capa de decisiones para la navegación**. Laya se ejecuta localmente mediante Ollaya, prioriza los subgrafos al principio y nuevamente antes de cada acción del modelo, y proporciona la región inicial del siguiente paso de exploración. El subgrafo seleccionado se resalta y su elección se incluye en el registro de acciones. Gemma propone acciones y consultas observables y sintetiza sus resultados.
+Nuestro experimento incorpora **Jev como capa de decisiones para la navegación**, mediante la API de TypeSafe. Prioriza los subgrafos al principio y nuevamente antes de cada acción del modelo. El subgrafo seleccionado se resalta y proporciona la región inicial del siguiente paso de exploración. **OpenAI GPT-5** propone acciones y consultas observables y sintetiza sus resultados.
 
-Es una extensión experimental, no una mejora medida frente al sistema de investigación original. Las puntuaciones de Laya expresan preferencia entre opciones de navegación, no certeza factual sobre la respuesta. La práctica guiada usa selecciones predefinidas e indica explícitamente que no llama a Laya.
+Es una extensión experimental, no una mejora medida frente al sistema de investigación original. Las puntuaciones de Jev expresan preferencia entre opciones de navegación, no certeza factual sobre una respuesta.
 
 ## 2. Ejecutar el laboratorio
 
-Instalá **Go 1.26 o posterior**. Ejecutá estos comandos desde la raíz del repositorio:
+Instalá **Go 1.26 o posterior**. Ejecutá desde la raíz del repositorio; no hacen falta claves de API ni un archivo `.env` para iniciar:
 
 ```sh
 go run ./lab/cmd/spinach -db ./lab/data/spinach.db
@@ -38,12 +38,18 @@ La interfaz se inicia en **inglés**. El botón **Español / English** del encab
 ### Tu primer experimento
 
 1. Abrí **Aurora Laboratory** y seleccioná la pregunta sobre física y París.
-2. Mantené **Guided practice · no AI** y elegí **Explore this question**.
-3. Avanzá de a un paso. Inspeccioná la consulta SPARQL y la tabla con sus resultados reales.
+2. Abrí **Modelos**, ingresá las claves de Jev y OpenAI si hace falta, y guardá.
+3. Elegí **Paso a paso** o **Ejecutar todos los pasos**. Inspeccioná el modelo, contexto, tiempo, consulta y resultados reales de cada tarjeta.
 4. Seleccioná una entidad para inspeccionar su identificador y sus conexiones.
 5. Editá una relación, guardá y repetí la pregunta para observar si cambia el resultado.
 
-Se incluyen tres universos ficticios: un laboratorio de investigación, una biblioteca y una red de misiones espaciales. Son ejemplos educativos, no conjuntos de datos factuales.
+Se incluyen cuatro universos ficticios: un pequeño laboratorio, una biblioteca, una red de misiones espaciales y una red de investigación más grande. Son ejemplos educativos, no conjuntos de datos factuales.
+
+### Preguntas complejas para experimentar con la navegación
+
+Abrí **Red de investigación**: 99 nodos, 295 relaciones y seis subgrafos superpuestos. Sus seis preguntas incluyen joins entre países, proyectos y financiadores; agregación de países distintos; exclusión de publicaciones retractadas; alianzas transitivas; suma de citas sin duplicados; y coautores de distintos países. Cada consulta SPARQL de referencia tiene resultados esperados verificados. La pregunta de citas devuelve **Project 05 con 100 citas**.
+
+Elegí una pregunta, ejecutala con **Usar Jev** activado y repetí sobre el mismo grafo con el interruptor desactivado y la misma medición. El modelo recibe contexto acotado y observaciones de herramientas, **no las consultas de ejemplo resueltas**. Son casos ficticios para investigar cuándo ayuda navegar; su complejidad no garantiza una mejora de velocidad. La consulta de referencia sigue disponible en la consola SPARQL para inspeccionar el resultado esperado.
 
 ### Edición de grafos
 
@@ -56,44 +62,51 @@ Se incluyen tres universos ficticios: un laboratorio de investigación, una bibl
 
 El guardado utiliza revisiones optimistas. Si otra ventana cambió el grafo, se rechaza un guardado desactualizado en lugar de sobrescribirlo silenciosamente.
 
-### IA local
+### IA mediante Jev y OpenAI
 
-El generador predeterminado es **LM Studio**, mediante su API local. Ollaya ejecuta Laya. La computadora de desarrollo publicó estos identificadores:
+Toda inferencia usa APIs autenticadas. El backend Go conserva las credenciales; el navegador recibe nombres de modelos, indicadores de clave configurada o pendiente, estados de conexión y registros observables. Ninguna API devuelve las claves guardadas.
 
-| Función | Servidor | Modelo | URL predeterminada |
+| Función | API | Modelo predeterminado | URL base predeterminada |
 | --- | --- | --- | --- |
-| Navegación | Ollaya | `laya:multilingual` | `http://127.0.0.1:11435` |
-| Generación de consultas/acciones y síntesis | LM Studio | `google/gemma-4-12b` | `http://127.0.0.1:1234` |
+| Navegación | TypeSafe System One | `jev-latest` | `https://api.typesafe.ai/v1` |
+| Acciones, propuestas SPARQL y síntesis de respuestas | OpenAI Responses | `gpt-5` | `https://api.openai.com/v1` |
 
-Iniciá el servidor local de LM Studio y cargá el modelo deseado. En Ollaya, verificá que el modelo elegido esté instalado y que el servidor esté funcionando. La aplicación descubre los nombres instalados en **Modelos locales**; no descarga pesos automáticamente.
+El backend llama a `/systemone` de Jev y `/responses` de OpenAI. **Conexiones de modelos** comprueba el catálogo autenticado `/models` de cada servicio e informa los identificadores disponibles. Los proveedores y modelos quedan fijos en la interfaz; la configuración del servidor determina los modelos predeterminados. Cada paso registra el identificador real devuelto por el servicio cuando está disponible.
 
-```sh
-ollaya serve
-ollaya pull laya:multilingual
+Abrí **Modelos → Conexiones de modelos**, pegá cada clave de API en su campo de contraseña y elegí **Guardar**. Los campos permanecen ocultos. Dejá un campo vacío para conservar su clave actual. Los cambios se aplican sin reiniciar; al volver a abrir el modal solo se informa si hay una clave configurada, con los campos vacíos. Cancelar o cerrar el diálogo limpia los secretos ingresados. No se guardan en el almacenamiento del navegador.
+
+El backend conserva las claves separadas de los grafos en `model-credentials.json`, junto a la base de la aplicación (permisos exclusivos del propietario, `0600`). Este archivo está excluido de Git y el frontend no lo publica. **No está cifrado en disco**: protegé la cuenta del servidor, el volumen y los respaldos. La interfaz `CredentialStore` permite reemplazar el archivo por un gestor de secretos. Usá `-credentials /ruta/privada/model-credentials.json` para elegir otra ubicación. Conservá ese directorio en almacenamiento persistente al desplegar.
+
+Un `.env` opcional permite precargar credenciales y modelos predeterminados. Copiá `.env.example` solo si todavía no existe `.env`. Se carga desde el directorio de trabajo; las variables del proceso tienen prioridad. Usá `-env /ruta/config.env` para otro archivo. Las claves guardadas desde el modal reemplazan las precargadas en los siguientes inicios. Los cambios de entorno requieren reiniciar; los cambios del modal, no.
+
+```dotenv
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-5
+OPENAI_REASONING_EFFORT=medium
+OPENAI_API_KEY=tu-clave-openai
+JEV_BASE_URL=https://api.typesafe.ai/v1
+JEV_MODEL=jev-latest
+JEV_TOKEN=tu-token-jev
 ```
 
-Son opciones para iniciar/configurar Ollaya, no una secuencia para ejecutar dentro de un proceso `serve` que ya ocupa la terminal. Usá otra terminal para `pull` cuando sea necesario.
+En modo IA, la pregunta y el contexto relevante del grafo se envían a esas APIs. La interfaz lo informa antes del recorrido. Los proveedores pueden facturar el uso. La consola SPARQL manual ejecuta consultas sin inferencia de modelos. Si falta una clave necesaria, el modo IA indica qué conexión configurar; nunca sustituye automáticamente el servicio.
 
-Elegí **IA local · Gemma** y escribí una pregunta. Cada clic en **Siguiente paso** solicita una acción: buscar, explorar, consultar o responder. Con **Usar Laya** activado, Laya prioriza las regiones antes de cada acción. El backend ejecuta las herramientas, reconstruye las observaciones anteriores con los datos actuales y exige una consulta exitosa antes de aceptar una respuesta final. Esta comprobación establece que existe evidencia consultada; no prueba que cada oración generada se deduzca de ella.
+Escribí una pregunta. El recorrido siempre usa OpenAI, con navegación de Jev activada por defecto. Cada clic en **Siguiente paso** solicita una acción: buscar, explorar, consultar o responder. Con **Usar Jev** activado, Jev prioriza las regiones antes de cada acción. El backend ejecuta las herramientas, reconstruye las observaciones anteriores con los datos actuales y exige una consulta exitosa antes de aceptar una respuesta. Esto establece que existe evidencia consultada; no prueba que cada oración generada se deduzca de ella.
 
-Dos interruptores controlan cada recorrido. Sus opciones se recuerdan en este navegador y quedan bloqueadas hasta que el recorrido termina o se detiene:
+OpenAI recibe definiciones estrictas de funciones y debe devolver exactamente una acción. Cada solicitud es una propuesta nueva que incluye observaciones reconstruidas por el servidor, con `store: false`; la app no continúa un estado de conversación guardado por el proveedor. La función `answer` solo se ofrece después de una consulta exitosa. GPT-5 usa esfuerzo de razonamiento `medium` por defecto. Los registros exponen entradas, instrucciones, acciones y observaciones de la aplicación, no el razonamiento privado del modelo.
 
-- **Usar Laya** (activado por defecto, solo para IA local): desactivalo para ejecutar Gemma sin solicitudes de navegación a Ollaya. Gemma recibe una vista sin filtrar de hasta 50 conexiones del grafo y elige sus propias acciones de búsqueda, exploración y consulta. Con Laya activado, la vista se selecciona del subgrafo elegido, con el mismo límite de conexiones. Las herramientas acceden al grafo completo en ambos modos. La solicitud de selección inicial y la navegación posterior de cada acción se cuentan cuando la medición está activada.
-- **Medir tiempos** (activado por defecto): muestra un contador en vivo de **Tiempo de procesamiento** y la duración de cada solicitud, incluidos los errores. Es la suma de los intervalos de solicitud entre navegador y servidor, incluida la red; excluye las pausas entre clics en **Siguiente paso** y el guardado de cambios pendientes del grafo. El servidor informa por separado los tiempos de navegación, generación de Gemma, revalidación de evidencia y ejecución de herramientas. Estos componentes excluyen la red y no tienen por qué sumar el total del navegador. La práctica guiada mide su solicitud de consulta y nunca usa Laya ni Gemma. Al desactivar el interruptor se oculta la medición del recorrido y se omiten los metadatos de tiempo de selección/paso; la consola SPARQL conserva su duración de consulta existente.
+Elegí **Paso a paso** para avanzar manualmente o **Ejecutar todos los pasos** para completar el recorrido en orden. Esta última opción también reanuda un recorrido pausado. **Pausar después de este paso** deja terminar la solicitud actual; **Detener recorrido** cancela la solicitud activa y conserva las tarjetas completadas. La ejecución automática se detiene ante una respuesta final, un error de solicitud o el límite de ocho acciones. Los errores de herramientas vuelven como observaciones para que GPT-5 pueda intentar corregirlos.
 
-Para comparar manualmente, ejecutá la misma pregunta dos veces sobre un grafo sin cambios y con el mismo modelo Gemma, cambiando únicamente **Usar Laya** y manteniendo **Medir tiempos** activado. Los tiempos se conservan durante el recorrido actual y no se guardan como un historial de benchmarks. Repetí las ejecuciones y compará la evidencia de las respuestas además del tiempo; esta interfaz por sí sola no demuestra una mejora de velocidad ni constituye una evaluación controlada.
+Cada tarjeta desplegable muestra el modelo o regla determinista responsable, la acción, el resultado y su tiempo de procesamiento. Las tarjetas de IA permiten inspeccionar el contexto real del grafo y las instrucciones enviadas a OpenAI, además de la entrada, opciones y puntuaciones de Jev cuando está activado. Las tarjetas de consulta enlazan su propia tabla de resultados, incluso después de otras acciones.
 
-El recorrido admite hasta ocho acciones del modelo y puede cancelarse. Los tiempos de espera, modelos faltantes y respuestas inválidas se muestran como errores; la práctica guiada sigue disponible. Se verificó un recorrido real con los modelos instalados: Laya eligió Colaboración, Gemma ejecutó una consulta y la respuesta final identificó correctamente a Sofía Vega y Lina Costa como colaboradoras de Elena. Se completó en dos acciones del modelo. Hubo pruebas anteriores con timeout o intentos de responder antes de obtener evidencia; el esquema de acciones y el backend ahora impiden esa respuesta prematura. Un recorrido exitoso no establece confiabilidad ni una mejora de latencia.
+Dos interruptores se recuerdan en el navegador y quedan bloqueados hasta que termina o se detiene el recorrido:
 
-La configuración usa variables de entorno:
+- **Usar Jev** (activado por defecto): desactivalo para ejecutar OpenAI sin solicitudes de navegación. GPT-5 recibe una vista sin filtrar de hasta 50 conexiones y elige cómo explorar. Con Jev activado, la vista proviene del subgrafo elegido con el mismo límite de conexiones. Las herramientas acceden al grafo completo en ambos modos. Un grafo con menos de dos subgrafos usa una regla estructural sin llamar a Jev.
+- **Medir tiempos** (activado por defecto): muestra el tiempo de procesamiento en vivo y la duración de cada paso, incluidos los errores. Suma trabajo activo del navegador e intervalos de solicitud, incluida la red. Excluye las pausas de lectura y el guardado de cambios pendientes. El servidor informa por separado navegación, generación, revalidación de evidencia y herramientas; estos tiempos excluyen la red entre navegador y servidor y no tienen por qué sumar el total del navegador. Al desactivar la medición, se ocultan los tiempos del recorrido y se omiten los metadatos de selección/paso. La consola SPARQL conserva la duración de consulta.
 
-```sh
-LMSTUDIO_URL=http://127.0.0.1:1234 \
-OLLAYA_URL=http://127.0.0.1:11435 \
-go run ./lab/cmd/spinach -db ./lab/data/spinach.db
-```
+Para comparar, ejecutá la misma pregunta sobre un grafo sin cambios y con el mismo modelo OpenAI, cambiando únicamente **Usar Jev** y manteniendo la medición activa. Los registros quedan en la sesión actual de la página, no como historial de benchmarks. Se necesitan ejecuciones repetidas y comprobaciones de evidencia antes de sacar conclusiones sobre velocidad o calidad.
 
-También hay un adaptador Ollama con `LLM_PROVIDER=ollama` y `OLLAMA_URL`. Elegí en la configuración el identificador real de Ollama, por ejemplo `gemma4:12b`. LM Studio usa sus propios identificadores; los dos nombres no son intercambiables.
+Los tiempos de espera, modelos no disponibles, fallos de autenticación y respuestas inválidas producen errores explícitos. No hay sustitución automática por otro servicio de inferencia. Consultá la [evidencia de validación](docs/VALIDATION.md) para ver las pruebas reales de APIs y los límites pendientes.
 
 ## 3. Explorar una base SQLite existente
 
@@ -196,16 +209,16 @@ La dependencia fijada proporciona sintaxis y evaluación de Query y Update, suje
 flowchart TD
   Browser["HTML / CSS / JS vanilla / SVG\nEditor · inglés / español · registro educativo"]
   Lab["Aplicación Go\nRepositorio de grafos · navegación · herramientas"]
-  Laya["Ollaya + Laya\nPriorizar subgrafos en cada paso"]
-  Gemma["LM Studio + Gemma\nProponer acciones y sintetizar evidencia"]
+  Jev["Jev · API TypeSafe\nPriorizar subgrafos en cada paso"]
+  OpenAI["OpenAI · GPT-5 · Responses API\nProponer acciones y sintetizar evidencia"]
   Repo["SQLite de la aplicación\nDocumentos de grafos · posiciones · subgrafos · revisiones"]
   Gateway["Módulo Go SPARQLite reutilizable\nInspeccionar → mapear → planificar → ejecutar"]
   Source["SQLite existente\nFuente relacional de solo lectura"]
   SQL["Ejecución en SQL\nPatrones básicos → SQL parametrizado"]
   Eval["Evaluador goRDFlib\nOtras operaciones sobre una vista RDF SQL bajo demanda"]
   Browser <--> Lab
-  Lab <--> Laya
-  Lab <--> Gemma
+  Lab <--> Jev
+  Lab <--> OpenAI
   Lab <--> Repo
   Lab --> Gateway
   Gateway --> SQL --> Source
@@ -239,7 +252,7 @@ En los universos educativos, los grafos son pequeños: se guardan como documento
 | Validación W3C de consultas/datasets/actualizaciones | 513 casos hoja aprobados y 9 fallidos contra la versión fijada de la suite. El subconjunto de Update ejecutado pasó; eso no establece conformidad completa de Update de extremo a extremo ni del protocolo. |
 | Vista del laboratorio | 400 nodos / 2.000 relaciones / 24 subgrafos; muestra hasta 500 filas con indicador explícito de vista limitada. |
 | Política de recursos del gateway | 20 segundos para consultas HTTP; presupuesto de 200.000 soluciones intermedias en el evaluador; límite de 100.000 filas en la ruta SQL. Son límites operativos, no truncamientos silenciosos presentados como éxito. |
-| Ejecución | Solo loopback local. Sin cuentas, aislamiento multiusuario ni despliegue alojado. |
+| Ejecución | Esta edición exige loopback local. Publicarla requiere un proxy inverso HTTPS y control de acceso; no incluye cuentas ni aislamiento multiusuario. Las claves guardadas configuran un servidor compartido. |
 
 Por lo tanto, el proyecto **todavía no cumple el objetivo solicitado de compatibilidad SPARQL al 100%**. Falta completar federación, los casos del estándar que fallan, una matriz completa del protocolo y un contrato defendible para escrituras relacionales. La interfaz, el mapeo automático, el gateway reutilizable y las mediciones pueden evaluarse por separado de ese criterio de publicación.
 
@@ -250,7 +263,9 @@ CGO_ENABLED=0 go test ./lab/... ./sparqlite/...
 go test ./sparqlite -run '^$' -bench BenchmarkMapping -benchmem
 ```
 
-Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Laya en cada paso.
+La suma de tiempos del navegador también puede verificarse con `node --test lab/tests/*.test.mjs` (runner opcional de Node.js; Node no es necesario para ejecutar la app).
+
+Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Jev en cada paso, el protocolo de funciones estrictas de OpenAI, las credenciales exclusivas del servidor, la configuración oculta, la persistencia entre reinicios, las actualizaciones concurrentes y la carga segura de configuración.
 
 En el Apple M4 de desarrollo, una ejecución de benchmark midió aproximadamente **0,52 ms** para una consulta selectiva sobre 10.003 filas de clientes y **0,108 ms** para el join del ejemplo. Ese join tiene solamente tres filas de pedidos; no es una medición sobre un grafo grande. Son microbenchmarks locales con caché caliente, no una promesa general de rendimiento o latencia de producción. Volvé a medir con tus datos. El [informe de validación](docs/VALIDATION.md) contiene la procedencia y los casos de conformidad fallidos.
 
@@ -264,7 +279,8 @@ lab/
   cmd/spinach/            Servidor del laboratorio
   internal/domain/       Modelo de grafo y contrato del repositorio
   internal/storage/      Repositorio SQLite y registro de archivos fuente
-  internal/models/       Adaptadores Ollaya, LM Studio y Ollama
+  internal/models/       Adaptadores API de Jev y OpenAI
+  internal/config/       Carga del archivo de entorno
   internal/sparql/        Conversión aplicación ↔ RDF y resultados
   internal/app/          Manejadores HTTP y frontend embebido
 sparqlite/
@@ -282,7 +298,7 @@ docs/
 ## 9. Resolver problemas
 
 - **La página abre pero no carga grafos:** usá la URL HTTP del servidor, no `file://`.
-- **Un modelo aparece pero falla al generar:** verificá que esté cargado, que entre en memoria y que acepte salidas estructuradas. El identificador de LM Studio debe coincidir exactamente. Una generación puede agotar el tiempo incluso si el descubrimiento funciona.
+- **Falla una llamada de API:** revisá las credenciales del servidor, la red, la cuota de la cuenta y el identificador exacto en **Conexiones de modelos**. Acceder al catálogo no garantiza que una inferencia funcione. Reiniciá después de cambiar `.env`.
 - **Falta una relación:** comprobá que la clave foránea esté declarada. El mapeador no infiere significado de negocio por similitud de nombres.
 - **Una base cargada parece desactualizada:** cargá un respaldo consistente que incluya los cambios de WAL. La copia cargada es una instantánea.
 - **Una consulta es lenta:** inspeccioná el SQL y el plan; revisá los índices y la selectividad de la fuente. El gateway no modifica la fuente para crear índices.

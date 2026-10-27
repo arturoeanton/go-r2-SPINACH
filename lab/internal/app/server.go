@@ -36,12 +36,12 @@ type Server struct {
 	Sources   SourceRegistry
 	Decisions models.DecisionModel
 	Language  models.LanguageModel
-	Local     *models.Local
+	Models    *models.Runtime
 	Mux       *http.ServeMux
 }
 
-func New(repo domain.Repository, local *models.Local, sources SourceRegistry) *Server {
-	s := &Server{Repo: repo, Sources: sources, Decisions: local, Language: local, Local: local, Mux: http.NewServeMux()}
+func New(repo domain.Repository, services *models.Runtime, sources SourceRegistry) *Server {
+	s := &Server{Repo: repo, Sources: sources, Decisions: services, Language: services, Models: services, Mux: http.NewServeMux()}
 	s.Mux.HandleFunc("GET /api/graphs", s.list)
 	s.Mux.HandleFunc("POST /api/graphs", s.create)
 	s.Mux.HandleFunc("GET /api/graphs/{id}", s.get)
@@ -54,6 +54,8 @@ func New(repo domain.Repository, local *models.Local, sources SourceRegistry) *S
 	s.Mux.HandleFunc("POST /api/databases", s.importDatabase)
 	s.Mux.HandleFunc("GET /api/databases/{id}/schema", s.databaseSchema)
 	s.Mux.HandleFunc("GET /api/status", s.status)
+	s.Mux.HandleFunc("POST /api/credentials", s.configureCredentials)
+	s.Mux.HandleFunc("GET /api/config", func(w http.ResponseWriter, r *http.Request) { reply(w, 200, s.Models.PublicConfig()) })
 	s.Mux.HandleFunc("GET /api/examples", func(w http.ResponseWriter, r *http.Request) { reply(w, 200, domain.Seeds()) })
 	sub, _ := fs.Sub(web, "web")
 	s.Mux.Handle("GET /", http.FileServer(http.FS(sub)))
@@ -228,10 +230,21 @@ type request struct {
 	Focus           string         `json:"focus"`
 	Language        string         `json:"language,omitempty"`
 	NavigationModel string         `json:"navigationModel,omitempty"`
+	UseNavigation   *bool          `json:"useNavigation,omitempty"`
+	MeasureTime     bool           `json:"measureTime,omitempty"`
 	Events          []models.Event `json:"events"`
 }
 
+func (b request) usesNavigation() bool {
+	return b.UseNavigation == nil || *b.UseNavigation
+}
+
+func elapsedMS(start time.Time) float64 {
+	return float64(time.Since(start)) / float64(time.Millisecond)
+}
+
 func (s *Server) route(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	var b request
 	if !decode(w, r, &b) {
 		return
@@ -243,10 +256,21 @@ func (s *Server) route(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	d, err := s.Decisions.Rank(r.Context(), g, b.Question, b.Model)
+	d := models.Decision{Source: "disabled", Candidates: []models.Candidate{}}
+	var err error
+	navigationStart := time.Now()
+	if b.usesNavigation() {
+		d, err = s.Decisions.Rank(r.Context(), g, b.Question, b.Model)
+	}
 	if err != nil {
-		fail(w, 502, err)
+		s.failStep(w, err, b.MeasureTime, start, models.Timing{NavigationMS: elapsedMS(navigationStart)}, &models.Event{Navigation: &d})
 		return
+	}
+	if b.MeasureTime {
+		d.Timing = &models.Timing{TotalMS: elapsedMS(start)}
+		if b.usesNavigation() {
+			d.Timing.NavigationMS = elapsedMS(navigationStart)
+		}
 	}
 	reply(w, 200, d)
 }
@@ -258,6 +282,7 @@ func validRequest(w http.ResponseWriter, b request) bool {
 	return true
 }
 func (s *Server) step(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	var b request
 	if !decode(w, r, &b) {
 		return
@@ -277,6 +302,8 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 	// treated as query evidence or instructions for the language model.
 	events := []models.Event{}
 	hasQuery := false
+	timing := models.Timing{}
+	replayStart := time.Now()
 	for _, old := range b.Events {
 		ev := s.execute(r.Context(), g, old.Action)
 		if old.Action.Type == "answer" && !hasQuery {
@@ -288,9 +315,10 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 		}
 		events = append(events, ev)
 	}
+	timing.ReplayMS = elapsedMS(replayStart)
 	navigationModel := b.NavigationModel
 	if navigationModel == "" {
-		navigationModel = "laya:multilingual"
+		_, navigationModel = s.Models.Models()
 	}
 	navigationState := b.Question
 	if len(events) > 0 {
@@ -305,23 +333,50 @@ func (s *Server) step(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	navigation, err := s.Decisions.Rank(r.Context(), g, navigationState, navigationModel)
+	var navigation *models.Decision
+	focus := ""
+	if b.usesNavigation() {
+		navigationStart := time.Now()
+		d, err := s.Decisions.Rank(r.Context(), g, navigationState, navigationModel)
+		timing.NavigationMS = elapsedMS(navigationStart)
+		if err != nil {
+			s.failStep(w, err, b.MeasureTime, start, timing, &models.Event{Navigation: &d})
+			return
+		}
+		navigation = &d
+		focus = d.Choice
+	}
+	generationStart := time.Now()
+	a, err := s.Language.Next(r.Context(), g, b.Question, b.Model, focus, b.Language, events)
+	timing.GenerationMS = elapsedMS(generationStart)
 	if err != nil {
-		fail(w, 502, err)
+		s.failStep(w, err, b.MeasureTime, start, timing, &models.Event{Navigation: navigation, Generation: s.Models.Trace(b.Model, a)})
 		return
 	}
-	a, err := s.Language.Next(r.Context(), g, b.Question, b.Model, navigation.Choice, b.Language, events)
-	if err != nil {
-		fail(w, 502, err)
-		return
-	}
+	var event models.Event
+	toolStart := time.Now()
 	if a.Type == "answer" && !hasQuery {
-		reply(w, 200, models.Event{Action: a, Error: "Antes de responder, ejecutá una consulta exitosa para obtener evidencia."})
-		return
+		event = models.Event{Action: a, Error: "Antes de responder, ejecutá una consulta exitosa para obtener evidencia."}
+	} else {
+		event = s.execute(r.Context(), g, a)
 	}
-	event := s.execute(r.Context(), g, a)
-	event.Navigation = &navigation
+	timing.ToolMS = elapsedMS(toolStart)
+	event.Navigation = navigation
+	event.Generation = s.Models.Trace(b.Model, a)
+	if b.MeasureTime {
+		timing.TotalMS = elapsedMS(start)
+		event.Timing = &timing
+	}
 	reply(w, 200, event)
+}
+
+func (s *Server) failStep(w http.ResponseWriter, err error, measure bool, start time.Time, timing models.Timing, trace *models.Event) {
+	body := map[string]any{"error": err.Error(), "trace": trace}
+	if measure {
+		timing.TotalMS = elapsedMS(start)
+		body["timing"] = timing
+	}
+	reply(w, 502, body)
 }
 func (s *Server) execute(ctx context.Context, g domain.Graph, a models.Action) models.Event {
 	ev := models.Event{Action: a}
@@ -361,7 +416,7 @@ func (s *Server) execute(ctx context.Context, g domain.Graph, a models.Action) m
 		}
 		ev.Observation = edges
 	case "answer":
-		ev.Observation = map[string]string{"answer": a.Answer, "notice": "Síntesis generada por Gemma; verificá su correspondencia con la tabla de evidencia."}
+		ev.Observation = map[string]string{"answer": a.Answer, "notice": "Síntesis generada por el modelo; verificá su correspondencia con la tabla de evidencia."}
 	default:
 		ev.Error = "acción no admitida"
 	}
@@ -403,13 +458,9 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		status models.ServiceStatus
 	}
 	ch := make(chan result, 2)
-	go func() { ch <- result{"ollama", s.Local.LanguageStatus(r.Context())} }()
-	go func() { ch <- result{"ollaya", s.Local.Status(r.Context(), s.Local.OllayaURL)} }()
-	model := "google/gemma-4-12b"
-	if s.Local.Provider == "ollama" {
-		model = "gemma4:12b"
-	}
-	out := map[string]any{"provider": s.Local.Provider, "defaults": map[string]string{"ollama": model, "ollaya": "laya:multilingual"}}
+	go func() { ch <- result{"generation", s.Models.LanguageStatus(r.Context())} }()
+	go func() { ch <- result{"navigation", s.Models.NavigationStatus(r.Context())} }()
+	out := s.Models.PublicConfig()
 	for range 2 {
 		v := <-ch
 		out[v.name] = v.status
@@ -510,4 +561,19 @@ func (s *Server) importDatabase(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.store(w, r, &g, 201)
+}
+
+// This endpoint is covered by the same loopback and same-origin boundary as all
+// graph mutations. It never returns keys; hosted deployments need admin access.
+func (s *Server) configureCredentials(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
+	var update models.Credentials
+	if !decode(w, r, &update) {
+		return
+	}
+	if err := s.Models.SaveCredentials(update); err != nil {
+		fail(w, 422, err)
+		return
+	}
+	reply(w, 200, s.Models.PublicConfig())
 }
