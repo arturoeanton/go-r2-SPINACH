@@ -66,7 +66,7 @@ La pregunta debe poder responderse con ese universo. La app no navega por Intern
 - **Conectar** permite elegir origen y destino y luego un predicado.
 - Seleccioná nodos con Shift + clic y usá **Crear subgrafo** para agruparlos. Un subgrafo es una vista de navegación sobre entidades compartidas; no impide joins entre subgrafos.
 - Deshacer/rehacer se aplica a las ediciones. **Guardar cambios** conserva el grafo y las posiciones en SQLite. Las consultas guardan las ediciones pendientes antes de evaluarse.
-- Importá el JSON del laboratorio, N-Triples, Turtle o RDF/XML. La exportación JSON conserva posiciones, grupos, subgrafos y ejemplos.
+- Importá el JSON del laboratorio, N-Triples, Turtle o RDF/XML. El navegador limita estos archivos de texto a 1,5 MB. La exportación JSON conserva posiciones, grupos, subgrafos y ejemplos.
 
 El guardado utiliza revisiones optimistas. Si otra ventana cambió el grafo, se rechaza un guardado desactualizado en lugar de sobrescribirlo silenciosamente.
 

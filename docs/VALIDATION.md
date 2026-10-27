@@ -115,6 +115,7 @@ Traces expose application inputs, actions and observations; they do not expose p
 4. Broaden SQLite fixtures: mixed-type keys, collations, nullable composite primary keys, WITHOUT ROWID, views, generated columns and malformed foreign-key declarations.
 5. Measure warm/cold latency, concurrency and representative large datasets.
 6. Compare navigation with/without Jev on the same questions, measuring both latency and answer quality.
+7. Record the full question/evidence matrix for the active Sol configuration and verify the deployed revision independently.
 
 Until these gates pass, this is an experimental implementation rather than a 100%-conformant high-performance product claim.
 
@@ -175,3 +176,8 @@ The 26 OpenAI calls reported 262,135 input tokens (258,859 cache-write tokens; n
 | [luna-adversarial-check.json](luna-adversarial-check.json) | Counterexample exposing the reversed exclusion relation. |
 
 Raw records are preserved rather than rewritten to match the active configuration. A correct-looking answer on one fixture is insufficient: the Luna counterexample demonstrates why relation direction and exclusion semantics require review. The Jev speed hypothesis remains open. Evaluate repeated, interleaved runs on unchanged data with the same generator and effort, compare correct answers and query semantics as well as elapsed time, and report retries, failures and usage. Do not turn the earlier separate GPT-5/Luna timings into a causal claim about Jev or a Sol quality estimate.
+
+
+## Documentation verification — 2026-10-27
+
+The README examples were checked against the actual CLI flags and temporary tutorial data. The standalone join returned three rows through SQL pushdown; the API reference's customer query returned Ana, Sam and Lina. The local lab query returned Elena Torres and Sofía Vega. These were deterministic manual queries with no model inference. Markdown links/anchors and matching English/Spanish runnable examples were checked, and the SVG was rendered for layout inspection. Historical model and conformance artifacts were unchanged.

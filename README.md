@@ -66,7 +66,7 @@ Questions must be answerable from that universe. The app does not browse the Int
 - **Connect** asks you to choose a source and a target, then a predicate.
 - Shift-click nodes and use **Create subgraph** to group them. A subgraph is a navigation view over shared entities; it does not prevent cross-subgraph query joins.
 - Undo/redo applies to graph edits. **Save changes** persists the current graph and layout to SQLite. Queries save pending edits before evaluation.
-- Import the lab's JSON format, N-Triples, Turtle or RDF/XML. JSON export preserves layout, groups, subgraphs and examples.
+- Import the lab's JSON format, N-Triples, Turtle or RDF/XML. The browser limits these text uploads to 1.5 MB. JSON export preserves layout, groups, subgraphs and examples.
 
 Saving uses optimistic revisions. If another window has changed the graph, a stale save is rejected instead of silently overwriting it.
 
