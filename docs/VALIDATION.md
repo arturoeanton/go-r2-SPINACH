@@ -1,6 +1,22 @@
 # Validation evidence
 
+[English README](../README.md) · [Spanish README](../README.es.md) · [HTTP API](API.md)
+
+Documentation reviewed on **2026-10-27**. Recorded API timestamps retain their original UTC values; current configuration and historical test results are distinguished below.
+
 The project distinguishes library conformance, gateway behavior and application behavior. Passing a subset in one layer does not certify the other layers.
+
+## Current configuration and evidence at a glance
+
+The local app was returned to `gpt-6.1-sol` with `medium` effort after the Luna experiment. `.env.example` now selects the same Sol model; the unconfigured constructor fallback remains `gpt-5`. The public demo's last configuration check also reported `gpt-6.1-sol`, but its hosted revision and end-to-end behavior must be verified separately. This documentation refresh does not deploy or rerun paid inference.
+
+| Layer / run | Recorded result | What it establishes |
+| --- | --- | --- |
+| Repository regression suite | Go modules passed; 7 Node tests passed after the SQLite removal change. | Tested application, adapter, storage, gateway and frontend contracts. |
+| W3C dependency audit | 513 passed, 9 failed. | The selected upstream test functions only; not full product conformance. |
+| GPT-5 complex-question matrix | 12/12 expected final answers and evidence; 5 intermediate parser failures recovered. | Historical functional validation with and without Jev. |
+| Luna complex-question matrix | 12/12 completed; 11/12 semantic passes; 10/12 language passes; 9/12 passed both. | Faster observed run with documented correctness failures. |
+| Sol | Active configuration and service connectivity checked. | No equivalent 12-case Sol evaluation is recorded. |
 
 ## Project tests
 
@@ -12,7 +28,7 @@ CGO_ENABLED=0 go test ./lab/... ./sparqlite/...
 
 The tests verify automatic schema mapping, real BGP joins against SQLite, duplicate projection behavior, a zero LIMIT, comparison with a materialized RDF reference, FILTER/OPTIONAL/COUNT and CONSTRUCT examples, HTTP result encoding, cancellation, explicit rejection of unsupported SERVICE, read-only source access, graph persistence and optimistic revisions. App tests verify that navigation runs for each model action when enabled, disabling it bypasses Jev, timing metadata is opt-in, and client-supplied observations cannot stand in for successful query evidence. Model tests verify the official Jev decision protocol, OpenAI Responses authentication and strict tool definitions, the successful-query gate, actual model identifiers, API error redaction and safe public configuration. Configuration tests cover environment precedence and parsing without shell evaluation. Configuration tests also cover startup without keys, server-selected model IDs for routing and generation, rejection of browser model overrides, unavailable HTTP configuration writes and immutable startup configuration. API responses are checked for secret leakage.
 
-Frontend tests (`node --test lab/tests/*.test.mjs`) verify exclusion of reading pauses, failed-request accounting, sequential automatic execution, pausing after an in-flight action, resuming, recoverable tool errors, failed requests, escaped context display and timing-off cards.
+Frontend tests (`node --test lab/tests/*.test.mjs`) verify exclusion of reading pauses, failed-request accounting, sequential automatic execution, pausing after an in-flight action, resuming, recoverable tool errors, failed requests, escaped context display, timing-off cards and the SQLite confirmation/cancellation/failure workflow. Storage and HTTP tests exercise actual uploaded-file deletion and shared-source preservation; see the dedicated section below.
 
 These tests are representative regression tests, not an exhaustive SPARQL specification suite.
 
@@ -126,7 +142,7 @@ After the server-only configuration change, a fresh browser journey on Aurora co
 
 ## GPT-6 Luna local evaluation
 
-The [Luna matrix](luna-validation-matrix.json) repeats the same six questions with and without Jev using `gpt-6-luna` at explicit `medium` effort. The prompts, graph, eight-action limit and 6,000-token output budget are unchanged from the GPT-5 baseline. The local `.env` selects Luna; the source default remains GPT-5. The public Vercel demo was checked separately and reports `gpt-6.1-sol`.
+The [Luna matrix](luna-validation-matrix.json) repeats the same six questions with and without Jev using `gpt-6-luna` at explicit `medium` effort. The prompts, graph, eight-action limit and 6,000-token output budget are unchanged from the GPT-5 baseline. Luna was selected only for this local experiment. The local `.env` was subsequently returned to Sol (`gpt-6.1-sol`); the source fallback remains GPT-5. The Vercel demo was checked separately and reported `gpt-6.1-sol`. These configuration observations are not a Sol correctness benchmark.
 
 All 12 journeys finished and their final answers matched the original fixture. However, a semantic review passed only **11 of 12**: question 3 with Jev reversed `authored` inside `NOT EXISTS`, so its correct-looking answer was accidental. The [adversarial replay](luna-adversarial-check.json) adds Zoe Flores, an author with a retracted paper, as an otherwise eligible leader. The reference query and the Luna-without-Jev query exclude her; the Luna-with-Jev query incorrectly includes her. Two answers also ignored the requested English language and used Spanish. Overall, **9 of 12** passed both semantic and language checks.
 
@@ -134,7 +150,7 @@ There were zero parser errors, but two journeys needed a second query after a se
 
 The observed median active journey time was **5.95 seconds**, versus **47.69 seconds** in the earlier GPT-5 matrix. These are separate functional runs with two concurrent journeys, not a controlled or repeated speed benchmark. They do not prove equivalent quality or a general speedup from Luna or Jev.
 
-The 26 OpenAI calls reported 262,135 input tokens (258,859 cache-write tokens; no cache hits) and 5,111 output tokens, including reasoning. At the [documented standard Luna rates](https://developers.openai.com/api/docs/models/gpt-6-luna), including 30-minute cache-write pricing, the estimate is **US$0.03524** for these 12 journeys. This excludes Jev and is an estimate rather than a billing statement. Generation traces now retain provider usage, including on incomplete responses.
+The 26 OpenAI calls reported 262,135 input tokens (258,859 cache-write tokens; no cache hits) and 5,111 output tokens, including reasoning. Using the historical pricing assumptions recorded in the matrix from the [Luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna), including 30-minute cache-write pricing, the estimate is **US$0.03524** for these 12 journeys. This excludes Jev and is an estimate rather than a billing statement. Generation traces retain provider usage, including on incomplete responses. This is a historical cost estimate; it is not a current pricing quote or a guarantee for future runs.
 
 
 ## SQLite upload removal — 2026-10-27
@@ -143,3 +159,19 @@ The 26 OpenAI calls reported 262,135 input tokens (258,859 cache-write tokens; n
 - HTTP tests cover import → query → delete, inaccessible schema after deletion, independent uploads and seed preservation, shared-source reference cleanup, retry after a simulated removal failure, rejection of stale references, and cleanup after a failed import.
 - Frontend tests cover no deletion before confirmation, stopping an active journey before deletion, retaining the dialog's target, and keeping unsaved changes after a failure.
 - Browser inspection verified the English and Spanish confirmations and cancellation on the local app. A query after cancellation returned the expected three rows. The existing user-uploaded database was preserved.
+
+
+## Evidence inventory and interpretation
+
+| Artifact | Purpose |
+| --- | --- |
+| [conformance-results.json](conformance-results.json) | Selected W3C leaf-case outcomes and pinned versions. |
+| [benchmark-results.txt](benchmark-results.txt) | Original local gateway microbenchmark output. |
+| [live-model-check.json](live-model-check.json) | Early Aurora API journeys; predates removal of example-query context. |
+| [complex-model-check.before-fix.json](complex-model-check.before-fix.json) | Preserved failed citation run before context corrections. |
+| [complex-model-check.json](complex-model-check.json) | Isolated citation check at an earlier reasoning setting. |
+| [final-validation-matrix.json](final-validation-matrix.json) | Historical GPT-5 matrix for all six complex questions in both navigation modes. |
+| [luna-validation-matrix.json](luna-validation-matrix.json) | Luna runs, raw grader outcomes, semantic review, language checks, usage and historical cost assumptions. |
+| [luna-adversarial-check.json](luna-adversarial-check.json) | Counterexample exposing the reversed exclusion relation. |
+
+Raw records are preserved rather than rewritten to match the active configuration. A correct-looking answer on one fixture is insufficient: the Luna counterexample demonstrates why relation direction and exclusion semantics require review. The Jev speed hypothesis remains open. Evaluate repeated, interleaved runs on unchanged data with the same generator and effort, compare correct answers and query semantics as well as elapsed time, and report retries, failures and usage. Do not turn the earlier separate GPT-5/Luna timings into a causal claim about Jev or a Sol quality estimate.

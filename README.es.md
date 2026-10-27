@@ -1,6 +1,8 @@
 # SPINACH Lab + SPARQLite
 
-[English — documento original](README.md) · [Diagrama de arquitectura](docs/architecture.svg) · [Informe de validación](docs/VALIDATION.md)
+[Demo pública](https://go-r2-spinach.vercel.app/) · [English — documento original](README.md) · [Diagrama de arquitectura](docs/architecture.svg) · [API HTTP](docs/API.md) · [Informe de validación](docs/VALIDATION.md)
+
+Documentación revisada contra el repositorio el **2026-10-27**. El README en inglés es la fuente original; este archivo es su traducción al español. La publicación y esta copia del repositorio pueden estar en revisiones diferentes.
 
 Dos proyectos conectados que también pueden usarse de forma independiente: un laboratorio visual para aprender cómo los grafos de conocimiento responden preguntas y un gateway en Go que permite consultar bases SQLite existentes mediante un mapeo RDF virtual y SPARQL.
 
@@ -19,7 +21,7 @@ El frontend usa HTML, CSS, módulos JavaScript y SVG, sin framework ni proceso d
 
 El enfoque educativo está inspirado en [SPINACH, Liu y colaboradores](https://arxiv.org/abs/2407.11417), que explora una base de conocimiento, ejecuta SPARQL y usa las observaciones para continuar.
 
-Nuestro experimento incorpora **Jev como capa de decisiones para la navegación**, mediante la API de TypeSafe. Prioriza los subgrafos al principio y nuevamente antes de cada acción del modelo. El subgrafo seleccionado se resalta y proporciona la región inicial del siguiente paso de exploración. **OpenAI GPT-5** propone acciones y consultas observables y sintetiza sus resultados.
+Nuestro experimento incorpora **Jev como capa de decisiones para la navegación**, mediante la API de TypeSafe. Prioriza los subgrafos al principio y nuevamente antes de cada acción del modelo. El subgrafo seleccionado se resalta y proporciona la región inicial del siguiente paso de exploración. **El modelo OpenAI configurado** propone acciones y consultas observables y sintetiza sus resultados. La configuración actual de la demo usa `gpt-6.1-sol`; el operador del servidor elige el modelo.
 
 Es una extensión experimental, no una mejora medida frente al sistema de investigación original. Las puntuaciones de Jev expresan preferencia entre opciones de navegación, no certeza factual sobre una respuesta.
 
@@ -51,6 +53,12 @@ Abrí **Red de investigación**: 99 nodos, 295 relaciones y seis subgrafos super
 
 Elegí una pregunta, ejecutala con **Usar Jev** activado y repetí sobre el mismo grafo con el interruptor desactivado y la misma medición. El modelo recibe contexto acotado y observaciones de herramientas, **no las consultas de ejemplo resueltas**. Son casos ficticios para investigar cuándo ayuda navegar; su complejidad no garantiza una mejora de velocidad. La consulta de referencia sigue disponible en la consola SPARQL para inspeccionar el resultado esperado.
 
+### Hacer tu propia pregunta
+
+Las preguntas de ejemplo son opcionales. Seleccioná un universo, escribí tu pregunta y elegí **Paso a paso** o **Ejecutar todos los pasos**. Las consultas y respuestas se generan a partir de la pregunta y del grafo seleccionado; no se eligen de una lista de respuestas guardadas. También podés preguntar sobre un grafo o una base SQLite importados.
+
+La pregunta debe poder responderse con ese universo. La app no navega por Internet, no consulta Wikidata ni usa `SERVICE` federado. Un resultado vacío indica que no hay coincidencias en los datos consultados, no que no existan en el mundo. No se garantiza responder correctamente cualquier pregunta; revisá la consulta generada y la evidencia, especialmente filtros, direcciones de relaciones, agregaciones y exclusiones. Cada recorrido permite como máximo ocho acciones del modelo. Se solicita el idioma de la interfaz para los objetivos y respuestas finales; las etiquetas originales se conservan y el modelo puede incumplir la instrucción de idioma.
+
 ### Edición de grafos
 
 - Arrastrá nodos para moverlos; desplazá el fondo y usá los controles de zoom.
@@ -66,20 +74,22 @@ El guardado utiliza revisiones optimistas. Si otra ventana cambió el grafo, se 
 
 Toda inferencia usa APIs autenticadas. El backend Go conserva las credenciales; el navegador recibe nombres de modelos, estados de conexión de solo lectura y registros observables. Las claves nunca se envían al navegador ni se devuelven mediante una API.
 
-| Función | API | Modelo predeterminado | URL base predeterminada |
+| Rol | API | Configuración del ejemplo/demo | Valor del código si no se configura |
 | --- | --- | --- | --- |
-| Navegación | TypeSafe System One | `jev-latest` | `https://api.typesafe.ai/v1` |
-| Acciones, propuestas SPARQL y síntesis de respuestas | OpenAI Responses | `gpt-5` | `https://api.openai.com/v1` |
+| Navegación | TypeSafe System One | `jev-latest` | `jev-latest` |
+| Acciones, propuestas SPARQL y síntesis | OpenAI Responses | `gpt-6.1-sol` | `gpt-5` |
+
+La plantilla de configuración ahora selecciona Sol. El constructor conserva GPT-5 como valor de compatibilidad cuando `OPENAI_MODEL` está ausente o vacío; configuralo explícitamente para reproducir la demo. Los indicadores de la interfaz y los registros de cada paso muestran el modelo configurado y el identificador real, respectivamente. No se utiliza ningún servicio de inferencia local.
 
 El backend llama a `/systemone` de Jev y `/responses` de OpenAI. El indicador de conexión comprueba el catálogo autenticado `/models` de cada servicio. Los proveedores y modelos están fijos para los visitantes; cada paso registra el identificador real devuelto por el servicio cuando está disponible.
 
-**Solo el operador del servidor configura modelos y claves de API**, mediante variables de entorno del proceso y/o un archivo `.env` opcional. No hay selector de modelos, formulario de claves ni endpoint HTTP de configuración. Las solicitudes del recorrido no pueden reemplazar ninguno de los modelos. El interruptor **Usar Jev** solo activa o desactiva la navegación para comparar; no elige un modelo.
+**Solo el operador del servidor configura modelos y claves de API**, mediante variables de entorno del proceso y/o un archivo `.env` opcional. No hay selector de modelos, formulario de claves ni endpoint HTTP para modificar la configuración. `GET /api/config` expone ajustes públicos de solo lectura. Las solicitudes del recorrido no pueden reemplazar ninguno de los modelos. El interruptor **Usar Jev** solo activa o desactiva la navegación para comparar; no elige un modelo.
 
 Copiá `.env.example` solo si todavía no existe `.env` y completá las claves en el servidor. El archivo se carga desde el directorio de trabajo; las variables de entorno del proceso tienen prioridad. Usá `-env /ruta/config.env` para otro archivo. **Reiniciá el servidor después de cambiar la configuración.** Mantené `.env` privado (por ejemplo, `chmod 600 .env`); está excluido de Git. Un despliegue puede inyectar las mismas variables desde su gestor de secretos sin usar un archivo. La aplicación ya no lee ni escribe `model-credentials.json`.
 
 ```dotenv
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-5
+OPENAI_MODEL=gpt-6.1-sol
 OPENAI_REASONING_EFFORT=medium
 OPENAI_API_KEY=tu-clave-openai
 JEV_BASE_URL=https://api.typesafe.ai/v1
@@ -87,21 +97,35 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=tu-token-jev
 ```
 
-Para un experimento local de menor costo, configurá `OPENAI_MODEL=gpt-6-luna` con `OPENAI_REASONING_EFFORT=medium` y reiniciá. GPT-6 recibe el nivel de razonamiento explícitamente mediante Responses. Consultá la [evaluación de Luna](docs/VALIDATION.md#gpt-6-luna-local-evaluation): fue más rápido en la ejecución registrada, pero las comprobaciones semánticas y de idioma detectaron fallas, por lo que no está establecida su equivalencia con GPT-5.
+El contrato de configuración implementado es:
+
+| Variable | Valor si está ausente o vacío | Función |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Ninguno | Credencial OpenAI del servidor. |
+| `OPENAI_MODEL` | `gpt-5` | Modelo de Responses; la plantilla establece `gpt-6.1-sol`. |
+| `OPENAI_REASONING_EFFORT` | `medium` | Se envía explícitamente para identificadores que empiezan con `gpt-5` o `gpt-6`. |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Base de la API OpenAI. |
+| `JEV_TOKEN` | Ninguno | Credencial de navegación; los alias son `JEV_API_KEY` y luego `TYPESAFE_API_KEY`, en ese orden de prioridad. |
+| `JEV_MODEL` | `jev-latest` | Modelo de navegación TypeSafe. |
+| `JEV_BASE_URL` | `https://api.typesafe.ai/v1` | Base de la API TypeSafe. |
+
+Este adaptador acepta `minimal`, `low`, `medium` y `high`, y rechaza `minimal` para identificadores GPT-6. No expone todos los ajustes del proveedor. Las bases de API requieren HTTPS, excepto HTTP en loopback para pruebas locales del adaptador. El cargador de entorno acepta asignaciones, valores entre comillas y comentarios; no ejecuta sustituciones de shell. Una variable ya presente en el proceso tiene prioridad incluso si está vacía; en ese caso se aplica el valor alternativo del adaptador y no el valor del archivo.
+
+Luna queda como experimento opcional: configurá `OPENAI_MODEL=gpt-6-luna` y `OPENAI_REASONING_EFFORT=medium`, y reiniciá. En la [evaluación registrada](docs/VALIDATION.md#gpt-6-luna-local-evaluation), terminaron los 12 recorridos, 11 aprobaron la revisión semántica de consultas y 9 aprobaron semántica e idioma. La mediana observada fue de 5,95 s frente a 47,69 s en la ejecución anterior con GPT-5; fueron pruebas funcionales separadas, no un benchmark controlado. La configuración local activa volvió a Sol después del experimento. Todavía no hay una matriz equivalente de 12 casos registrada para Sol.
 
 En modo IA, la pregunta y el contexto relevante del grafo se envían a esas APIs. La interfaz lo informa antes del recorrido. Los proveedores pueden facturar el uso. La consola SPARQL manual ejecuta consultas sin inferencia de modelos. Si falta una clave necesaria, el modo IA informa que la conexión del servidor no está disponible; nunca sustituye automáticamente el servicio.
 
 Escribí una pregunta. El recorrido siempre usa OpenAI, con navegación de Jev activada por defecto. Cada clic en **Siguiente paso** solicita una acción: buscar, explorar, consultar o responder. Con **Usar Jev** activado, Jev prioriza las regiones antes de cada acción. El backend ejecuta las herramientas, reconstruye las observaciones anteriores con los datos actuales y exige una consulta exitosa antes de aceptar una respuesta. Esto establece que existe evidencia consultada; no prueba que cada oración generada se deduzca de ella.
 
-OpenAI recibe definiciones estrictas de funciones y debe devolver exactamente una acción. Cada solicitud es una propuesta nueva que incluye observaciones reconstruidas por el servidor, con `store: false`; la app no continúa un estado de conversación guardado por el proveedor. La función `answer` solo se ofrece después de una consulta exitosa. GPT-5 usa esfuerzo de razonamiento `medium` por defecto. Los registros exponen entradas, instrucciones, acciones y observaciones de la aplicación, no el razonamiento privado del modelo.
+OpenAI recibe definiciones estrictas de funciones y debe devolver exactamente una acción. Cada solicitud es una propuesta nueva que incluye observaciones reconstruidas por el servidor, con `store: false`; la app no continúa un estado de conversación guardado por el proveedor. La función `answer` solo se ofrece después de una consulta exitosa. El adaptador GPT-5/GPT-6 configurado usa esfuerzo `medium` por defecto y un máximo de 6.000 tokens de salida por solicitud. Los registros exponen entradas, instrucciones, acciones y observaciones de la aplicación, no el razonamiento privado del modelo.
 
-Elegí **Paso a paso** para avanzar manualmente o **Ejecutar todos los pasos** para completar el recorrido en orden. Esta última opción también reanuda un recorrido pausado. **Pausar después de este paso** deja terminar la solicitud actual; **Detener recorrido** cancela la solicitud activa y conserva las tarjetas completadas. La ejecución automática se detiene ante una respuesta final, un error de solicitud o el límite de ocho acciones. Los errores de herramientas vuelven como observaciones para que GPT-5 pueda intentar corregirlos.
+Elegí **Paso a paso** para avanzar manualmente o **Ejecutar todos los pasos** para completar el recorrido en orden. Esta última opción también reanuda un recorrido pausado. **Pausar después de este paso** deja terminar la solicitud actual; **Detener recorrido** cancela la solicitud activa y conserva las tarjetas completadas. La ejecución automática se detiene ante una respuesta final, un error de solicitud o el límite de ocho acciones. Los errores de herramientas vuelven como observaciones para que el generador pueda intentar corregirlos.
 
-Cada tarjeta desplegable muestra el modelo o regla determinista responsable, la acción, el resultado y su tiempo de procesamiento. Las tarjetas de IA permiten inspeccionar el contexto real del grafo y las instrucciones enviadas a OpenAI, además de la entrada, opciones y puntuaciones de Jev cuando está activado. Las tarjetas de consulta enlazan su propia tabla de resultados, incluso después de otras acciones.
+Cada tarjeta desplegable muestra el modelo o regla determinista responsable, la acción, el resultado y su tiempo de procesamiento. Las tarjetas de IA permiten inspeccionar el contexto real del grafo y las instrucciones enviadas a OpenAI, además de la entrada, opciones y puntuaciones de Jev cuando está activado. Las tarjetas de consulta enlazan su propia tabla de resultados, incluso después de otras acciones. El registro HTTP también conserva el consumo informado por el proveedor en `generation.usage`, incluso en respuestas incompletas. No hay un panel de facturación integrado ni un historial persistente de benchmarks.
 
 Dos interruptores se recuerdan en el navegador y quedan bloqueados hasta que termina o se detiene el recorrido:
 
-- **Usar Jev** (activado por defecto): desactivalo para ejecutar OpenAI sin solicitudes de navegación. GPT-5 recibe una vista sin filtrar de hasta 50 conexiones y elige cómo explorar. Con Jev activado, la vista proviene del subgrafo elegido con el mismo límite de conexiones. Las herramientas acceden al grafo completo en ambos modos. Un grafo con menos de dos subgrafos usa una regla estructural sin llamar a Jev.
+- **Usar Jev** (activado por defecto): desactivalo para ejecutar OpenAI sin solicitudes de navegación. El generador recibe una vista sin filtrar de hasta 50 conexiones y elige cómo explorar. Con Jev activado, la vista proviene del subgrafo elegido con el mismo límite de conexiones. Las herramientas acceden al grafo completo en ambos modos. Un grafo con menos de dos subgrafos usa una regla estructural sin llamar a Jev.
 - **Medir tiempos** (activado por defecto): muestra el tiempo de procesamiento en vivo y la duración de cada paso, incluidos los errores. Suma trabajo activo del navegador e intervalos de solicitud, incluida la red. Excluye las pausas de lectura y el guardado de cambios pendientes. El servidor informa por separado navegación, generación, revalidación de evidencia y herramientas; estos tiempos excluyen la red entre navegador y servidor y no tienen por qué sumar el total del navegador. Al desactivar la medición, se ocultan los tiempos del recorrido y se omiten los metadatos de selección/paso. La consola SPARQL conserva la duración de consulta.
 
 Para comparar, ejecutá la misma pregunta sobre un grafo sin cambios y con el mismo modelo OpenAI, cambiando únicamente **Usar Jev** y manteniendo la medición activa. Los registros quedan en la sesión actual de la página, no como historial de benchmarks. Se necesitan ejecuciones repetidas y comprobaciones de evidencia antes de sacar conclusiones sobre velocidad o calidad.
@@ -115,6 +139,8 @@ En el laboratorio, elegí **Explorar SQLite**, seleccioná un archivo y asignale
 Para quitar una base importada, seleccioná su universo y hacé clic en **Eliminar SQLite** debajo del grafo. Al confirmar se eliminan el universo y sus subgrafos guardados, se cierra la conexión y se borra la copia cargada en la app. El archivo original no cambia. Si varios universos comparten la copia, el archivo se conserva hasta eliminar el último. Cancelar deja todo como estaba.
 
 Si la base usa WAL, generá una copia de respaldo consistente antes de cargarla: copiar solamente el archivo principal puede omitir cambios todavía no consolidados. El límite de carga es 16 MB. El gateway independiente abre un archivo local directamente y no tiene ese límite de carga de la aplicación.
+
+La exportación JSON del grafo contiene la vista visual y un identificador de fuente local al servidor, no los bytes de la base SQLite. Para moverla a otra instalación, importá allí el archivo SQLite; el identificador por sí solo no es un respaldo portable.
 
 Las vistas SQLite permiten editar posiciones y subgrafos. La aplicación impide editar su contenido como grafo porque una modificación RDF arbitraria no tiene una traducción inequívoca a tablas relacionales. En estas vistas, **Esquema SQLite** abre el esquema descubierto.
 
@@ -212,7 +238,7 @@ flowchart TD
   Browser["HTML / CSS / JS vanilla / SVG\nEditor · inglés / español · registro educativo"]
   Lab["Aplicación Go\nRepositorio de grafos · navegación · herramientas"]
   Jev["Jev · API TypeSafe\nPriorizar subgrafos en cada paso"]
-  OpenAI["OpenAI · GPT-5 · Responses API\nProponer acciones y sintetizar evidencia"]
+  OpenAI["OpenAI · modelo configurado · Responses API\nProponer acciones y sintetizar evidencia"]
   Repo["SQLite de la aplicación\nDocumentos de grafos · posiciones · subgrafos · revisiones"]
   Gateway["Módulo Go SPARQLite reutilizable\nInspeccionar → mapear → planificar → ejecutar"]
   Source["SQLite existente\nFuente relacional de solo lectura"]
@@ -265,9 +291,9 @@ CGO_ENABLED=0 go test ./lab/... ./sparqlite/...
 go test ./sparqlite -run '^$' -bench BenchmarkMapping -benchmem
 ```
 
-La suma de tiempos del navegador también puede verificarse con `node --test lab/tests/*.test.mjs` (runner opcional de Node.js; Node no es necesario para ejecutar la app).
+Los tiempos del navegador, los controles de recorrido, los registros y el flujo de borrado de SQLite también pueden verificarse con `node --test lab/tests/*.test.mjs` (runner opcional de Node.js; Node no es necesario para ejecutar la app).
 
-Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Jev en cada paso, el protocolo de funciones estrictas de OpenAI, las credenciales exclusivas del servidor, la configuración de entorno al iniciar, el rechazo de modelos elegidos desde el navegador, la ausencia de escrituras de configuración web y la carga segura de configuración.
+Las pruebas cubren resultados reales, semántica de duplicados, coincidencia SQL/evaluador, valores tipados, nulos, joins por claves foráneas, identificadores SQL escapados, cancelación, respuestas del protocolo, fuentes de solo lectura, persistencia, rechazo de revisiones desactualizadas y el contrato de navegación de Jev en cada paso, el protocolo de funciones estrictas de OpenAI, las credenciales exclusivas del servidor, la configuración de entorno al iniciar, el rechazo de modelos elegidos desde el navegador, la ausencia de escrituras de configuración web y la carga segura de configuración. Las pruebas de borrado de SQLite cubren el cierre de conexiones en caché, la conservación del original, fuentes compartidas, fallos y reintentos de limpieza, referencias obsoletas y limpieza después de una importación fallida.
 
 En el Apple M4 de desarrollo, una ejecución de benchmark midió aproximadamente **0,52 ms** para una consulta selectiva sobre 10.003 filas de clientes y **0,108 ms** para el join del ejemplo. Ese join tiene solamente tres filas de pedidos; no es una medición sobre un grafo grande. Son microbenchmarks locales con caché caliente, no una promesa general de rendimiento o latencia de producción. Volvé a medir con tus datos. El [informe de validación](docs/VALIDATION.md) contiene la procedencia y los casos de conformidad fallidos.
 
@@ -295,6 +321,8 @@ sparqlite/
 docs/
   architecture.svg        Diagrama de arquitectura independiente
   VALIDATION.md           Evidencia reproducible y límites conocidos
+  API.md                  API JSON del laboratorio y endpoint SPARQL (inglés)
+  *validation-matrix.json Pruebas históricas; no estado actual del despliegue
 ```
 
 ## 9. Resolver problemas
@@ -306,8 +334,32 @@ docs/
 - **Una consulta es lenta:** inspeccioná el SQL y el plan; revisá los índices y la selectividad de la fuente. El gateway no modifica la fuente para crear índices.
 - **Falla una característica estándar:** conservá la consulta y un ejemplo mínimo, identificá la ruta de ejecución y consultá los límites conocidos. No interpretes un error o un límite de visualización como una respuesta vacía exitosa.
 
-## 10. Atribución y mantenimiento de la documentación
+## 10. Compilar, operar y publicar
+
+Compilá desde la raíz del repositorio; el frontend queda embebido en el ejecutable Go:
+
+```sh
+mkdir -p bin
+CGO_ENABLED=0 go build -o bin/spinach ./lab/cmd/spinach
+CGO_ENABLED=0 go build -o bin/sparqlite ./sparqlite/cmd/sparqlite
+./bin/spinach -addr 127.0.0.1:8090 -db ./lab/data/spinach.db -env .env
+```
+
+Los parámetros del laboratorio son `-addr` (por defecto `127.0.0.1:8090`), `-db` (por defecto `data/spinach.db`, relativo al directorio de trabajo) y `-env` (por defecto `.env`). El inicio rápido usa explícitamente `lab/data/spinach.db` para reunir los archivos generados. Las copias SQLite importadas se guardan en `sources/`, junto a la base de la aplicación. El gateway independiente acepta `-addr`, `-db`, `-base`, `-rdf-store` y `-write`; usá exactamente uno de `-db` o `-rdf-store`.
+
+Detené el laboratorio de forma ordenada antes de un respaldo de archivos y copiá el directorio de datos completo, incluidas las bases importadas. Guardá los secretos del servidor en un respaldo protegido separado. Cambiar `-db` crea o abre otra colección. Los universos precargados que falten se recrean al iniciar; las bases importadas no. Los registros de recorridos pertenecen a la sesión del navegador, no al respaldo SQLite.
+
+Ambos ejecutables exigen escuchar en loopback. Para alojar el laboratorio Go en un servidor como un Droplet de DigitalOcean, ejecutalo como proceso administrado detrás de un proxy inverso HTTPS con control de acceso y almacenamiento persistente para los datos. Las credenciales de API pertenecen al entorno de ese servidor. Esta edición no tiene cuentas, propiedad de archivos por usuario ni aislamiento entre usuarios: quienes acceden a la instancia comparten grafos, copias importadas y llamadas a modelos pagadas por el servidor. Administrá los permisos de importación y borrado teniendo esto en cuenta.
+
+La [demo pública](https://go-r2-spinach.vercel.app/) es un despliegue separado. Esta copia del repositorio no incluye un adaptador serverless ni un manifiesto de Vercel; publicar solamente el HTML no proporciona las rutas Go `/api` ni persistencia SQLite. Los cambios locales no actualizan automáticamente esa publicación. Verificá por separado su backend, persistencia y revisión antes de compartir funciones nuevas.
+
+Los contratos de rutas y mensajes implementados están en la [referencia de API HTTP](docs/API.md), en inglés. Antes de presentar un despliegue, verificá la carga de grafos, una pregunta real con evidencia consultada, un ciclo independiente de importación/consulta/borrado con datos descartables, ambos idiomas y los indicadores de proveedor. Acceder al catálogo de modelos no equivale a comprobar una inferencia de extremo a extremo.
+
+## 11. Atribución y mantenimiento de la documentación
 
 La investigación y el nombre SPINACH corresponden a sus autores originales. Este repositorio es un experimento educativo independiente. [Artículo original](https://arxiv.org/abs/2407.11417) · [Implementación original](https://github.com/stanford-oval/spinach).
 
 El parser/evaluador SPARQL y el endpoint RDF nativo provienen de [goRDFlib](https://github.com/tggo/goRDFlib), fijado en `v0.9.3`; el mapeo de SQLite existente, el compilador SQL, la aplicación y la orquestación de modelos son trabajo de integración de este proyecto. El acceso a SQLite usa [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite). Las dependencias conservan sus propias licencias; consultá los [avisos de terceros](docs/THIRD_PARTY.md). El código del proyecto está cubierto por la [licencia MIT](LICENSE) del repositorio.
+
+
+Actualizá primero la fuente en inglés y después aplicá los mismos cambios a `README.es.md`. Mantené ambos diagramas de arquitectura, `.env.example` y la referencia de API alineados con el código. Conservá los registros JSON históricos de validación; agregá un registro fechado para nuevos experimentos en lugar de reescribir resultados anteriores. La configuración activa, los valores predeterminados del código y el modelo de una prueba histórica son hechos distintos y deben identificarse por separado.

@@ -1,10 +1,12 @@
 # SPINACH Lab + SPARQLite
 
-[Español](README.es.md) · [Architecture diagram](docs/architecture.svg) · [Validation report](docs/VALIDATION.md)
+[Live demo](https://go-r2-spinach.vercel.app/) · [Español](README.es.md) · [Architecture diagram](docs/architecture.svg) · [HTTP API](docs/API.md) · [Validation report](docs/VALIDATION.md)
+
+Documentation reviewed against the repository on **2026-10-27**. This English README is the source of truth; [README.es.md](README.es.md) is its Spanish translation. The public deployment and this checkout can be on different revisions.
 
 Two connected, independently usable projects: a visual laboratory for learning how knowledge graphs answer questions, and a Go gateway that exposes existing SQLite databases through a virtual RDF mapping and SPARQL queries.
 
-**Status: working experimental implementation. Full SPARQL 1.1 conformance is a release goal, not a claim about this version.** The validation run found nine failing W3C query/syntax cases in the pinned evaluator, and `SERVICE` is unsupported. See [Capabilities and limits](#capabilities-and-limits) before integrating the engine.
+**Status: working experimental implementation. Full SPARQL 1.1 conformance is a release goal, not a claim about this version.** The validation run found nine failing W3C query/syntax cases in the pinned evaluator, and `SERVICE` is unsupported. See [Capabilities and limits](#6-capabilities-and-limits) before integrating the engine.
 
 ## 1. Understand the two parts
 
@@ -19,7 +21,7 @@ The frontend uses HTML, CSS, JavaScript modules and SVG, without a frontend fram
 
 The educational approach is inspired by [SPINACH, Liu et al.](https://arxiv.org/abs/2407.11417), which explores a knowledge base, executes SPARQL and uses observations to continue.
 
-Our experiment adds **Jev as a navigation decision layer**, accessed through the TypeSafe API. It ranks available subgraphs initially and again before each model action. The selected subgraph is highlighted and supplies the initial region for the next exploration step. **OpenAI GPT-5** proposes observable actions and queries and summarizes query results.
+Our experiment adds **Jev as a navigation decision layer**, accessed through the TypeSafe API. It ranks available subgraphs initially and again before each model action. The selected subgraph is highlighted and supplies the initial region for the next exploration step. **The configured OpenAI model** proposes observable actions and queries and summarizes query results. The current demo configuration uses `gpt-6.1-sol`; model selection belongs to the server operator.
 
 This is an experimental extension, not a measured improvement over the original research system. Jev scores express preference among navigation options, not factual confidence in an answer.
 
@@ -51,6 +53,12 @@ Open **Research network**: 99 nodes, 295 connections and six overlapping subgrap
 
 Choose a question, run it with **Use Jev** enabled, then repeat on the same graph with it disabled and the same timing setting. The model receives bounded graph context and tool observations, **not the reference example queries**. These are fictional test cases for investigating when navigation helps; their complexity does not guarantee a speedup. The reference query remains available in the SPARQL console for inspecting ground truth.
 
+### Ask your own question
+
+Sample questions are optional. Select a universe, write your own question, and choose **Step by step** or **Run all steps**. Queries and answers are generated from the question and the selected graph; they are not selected from a stored answer list. You can also ask about an imported graph or SQLite database.
+
+Questions must be answerable from that universe. The app does not browse the Internet, query Wikidata or use federated `SERVICE`. An empty result means no matches in the queried data, not absence in the world. Arbitrary questions are not guaranteed to be answered correctly; inspect the generated query and evidence, especially filters, relation directions, aggregates and exclusions. Each journey has at most eight model actions. The selected interface language is requested for objectives and final answers; source labels remain unchanged, and models can fail to follow the language instruction.
+
 ### Graph editing
 
 - Drag nodes to move them; pan the background and use the zoom controls.
@@ -66,20 +74,22 @@ Saving uses optimistic revisions. If another window has changed the graph, a sta
 
 All model inference uses authenticated APIs. Credentials are held by the Go backend; the browser receives model names, read-only connection status and observable traces. Keys are never sent to the browser or returned by an API.
 
-| Role | API | Default model | Default base URL |
+| Role | API | Example/demo configuration | Code fallback if unset |
 | --- | --- | --- | --- |
-| Navigation | TypeSafe System One | `jev-latest` | `https://api.typesafe.ai/v1` |
-| Actions, SPARQL proposals and answer synthesis | OpenAI Responses | `gpt-5` | `https://api.openai.com/v1` |
+| Navigation | TypeSafe System One | `jev-latest` | `jev-latest` |
+| Actions, SPARQL proposals and answer synthesis | OpenAI Responses | `gpt-6.1-sol` | `gpt-5` |
+
+The configuration template now selects Sol. The constructor's compatibility fallback is still GPT-5 when `OPENAI_MODEL` is absent or blank; set it explicitly to reproduce the demo. The UI badges and per-step traces show the configured and actual model identifiers, respectively. No local inference service is used.
 
 The backend calls Jev's `/systemone` and OpenAI's `/responses`. The connection indicator checks each authenticated `/models` catalog. Providers and models are fixed for visitors; each step records the actual model identifier returned by the service when available.
 
-**Only the server operator configures models and API keys**, using process environment variables and/or an optional `.env` file. There is no model selector, key form or HTTP configuration endpoint. Journey requests cannot override either model. The **Use Jev** switch only enables or disables navigation for a comparison; it does not choose a model.
+**Only the server operator configures models and API keys**, using process environment variables and/or an optional `.env` file. There is no model selector, key form or HTTP configuration-write endpoint. `GET /api/config` exposes read-only public settings. Journey requests cannot override either model. The **Use Jev** switch only enables or disables navigation for a comparison; it does not choose a model.
 
 Copy `.env.example` only if `.env` does not already exist, then fill in the keys on the server. The file is loaded from the working directory; process environment variables take precedence. Use `-env /path/to/config.env` for a different file. **Restart the server after changing configuration.** Keep `.env` private (for example, `chmod 600 .env`); it is excluded from Git. A deployment can inject the same variables through its secret manager without a file. The app no longer reads or writes `model-credentials.json`.
 
 ```dotenv
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-5
+OPENAI_MODEL=gpt-6.1-sol
 OPENAI_REASONING_EFFORT=medium
 OPENAI_API_KEY=your-openai-key
 JEV_BASE_URL=https://api.typesafe.ai/v1
@@ -87,21 +97,35 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=your-jev-token
 ```
 
-For a lower-cost local experiment, set `OPENAI_MODEL=gpt-6-luna` with `OPENAI_REASONING_EFFORT=medium` and restart. GPT-6 receives explicit reasoning settings through Responses. See the [Luna evaluation](docs/VALIDATION.md#gpt-6-luna-local-evaluation): it was faster in the recorded run, but semantic and language checks exposed failures, so it is not established as equivalent to GPT-5.
+The implemented configuration contract is:
+
+| Variable | Default when absent or blank | Purpose |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | None | Server's OpenAI credential. |
+| `OPENAI_MODEL` | `gpt-5` | Responses model; the template sets `gpt-6.1-sol`. |
+| `OPENAI_REASONING_EFFORT` | `medium` | Sent explicitly for model IDs starting with `gpt-5` or `gpt-6`. |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI API base. |
+| `JEV_TOKEN` | None | Navigation credential; aliases are `JEV_API_KEY`, then `TYPESAFE_API_KEY`, in that precedence order. |
+| `JEV_MODEL` | `jev-latest` | TypeSafe navigation model. |
+| `JEV_BASE_URL` | `https://api.typesafe.ai/v1` | TypeSafe API base. |
+
+This adapter accepts `minimal`, `low`, `medium` and `high` reasoning settings, and rejects `minimal` for GPT-6 IDs. It does not expose every provider setting. API bases require HTTPS, except loopback HTTP for local adapter tests. The environment loader accepts assignments, quoted values and comments; it does not execute shell substitutions. An existing process variable wins even when it is empty, in which case the adapter applies its empty-value fallback rather than reading the file's value.
+
+Luna remains an optional experiment: set `OPENAI_MODEL=gpt-6-luna` and `OPENAI_REASONING_EFFORT=medium`, then restart. In the [recorded evaluation](docs/VALIDATION.md#gpt-6-luna-local-evaluation), all 12 journeys finished, 11 passed query-semantic review and 9 passed both semantic and language checks. The observed median was 5.95 s versus 47.69 s in the earlier GPT-5 run; these were separate functional runs, not a controlled benchmark. The active local configuration was returned to Sol after that experiment. There is no recorded equivalent 12-case Sol matrix yet.
 
 The question and relevant graph context are sent to these APIs in AI mode. The interface shows this before a journey. API usage may be billed by the providers. The manual SPARQL console executes database queries without model inference. If a required key is missing, AI mode reports that the server connection is unavailable; it never falls back to another service.
 
 Enter a question. The journey always uses OpenAI, with Jev navigation enabled by default. Every click on **Next step** requests one action: search, explore, query or answer. With **Use Jev** enabled, Jev ranks navigation regions before each action. The backend executes tools, rebuilds earlier observations from current graph data, and requires a successful query before accepting an answer. This establishes that query evidence exists; it does not prove every sentence in a generated answer is entailed by it.
 
-OpenAI receives strict function definitions and must return exactly one action. Each request is a fresh action proposal containing server-rebuilt observations, with `store: false`; the app does not continue provider-side conversation state. The `answer` function is offered only after a successful query. GPT-5 uses `medium` reasoning effort by default. Traces expose application inputs, instructions, actions and observations, not private model reasoning.
+OpenAI receives strict function definitions and must return exactly one action. Each request is a fresh action proposal containing server-rebuilt observations, with `store: false`; the app does not continue provider-side conversation state. The `answer` function is offered only after a successful query. The configured GPT-5/GPT-6 adapter uses `medium` reasoning effort by default and a 6,000-token maximum output budget per request. Traces expose application inputs, instructions, actions and observations, not private model reasoning.
 
-Choose **Step by step** to advance manually, or **Run all steps** to run the entire journey in order. The latter also resumes a paused journey. **Pause after this step** lets the current request finish before pausing; **Stop journey** cancels the active request and preserves completed cards. Automatic execution stops at a final answer, failed request or eight-action limit. Tool errors are returned as observations so GPT-5 can attempt a correction.
+Choose **Step by step** to advance manually, or **Run all steps** to run the entire journey in order. The latter also resumes a paused journey. **Pause after this step** lets the current request finish before pausing; **Stop journey** cancels the active request and preserves completed cards. Automatic execution stops at a final answer, failed request or eight-action limit. Tool errors are returned as observations so the generator can attempt a correction.
 
-Each expandable step card shows its responsible model or deterministic rule, action, result and processing time. AI cards expose the actual graph context and instructions sent to OpenAI, plus Jev's navigation input, candidates and scores when enabled. Query cards link to their own result table, including after later actions.
+Each expandable step card shows its responsible model or deterministic rule, action, result and processing time. AI cards expose the actual graph context and instructions sent to OpenAI, plus Jev's navigation input, candidates and scores when enabled. Query cards link to their own result table, including after later actions. The HTTP trace also preserves provider token usage in `generation.usage` when returned, including for incomplete responses. There is no built-in billing dashboard or persisted benchmark history.
 
 Two switches are remembered in the browser and locked until the journey finishes or is stopped:
 
-- **Use Jev** (on by default): disable it to run OpenAI without navigation requests. GPT-5 receives an unfiltered preview of up to 50 graph connections and chooses its own exploration. With Jev enabled, the preview comes from the selected subgraph with the same connection budget. Tools access the whole graph in both modes. A graph with fewer than two subgraphs uses a structural rule without calling Jev.
+- **Use Jev** (on by default): disable it to run OpenAI without navigation requests. The generator receives an unfiltered preview of up to 50 graph connections and chooses its own exploration. With Jev enabled, the preview comes from the selected subgraph with the same connection budget. Tools access the whole graph in both modes. A graph with fewer than two subgraphs uses a structural rule without calling Jev.
 - **Measure time** (on by default): shows live processing time and each step's duration, including failures. It sums active browser work and request intervals, including the network. Reading pauses and saving pending graph edits are excluded. The server separately reports navigation, generation, evidence replay and tools; these exclude browser-to-server network time and need not sum to the browser total. With timing off, journey timing is hidden and route/step timing metadata is omitted. The SPARQL console keeps its query duration.
 
 To compare, run the same question on an unchanged graph with the same OpenAI model, changing only **Use Jev** and keeping timing on. Traces are retained in the current page session, not as a benchmark history. Repeated runs and answer-evidence checks are needed before drawing conclusions about speed or quality.
@@ -115,6 +139,8 @@ In the lab, choose **Explore SQLite**, select a database file, and give it a nam
 To remove an upload, select its universe and click **Delete SQLite** below the graph. Confirming removes the universe and its saved subgraphs, closes the database connection, and deletes the app’s uploaded copy. Your original file is unchanged. If several universes share a copy, that file is kept until the last one is deleted. Cancelling leaves everything in place.
 
 For a database using WAL, create a consistent SQLite backup before uploading; copying only the main file may omit uncheckpointed changes. Uploads are limited to 16 MB. The independent gateway opens a local file directly and has no application upload limit.
+
+The JSON graph export contains the visual preview and a server-local source identifier, not the SQLite database bytes. To move it to another installation, import the SQLite file there; the identifier alone is not a portable backup.
 
 Mapped SQLite views permit layout and subgraph edits. The app prevents graph-content edits because an arbitrary RDF modification does not have an unambiguous translation back to relational tables. **SQLite schema** opens the discovered schema for these views.
 
@@ -212,7 +238,7 @@ flowchart TD
   Browser["HTML / CSS / vanilla JS / SVG\nEditor · English / Spanish · educational trace"]
   Lab["Go application\nGraph repository · navigation · tool execution"]
   Jev["Jev · TypeSafe API\nRank subgraphs at each step"]
-  OpenAI["OpenAI · GPT-5 · Responses API\nPropose actions and summarize evidence"]
+  OpenAI["OpenAI · configured model · Responses API\nPropose actions and summarize evidence"]
   Repo["Application SQLite\nGraph documents · layouts · subgraphs · revisions"]
   Gateway["Reusable SPARQLite Go module\nInspect → map → plan → execute"]
   Source["Existing SQLite\nRead-only relational source"]
@@ -265,9 +291,9 @@ CGO_ENABLED=0 go test ./lab/... ./sparqlite/...
 go test ./sparqlite -run '^$' -bench BenchmarkMapping -benchmem
 ```
 
-The browser timing arithmetic can also be checked with `node --test lab/tests/*.test.mjs` (optional Node.js test runner; Node is not required to run the app).
+The browser timing, journey controls, trace rendering and SQLite deletion workflow can also be checked with `node --test lab/tests/*.test.mjs` (optional Node.js test runner; Node is not required to run the app).
 
-Tests cover real query results, duplicate semantics, SQL/evaluator agreement, typed values, null handling, foreign-key joins, escaped SQL identifiers, cancellation, protocol responses, source read-only behavior, persistence, stale-revision rejection and Jev's per-step navigation contract, OpenAI's strict tool protocol, server-only credentials, startup environment configuration, rejected browser model overrides, unavailable web configuration writes and safe configuration loading.
+Tests cover real query results, duplicate semantics, SQL/evaluator agreement, typed values, null handling, foreign-key joins, escaped SQL identifiers, cancellation, protocol responses, source read-only behavior, persistence, stale-revision rejection and Jev's per-step navigation contract, OpenAI's strict tool protocol, server-only credentials, startup environment configuration, rejected browser model overrides, unavailable web configuration writes and safe configuration loading. SQLite removal tests cover cached connection closure, original-file preservation, shared sources, failed cleanup and retry, stale references, and cleanup after an unsuccessful import.
 
 On the development Apple M4, a single benchmark run measured approximately **0.52 ms** for a selective query over 10,003 customer rows and **0.108 ms** for the example join. That join has only three order rows; it is not a large-graph benchmark. These are warm local microbenchmarks, not a general throughput or production-latency promise. Re-run them on your data. See [the validation report](docs/VALIDATION.md) for provenance and the failed conformance cases.
 
@@ -295,6 +321,8 @@ sparqlite/
 docs/
   architecture.svg        Standalone architecture diagram
   VALIDATION.md           Reproducible evidence and known gaps
+  API.md                  Lab JSON API and standalone SPARQL endpoint
+  *validation-matrix.json Historical model runs; not live deployment status
 ```
 
 ## 9. Troubleshooting
@@ -306,8 +334,32 @@ docs/
 - **A query is slow:** inspect the generated SQL and plan; check source indexes and selectivity. The gateway does not modify the source to create indexes.
 - **A standard feature fails:** retain the query and a small reproducer, check the execution path, and consult the known gaps. Do not interpret failure or a preview limit as an empty successful answer.
 
-## 10. Attribution and documentation maintenance
+## 10. Build, operate and publish
+
+Build from the repository root; the frontend is embedded in the Go binary:
+
+```sh
+mkdir -p bin
+CGO_ENABLED=0 go build -o bin/spinach ./lab/cmd/spinach
+CGO_ENABLED=0 go build -o bin/sparqlite ./sparqlite/cmd/sparqlite
+./bin/spinach -addr 127.0.0.1:8090 -db ./lab/data/spinach.db -env .env
+```
+
+Lab flags are `-addr` (default `127.0.0.1:8090`), `-db` (default `data/spinach.db` relative to the working directory), and `-env` (default `.env`). The quick start explicitly uses `lab/data/spinach.db` to keep generated files together. Uploaded SQLite copies live in a `sources/` directory next to the chosen application database. The standalone gateway accepts `-addr`, `-db`, `-base`, `-rdf-store` and `-write`; use exactly one of `-db` or `-rdf-store`.
+
+Stop the lab cleanly before taking a filesystem backup, then copy the entire data directory, including its source uploads. Keep server secrets in a separate protected backup. Changing `-db` starts or opens a different collection. Missing built-in seed universes are recreated at startup; uploaded databases are not. Journey traces are browser-session data, not part of the SQLite backup.
+
+Both supplied binaries enforce loopback binding. To host the Go lab on a server such as a DigitalOcean Droplet, run it as a managed process behind an HTTPS reverse proxy with access control and persistent storage for the data directory. API credentials belong to that server's environment. This edition has no application accounts, per-user upload ownership or tenant isolation: everyone with access to the instance shares its graphs, uploaded copies and server-paid model calls. Treat import and deletion access accordingly.
+
+The [public demo](https://go-r2-spinach.vercel.app/) is a separate deployment. This checkout does not include a Vercel serverless adapter or deployment manifest, and publishing the HTML alone does not provide the Go `/api` routes or persistent SQLite storage. Local changes do not automatically update that deployment. Verify its backend, persistence and revision separately before sharing new features.
+
+For the implemented route and payload contracts, see [HTTP API reference](docs/API.md). Before presenting a deployment, verify graph loading, a real question journey with query evidence, an independent upload/query/delete cycle using disposable data, both interface languages and the provider badges. A reachable model catalog alone is not an end-to-end inference check.
+
+## 11. Attribution and documentation maintenance
 
 SPINACH's research and name belong to their original authors. This repository is an independent educational experiment. [Original paper](https://arxiv.org/abs/2407.11417) · [Original implementation](https://github.com/stanford-oval/spinach).
 
 The SPARQL parser/evaluator and native RDF endpoint come from [goRDFlib](https://github.com/tggo/goRDFlib), pinned to `v0.9.3`; the existing-SQLite mapping, SQL compiler, application and model orchestration are this project's integration work. SQLite access uses [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite). Dependencies retain their own licenses; see [third-party notices](docs/THIRD_PARTY.md). Project code is covered by the repository's [MIT license](LICENSE).
+
+
+Update this English source first, then apply the same changes to `README.es.md`. Keep both architecture diagrams, `.env.example` and the API reference aligned with code. Preserve historical JSON validation records; add a dated record for new experiments rather than rewriting previous outcomes. The runtime configuration, source defaults and historical test model are different facts and must be labelled separately.
