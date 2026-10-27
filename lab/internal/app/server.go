@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/tggo/goRDFlib/graph"
@@ -30,6 +32,7 @@ var web embed.FS
 type SourceRegistry interface {
 	Open(string) (*sparqlite.Source, error)
 	Register(context.Context, string, []byte) (sparqlite.Schema, error)
+	Delete(string) error
 }
 type Server struct {
 	Repo      domain.Repository
@@ -38,6 +41,7 @@ type Server struct {
 	Language  models.LanguageModel
 	Models    *models.Runtime
 	Mux       *http.ServeMux
+	graphMu   sync.Mutex // Serialize graph writes and last-reference source cleanup.
 }
 
 func New(repo domain.Repository, services *models.Runtime, sources SourceRegistry) *Server {
@@ -165,23 +169,65 @@ func (s *Server) save(w http.ResponseWriter, r *http.Request) {
 	}
 	s.store(w, r, &g, 200)
 }
-func (s *Server) store(w http.ResponseWriter, r *http.Request, g *domain.Graph, status int) {
+func (s *Server) store(w http.ResponseWriter, r *http.Request, g *domain.Graph, status int) bool {
+	s.graphMu.Lock()
+	defer s.graphMu.Unlock()
 	if err := g.Validate(); err != nil {
 		fail(w, 422, err)
-		return
+		return false
+	}
+	if g.SQLiteSource != "" {
+		if _, err := s.Sources.Open(g.SQLiteSource); err != nil {
+			fail(w, 422, errors.New("la base SQLite ya no está disponible; volvé a importarla"))
+			return false
+		}
 	}
 	if err := s.Repo.Save(r.Context(), g); err != nil {
 		repoError(w, err)
-		return
+		return false
 	}
 	reply(w, status, g)
+	return true
 }
 func (s *Server) remove(w http.ResponseWriter, r *http.Request) {
-	if err := s.Repo.Delete(r.Context(), r.PathValue("id")); err != nil {
+	s.graphMu.Lock()
+	defer s.graphMu.Unlock()
+	g, ok := s.graph(w, r)
+	if !ok {
+		return
+	}
+	removeSource := g.SQLiteSource != ""
+	if removeSource {
+		graphs, err := s.Repo.List(r.Context())
+		if err != nil {
+			repoError(w, err)
+			return
+		}
+		for _, other := range graphs {
+			if other.ID != g.ID && other.SQLiteSource == g.SQLiteSource {
+				removeSource = false
+				break
+			}
+		}
+	}
+	if err := s.Repo.Delete(r.Context(), g.ID); err != nil {
 		repoError(w, err)
 		return
 	}
-	reply(w, 200, map[string]bool{"deleted": true})
+	if removeSource {
+		if err := s.Sources.Delete(g.SQLiteSource); err != nil {
+			// Retain a visible, retryable graph if filesystem cleanup fails.
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 5*time.Second)
+			defer cancel()
+			g.Revision = 0
+			if restoreErr := s.Repo.Save(ctx, &g); restoreErr != nil {
+				log.Printf("restore graph after SQLite removal failure: %v", restoreErr)
+			}
+			fail(w, 500, errors.New("no se pudo eliminar la copia SQLite; recargá e intentá nuevamente"))
+			return
+		}
+	}
+	reply(w, 200, map[string]bool{"deleted": true, "sourceDeleted": removeSource})
 }
 func (s *Server) query(w http.ResponseWriter, r *http.Request) {
 	var b struct {
@@ -497,6 +543,14 @@ func (s *Server) importDatabase(w http.ResponseWriter, r *http.Request) {
 		fail(w, 422, e)
 		return
 	}
+	saved := false
+	defer func() {
+		if !saved {
+			if err := s.Sources.Delete(id); err != nil {
+				log.Printf("clean up failed SQLite import: %v", err)
+			}
+		}
+	}()
 	src, e := s.Sources.Open(id)
 	if e != nil {
 		fail(w, 422, e)
@@ -555,5 +609,5 @@ func (s *Server) importDatabase(w http.ResponseWriter, r *http.Request) {
 			g.Examples = append(g.Examples, domain.Example{Question: "Explorar " + t.Name, Query: "SELECT ?entidad ?valor WHERE {\n  ?entidad <" + t.Columns[0].Predicate + "> ?valor .\n} LIMIT 25"})
 		}
 	}
-	s.store(w, r, &g, 201)
+	saved = s.store(w, r, &g, 201)
 }

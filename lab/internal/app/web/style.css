@@ -57,3 +57,8 @@ dialog{width:min(680px,calc(100vw - 36px));padding:28px}.modal-actions .button{m
 .run-providers{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;color:#35552c;font-size:13px}.run-providers span{background:#eef4e7;border:1px solid #dce7d3;border-radius:6px;padding:6px 9px}
 
 .status-pill[role="status"]{cursor:default}
+
+.graph-footer-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px;flex-wrap:wrap}
+.text-button.delete-database{color:#94473d;font-size:14px;min-height:40px}
+.text-button.delete-database:hover{color:#73352e;text-decoration:underline}
+.graph-footer{flex-wrap:wrap;gap:12px}

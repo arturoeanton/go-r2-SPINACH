@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -71,7 +72,31 @@ func (s *Sources) Register(ctx context.Context, id string, data []byte) (sparqli
 		return sparqlite.Schema{}, e
 	}
 	schema, e := src.Inspect(ctx)
+	if e != nil {
+		_ = s.Delete(id)
+	}
 	return schema, e
+}
+
+// Delete removes only the uploaded copy owned by this registry. It is safe to
+// retry if the file is already absent, and evicts open handles before removal.
+func (s *Sources) Delete(id string) error {
+	if raw, e := hex.DecodeString(id); e != nil || len(raw) != 12 {
+		return fmt.Errorf("identificador de base inválido")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if src, ok := s.open[id]; ok {
+		delete(s.open, id)
+		if err := src.Close(); err != nil {
+			return err
+		}
+	}
+	err := os.Remove(filepath.Join(s.Dir, id+".sqlite"))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return err
 }
 func (s *Sources) Close() error {
 	s.mu.Lock()

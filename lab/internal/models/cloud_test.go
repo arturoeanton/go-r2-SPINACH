@@ -77,6 +77,35 @@ func TestJevUsesOfficialDecisionEndpoint(t *testing.T) {
 		t.Fatal(d, err)
 	}
 }
+
+func TestLunaReasoningAndUsage(t *testing.T) {
+	for _, status := range []string{"completed", "incomplete"} {
+		t.Run(status, func(t *testing.T) {
+			l := New()
+			l.OpenAIKey = "test-key"
+			l.ReasoningEffort = "medium"
+			l.Client = &http.Client{Transport: transport(func(r *http.Request) (*http.Response, error) {
+				var req map[string]any
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					t.Fatal(err)
+				}
+				if req["model"] != "gpt-6-luna" || req["reasoning"].(map[string]any)["effort"] != "medium" || req["tool_choice"] != "required" || req["temperature"] != nil {
+					t.Fatal("invalid Luna reasoning/tool contract")
+				}
+				body := `{"status":"` + status + `","model":"gpt-6-luna","usage":{"input_tokens":1000,"output_tokens":250,"total_tokens":1250,"input_tokens_details":{"cached_tokens":100},"output_tokens_details":{"reasoning_tokens":200}},"output":[{"type":"function_call","name":"query","arguments":"{\"objective\":\"Get evidence\",\"query\":\"SELECT * WHERE {?s ?p ?o} LIMIT 5\"}"}]}`
+				return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body))}, nil
+			})}
+			a, err := l.Next(context.Background(), domain.Seeds()[0], "Who?", "gpt-6-luna", "", "en", nil)
+			if (err != nil) != (status == "incomplete") {
+				t.Fatal("unexpected completion status", err)
+			}
+			trace := l.Trace("gpt-6-luna", a)
+			if trace.Model != "gpt-6-luna" || trace.Usage["total_tokens"] != float64(1250) || trace.Usage["output_tokens_details"].(map[string]any)["reasoning_tokens"] != float64(200) {
+				t.Fatal("provider usage lost from trace")
+			}
+		})
+	}
+}
 func TestCloudErrorsAndPublicConfigDoNotLeakKeys(t *testing.T) {
 	l := New()
 	l.OpenAIKey = "test-private-token"

@@ -87,6 +87,8 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=tu-token-jev
 ```
 
+Para un experimento local de menor costo, configurá `OPENAI_MODEL=gpt-6-luna` con `OPENAI_REASONING_EFFORT=medium` y reiniciá. GPT-6 recibe el nivel de razonamiento explícitamente mediante Responses. Consultá la [evaluación de Luna](docs/VALIDATION.md#gpt-6-luna-local-evaluation): fue más rápido en la ejecución registrada, pero las comprobaciones semánticas y de idioma detectaron fallas, por lo que no está establecida su equivalencia con GPT-5.
+
 En modo IA, la pregunta y el contexto relevante del grafo se envían a esas APIs. La interfaz lo informa antes del recorrido. Los proveedores pueden facturar el uso. La consola SPARQL manual ejecuta consultas sin inferencia de modelos. Si falta una clave necesaria, el modo IA informa que la conexión del servidor no está disponible; nunca sustituye automáticamente el servicio.
 
 Escribí una pregunta. El recorrido siempre usa OpenAI, con navegación de Jev activada por defecto. Cada clic en **Siguiente paso** solicita una acción: buscar, explorar, consultar o responder. Con **Usar Jev** activado, Jev prioriza las regiones antes de cada acción. El backend ejecuta las herramientas, reconstruye las observaciones anteriores con los datos actuales y exige una consulta exitosa antes de aceptar una respuesta. Esto establece que existe evidencia consultada; no prueba que cada oración generada se deduzca de ella.
@@ -110,9 +112,11 @@ Los tiempos de espera, modelos no disponibles, fallos de autenticación y respue
 
 En el laboratorio, elegí **Explorar SQLite**, seleccioná un archivo y asignale un nombre. La aplicación conserva una copia local en `lab/data/sources/`, la abre en modo de solo lectura, inspecciona su estructura y dibuja una vista de hasta 80 triples. Las consultas acceden a **toda la base cargada**, no solamente a esa vista. El archivo original no se modifica ni queda sincronizado en vivo.
 
+Para quitar una base importada, seleccioná su universo y hacé clic en **Eliminar SQLite** debajo del grafo. Al confirmar se eliminan el universo y sus subgrafos guardados, se cierra la conexión y se borra la copia cargada en la app. El archivo original no cambia. Si varios universos comparten la copia, el archivo se conserva hasta eliminar el último. Cancelar deja todo como estaba.
+
 Si la base usa WAL, generá una copia de respaldo consistente antes de cargarla: copiar solamente el archivo principal puede omitir cambios todavía no consolidados. El límite de carga es 16 MB. El gateway independiente abre un archivo local directamente y no tiene ese límite de carga de la aplicación.
 
-Las vistas SQLite permiten editar posiciones y subgrafos. La aplicación impide editar su contenido como grafo porque una modificación RDF arbitraria no tiene una traducción inequívoca a tablas relacionales. En estas vistas, **Editar universo** abre el esquema descubierto.
+Las vistas SQLite permiten editar posiciones y subgrafos. La aplicación impide editar su contenido como grafo porque una modificación RDF arbitraria no tiene una traducción inequívoca a tablas relacionales. En estas vistas, **Esquema SQLite** abre el esquema descubierto.
 
 ### Mapeo automático
 

@@ -1,0 +1,71 @@
+{
+  "fixtureChange": "Zoe Flores (a retracted-paper author) also leads Project 08",
+  "referenceRows": [
+    {
+      "project": {
+        "value": "https://spinach.local/project08",
+        "label": "Project 08",
+        "kind": "iri",
+        "nodeId": "https://spinach.local/project08"
+      },
+      "researcher": {
+        "value": "https://spinach.local/r08",
+        "label": "Hugo Valle",
+        "kind": "iri",
+        "nodeId": "https://spinach.local/r08"
+      }
+    }
+  ],
+  "results": [
+    {
+      "exclusionCorrect": true,
+      "query": "SELECT DISTINCT ?researcher WHERE {\n  ?researcher \u003chttps://spinach.local/leads\u003e ?project ; \u003chttps://spinach.local/worksAt\u003e ?institution .\n  ?institution \u003chttps://spinach.local/locatedIn\u003e ?city .\n  ?city \u003chttps://spinach.local/country\u003e \u003chttps://spinach.local/country1\u003e .\n  ?project \u003chttps://spinach.local/topic\u003e \u003chttps://spinach.local/topic3\u003e .\n  FILTER NOT EXISTS {\n    ?researcher \u003chttps://spinach.local/authored\u003e ?paper .\n    ?paper \u003chttps://spinach.local/status\u003e \u003chttps://spinach.local/retracted\u003e .\n  }\n}",
+      "rows": [
+        {
+          "researcher": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          }
+        }
+      ],
+      "useNavigation": false
+    },
+    {
+      "exclusionCorrect": false,
+      "query": "SELECT DISTINCT ?researcher ?project WHERE {\n  ?researcher \u003chttps://spinach.local/worksAt\u003e ?institution .\n  ?institution \u003chttps://spinach.local/locatedIn\u003e ?city .\n  ?city \u003chttps://spinach.local/country\u003e \u003chttps://spinach.local/country1\u003e .\n  ?researcher \u003chttps://spinach.local/leads\u003e ?project .\n  ?project \u003chttps://spinach.local/topic\u003e \u003chttps://spinach.local/topic3\u003e .\n  FILTER NOT EXISTS {\n    ?paper \u003chttps://spinach.local/authored\u003e ?researcher .\n    ?paper \u003chttps://spinach.local/status\u003e \u003chttps://spinach.local/retracted\u003e .\n  }\n} ORDER BY ?researcher ?project",
+      "rows": [
+        {
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r08",
+            "label": "Hugo Valle",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r08"
+          }
+        },
+        {
+          "project": {
+            "value": "https://spinach.local/project08",
+            "label": "Project 08",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/project08"
+          },
+          "researcher": {
+            "value": "https://spinach.local/r24",
+            "label": "Zoe Flores",
+            "kind": "iri",
+            "nodeId": "https://spinach.local/r24"
+          }
+        }
+      ],
+      "useNavigation": true
+    }
+  ]
+}

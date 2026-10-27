@@ -123,3 +123,23 @@ API keys, model IDs, API base URLs and reasoning effort are loaded once from pro
 The Jev comparison switch is retained. The no-AI journey remains removed. Startup without keys still permits editing and manual queries; inference reports a missing server connection rather than substituting a service.
 
 After the server-only configuration change, a fresh browser journey on Aurora completed with real Jev and GPT-5 calls: query → answer, returning Sofía Vega and Lina Costa with two matching evidence rows. The running HTTP server rejected both client model override fields with 400 and rejected configuration writes with 405. Browser inspection found no password inputs, configuration buttons or model selectors; the read-only connection indicator was verified in English and Spanish.
+
+## GPT-6 Luna local evaluation
+
+The [Luna matrix](luna-validation-matrix.json) repeats the same six questions with and without Jev using `gpt-6-luna` at explicit `medium` effort. The prompts, graph, eight-action limit and 6,000-token output budget are unchanged from the GPT-5 baseline. The local `.env` selects Luna; the source default remains GPT-5. The public Vercel demo was checked separately and reports `gpt-6.1-sol`.
+
+All 12 journeys finished and their final answers matched the original fixture. However, a semantic review passed only **11 of 12**: question 3 with Jev reversed `authored` inside `NOT EXISTS`, so its correct-looking answer was accidental. The [adversarial replay](luna-adversarial-check.json) adds Zoe Flores, an author with a retracted paper, as an otherwise eligible leader. The reference query and the Luna-without-Jev query exclude her; the Luna-with-Jev query incorrectly includes her. Two answers also ignored the requested English language and used Spanish. Overall, **9 of 12** passed both semantic and language checks.
+
+There were zero parser errors, but two journeys needed a second query after a semantic mistake returned no rows. Both citation queries returned a full descending ranking; the highest row and final answer are correctly Project 05 with 100 citations. Their initial automatic row-count comparison failed because the reference returns just one row; that raw result is preserved alongside the manual review.
+
+The observed median active journey time was **5.95 seconds**, versus **47.69 seconds** in the earlier GPT-5 matrix. These are separate functional runs with two concurrent journeys, not a controlled or repeated speed benchmark. They do not prove equivalent quality or a general speedup from Luna or Jev.
+
+The 26 OpenAI calls reported 262,135 input tokens (258,859 cache-write tokens; no cache hits) and 5,111 output tokens, including reasoning. At the [documented standard Luna rates](https://developers.openai.com/api/docs/models/gpt-6-luna), including 30-minute cache-write pricing, the estimate is **US$0.03524** for these 12 journeys. This excludes Jev and is an estimate rather than a billing statement. Generation traces now retain provider usage, including on incomplete responses.
+
+
+## SQLite upload removal — 2026-10-27
+
+- Storage tests use a temporary real SQLite database and verify deletion of the uploaded copy, closure of cached connections, preservation of the original, rejection of invalid IDs, repeat cleanup, and reimport.
+- HTTP tests cover import → query → delete, inaccessible schema after deletion, independent uploads and seed preservation, shared-source reference cleanup, retry after a simulated removal failure, rejection of stale references, and cleanup after a failed import.
+- Frontend tests cover no deletion before confirmation, stopping an active journey before deletion, retaining the dialog's target, and keeping unsaved changes after a failure.
+- Browser inspection verified the English and Spanish confirmations and cancellation on the local app. A query after cancellation returned the expected three rows. The existing user-uploaded database was preserved.

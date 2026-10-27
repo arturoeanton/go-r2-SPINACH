@@ -87,6 +87,8 @@ JEV_MODEL=jev-latest
 JEV_TOKEN=your-jev-token
 ```
 
+For a lower-cost local experiment, set `OPENAI_MODEL=gpt-6-luna` with `OPENAI_REASONING_EFFORT=medium` and restart. GPT-6 receives explicit reasoning settings through Responses. See the [Luna evaluation](docs/VALIDATION.md#gpt-6-luna-local-evaluation): it was faster in the recorded run, but semantic and language checks exposed failures, so it is not established as equivalent to GPT-5.
+
 The question and relevant graph context are sent to these APIs in AI mode. The interface shows this before a journey. API usage may be billed by the providers. The manual SPARQL console executes database queries without model inference. If a required key is missing, AI mode reports that the server connection is unavailable; it never falls back to another service.
 
 Enter a question. The journey always uses OpenAI, with Jev navigation enabled by default. Every click on **Next step** requests one action: search, explore, query or answer. With **Use Jev** enabled, Jev ranks navigation regions before each action. The backend executes tools, rebuilds earlier observations from current graph data, and requires a successful query before accepting an answer. This establishes that query evidence exists; it does not prove every sentence in a generated answer is entailed by it.
@@ -110,9 +112,11 @@ Timeouts, unavailable models, authentication failures and malformed responses pr
 
 In the lab, choose **Explore SQLite**, select a database file, and give it a name. The app saves a local copy in `lab/data/sources/`, opens it read-only, inspects its structure and draws a preview of up to 80 triples. Queries access the **entire uploaded database**, not just the preview. The original file is not changed or kept in live synchronization.
 
+To remove an upload, select its universe and click **Delete SQLite** below the graph. Confirming removes the universe and its saved subgraphs, closes the database connection, and deletes the app’s uploaded copy. Your original file is unchanged. If several universes share a copy, that file is kept until the last one is deleted. Cancelling leaves everything in place.
+
 For a database using WAL, create a consistent SQLite backup before uploading; copying only the main file may omit uncheckpointed changes. Uploads are limited to 16 MB. The independent gateway opens a local file directly and has no application upload limit.
 
-Mapped SQLite views permit layout and subgraph edits. The app prevents graph-content edits because an arbitrary RDF modification does not have an unambiguous translation back to relational tables. **Edit universe** opens the discovered schema for these views.
+Mapped SQLite views permit layout and subgraph edits. The app prevents graph-content edits because an arbitrary RDF modification does not have an unambiguous translation back to relational tables. **SQLite schema** opens the discovered schema for these views.
 
 ### Automatic mapping
 

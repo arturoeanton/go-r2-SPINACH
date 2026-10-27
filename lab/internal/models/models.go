@@ -48,12 +48,14 @@ type Action struct {
 	Input        map[string]any `json:"-"`
 	Instructions string         `json:"-"`
 	ActualModel  string         `json:"-"`
+	Usage        map[string]any `json:"-"`
 }
 type GenerationTrace struct {
 	Model        string         `json:"model"`
 	Provider     string         `json:"provider"`
 	Input        map[string]any `json:"input,omitempty"`
 	Instructions string         `json:"instructions,omitempty"`
+	Usage        map[string]any `json:"usage,omitempty"`
 }
 type Event struct {
 	Action      Action           `json:"action"`

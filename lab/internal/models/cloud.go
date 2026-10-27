@@ -34,6 +34,9 @@ func FromEnvironment() (*Runtime, error) {
 	default:
 		return nil, errors.New("OPENAI_REASONING_EFFORT must be minimal, low, medium or high")
 	}
+	if strings.HasPrefix(l.DefaultModel, "gpt-6") && l.ReasoningEffort == "minimal" {
+		return nil, errors.New("GPT-6 does not support minimal reasoning effort; use low, medium or high")
+	}
 	for _, base := range []string{l.OpenAIURL, l.JevURL} {
 		u, err := url.Parse(base)
 		if err != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
@@ -124,12 +127,13 @@ func (l *Runtime) openAIAction(ctx context.Context, model, system string, state 
 	}
 	raw, _ := json.Marshal(state)
 	body := map[string]any{"model": model, "instructions": system, "input": string(raw), "tools": tools, "tool_choice": "required", "parallel_tool_calls": false, "max_output_tokens": 6000, "store": false}
-	if strings.HasPrefix(model, "gpt-5") {
+	if strings.HasPrefix(model, "gpt-5") || strings.HasPrefix(model, "gpt-6") {
 		body["reasoning"] = map[string]string{"effort": l.ReasoningEffort}
 	}
 	var response struct {
-		Model  string `json:"model"`
-		Status string `json:"status"`
+		Model  string         `json:"model"`
+		Status string         `json:"status"`
+		Usage  map[string]any `json:"usage"`
 		Output []struct {
 			Type      string `json:"type"`
 			Name      string `json:"name"`
@@ -139,6 +143,8 @@ func (l *Runtime) openAIAction(ctx context.Context, model, system string, state 
 	if err := l.call(ctx, l.OpenAIURL, "/responses", body, &response, l.OpenAIKey); err != nil {
 		return a, err
 	}
+	// Retain provider accounting even when the response is incomplete or invalid.
+	a.ActualModel, a.Usage = response.Model, response.Usage
 	if response.Status != "completed" {
 		return a, fmt.Errorf("OpenAI response was %s; no action was executed", response.Status)
 	}
@@ -156,7 +162,6 @@ func (l *Runtime) openAIAction(ctx context.Context, model, system string, state 
 	if calls != 1 {
 		return a, errors.New("OpenAI must return exactly one action")
 	}
-	a.ActualModel = response.Model
 	return validateAction(a)
 }
 
@@ -164,5 +169,5 @@ func (l *Runtime) Trace(model string, a Action) *GenerationTrace {
 	if a.ActualModel != "" {
 		model = a.ActualModel
 	}
-	return &GenerationTrace{Model: model, Provider: "openai", Input: a.Input, Instructions: a.Instructions}
+	return &GenerationTrace{Model: model, Provider: "openai", Input: a.Input, Instructions: a.Instructions, Usage: a.Usage}
 }
